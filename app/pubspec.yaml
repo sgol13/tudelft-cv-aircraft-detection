@@ -32,13 +32,12 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.8
-  build_runner: ^2.4.15
   flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
   camera: ^0.11.1
   sensors_plus: ^6.1.1
   rxdart: ^0.28.0
   geolocator: ^13.0.2
-  riverpod_annotation: ^2.6.1
   freezed: ^2.5.8
   freezed_annotation: ^2.4.4
 
@@ -53,9 +52,12 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
-  riverpod_generator: ^2.6.4
   custom_lint: ^0.7.3
   riverpod_lint: ^2.6.4
+  riverpod_generator: ^2.6.4
+  mockito: ^5.4.5
+  build_runner: ^2.4.15
+  test: ^1.25.15
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

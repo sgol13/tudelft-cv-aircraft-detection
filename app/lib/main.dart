@@ -1,61 +1,118 @@
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'adapter/camera_provider.dart';
-import 'adapter/sensors_provider.dart';
+import 'package:camera/camera.dart';
+import 'package:app/port/out/sensors_port.dart';
+import 'package:app/domain/model/sensor_data.dart';
+import 'package:app/adapter/camera_provider.dart';
 
-class CameraView extends ConsumerWidget {
-  const CameraView({Key? key}) : super(key: key);
+void main() {
+  runApp(ProviderScope(child: MyApp()));
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(home: SensorCameraView());
+  }
+}
+
+class SensorDataStreamWidget extends StatefulWidget {
+  final Stream<SensorData> stream;
+  final String sensorType;
+
+  const SensorDataStreamWidget({
+    Key? key,
+    required this.stream,
+    required this.sensorType,
+  }) : super(key: key);
 
   @override
+  _SensorDataStreamWidgetState createState() => _SensorDataStreamWidgetState();
+}
+
+class _SensorDataStreamWidgetState extends State<SensorDataStreamWidget> {
+  DateTime? _lastEventTime;
+  int? _frequencyMs;
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<SensorData>(
+      stream: widget.stream,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Text('Loading ${widget.sensorType} data...');
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else if (!snapshot.hasData) {
+          return Text('No ${widget.sensorType} data available');
+        } else {
+          final data = snapshot.data!;
+          final currentTime = DateTime.now();
+
+          if (_lastEventTime != null) {
+            _frequencyMs =
+                currentTime.difference(_lastEventTime!).inMilliseconds;
+          }
+          _lastEventTime = currentTime;
+
+          String x = data.x.toStringAsFixed(3).padLeft(7);
+          String y = data.y.toStringAsFixed(3).padLeft(7);
+          String z = data.z.toStringAsFixed(3).padLeft(7);
+
+          return Text(
+            '${widget.sensorType.padLeft(14)} [$x, $y, $z] $_frequencyMs ms',
+            textAlign: TextAlign.left,
+            style: TextStyle(
+              color: Colors.white,
+              fontFamily: 'Monaco',
+              fontSize: 10,
+            ),
+          );
+        }
+      },
+    );
+  }
+}
+
+class SensorCameraView extends ConsumerWidget {
+  @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final sensorsDataStreams = ref.watch(sensorsStreamsPortProvider);
     final cameraController = ref.watch(cameraProvider);
-    final sensorData = ref.watch(sensorsProvider);
 
     return Scaffold(
       body: Stack(
         children: [
-          cameraController == null
-              ? const Center(child: CircularProgressIndicator())
-              : CameraPreview(cameraController),
+          if (cameraController != null && cameraController.value.isInitialized)
+            CameraPreview(cameraController),
           Positioned(
-            top: 0,
+            top: 40,
             left: 0,
             right: 0,
             child: Container(
               color: Colors.black.withOpacity(0.5),
-              padding: const EdgeInsets.all(8.0),
-              child: sensorData.when(
-                data: (data) => Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Accelerometer: x=${data.accelerometerX?.toStringAsFixed(2)}, y=${data.accelerometerY?.toStringAsFixed(2)}, z=${data.accelerometerZ?.toStringAsFixed(2)}', style: TextStyle(color: Colors.white)),
-                    Text('Gyroscope: x=${data.gyroscopeX?.toStringAsFixed(2)}, y=${data.gyroscopeY?.toStringAsFixed(2)}, z=${data.gyroscopeZ?.toStringAsFixed(2)}', style: TextStyle(color: Colors.white)),
-                    Text('Magnetometer: x=${data.magnetometerX?.toStringAsFixed(2)}, y=${data.magnetometerY?.toStringAsFixed(2)}, z=${data.magnetometerZ?.toStringAsFixed(2)}', style: TextStyle(color: Colors.white)),
-                  ],
-                ),
-                loading: () => const CircularProgressIndicator(),
-                error: (err, stack) => Text('Error: $err', style: TextStyle(color: Colors.red)),
+              padding: EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SensorDataStreamWidget(
+                    stream: sensorsDataStreams.accelerometerStream,
+                    sensorType: 'Accelerometer',
+                  ),
+                  SensorDataStreamWidget(
+                    stream: sensorsDataStreams.gyroscopeStream,
+                    sensorType: 'Gyroscope',
+                  ),
+                  SensorDataStreamWidget(
+                    stream: sensorsDataStreams.magnetometerStream,
+                    sensorType: 'Magnetometer',
+                  ),
+                ],
               ),
             ),
           ),
         ],
       ),
-    );
-  }
-}
-
-void main() {
-  runApp(const ProviderScope(child: MyApp()));
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: const CameraView(),
     );
   }
 }
