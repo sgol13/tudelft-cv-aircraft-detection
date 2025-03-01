@@ -11,7 +11,9 @@ typedef SensorsDataStreams = ({
   Stream<SensorData> magnetometerStream,
 });
 
-@riverpod
-SensorsDataStreams sensorsStreamsPort(Ref ref) {
-  return PhoneSensorsAdapter().sensorsStreams;
+abstract class SensorsPort {
+  SensorsDataStreams get sensorsStreams;
 }
+
+@riverpod
+SensorsPort sensorsPort(Ref ref) => PhoneSensorsAdapter();

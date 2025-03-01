@@ -19,8 +19,8 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$UserLocation {
   double get latitude => throw _privateConstructorUsedError; // [-90, 90]
   double get longitude => throw _privateConstructorUsedError; // (-180, 180]
+  double get altitude => throw _privateConstructorUsedError; // metres
   DateTime get timestamp => throw _privateConstructorUsedError;
-  double get altitude => throw _privateConstructorUsedError;
 
   /// Create a copy of UserLocation
   /// with the given fields replaced by the non-null parameter values.
@@ -39,8 +39,8 @@ abstract class $UserLocationCopyWith<$Res> {
   $Res call({
     double latitude,
     double longitude,
-    DateTime timestamp,
     double altitude,
+    DateTime timestamp,
   });
 }
 
@@ -61,8 +61,8 @@ class _$UserLocationCopyWithImpl<$Res, $Val extends UserLocation>
   $Res call({
     Object? latitude = null,
     Object? longitude = null,
-    Object? timestamp = null,
     Object? altitude = null,
+    Object? timestamp = null,
   }) {
     return _then(
       _value.copyWith(
@@ -76,16 +76,16 @@ class _$UserLocationCopyWithImpl<$Res, $Val extends UserLocation>
                     ? _value.longitude
                     : longitude // ignore: cast_nullable_to_non_nullable
                         as double,
-            timestamp:
-                null == timestamp
-                    ? _value.timestamp
-                    : timestamp // ignore: cast_nullable_to_non_nullable
-                        as DateTime,
             altitude:
                 null == altitude
                     ? _value.altitude
                     : altitude // ignore: cast_nullable_to_non_nullable
                         as double,
+            timestamp:
+                null == timestamp
+                    ? _value.timestamp
+                    : timestamp // ignore: cast_nullable_to_non_nullable
+                        as DateTime,
           )
           as $Val,
     );
@@ -104,8 +104,8 @@ abstract class _$$UserLocationImplCopyWith<$Res>
   $Res call({
     double latitude,
     double longitude,
-    DateTime timestamp,
     double altitude,
+    DateTime timestamp,
   });
 }
 
@@ -125,8 +125,8 @@ class __$$UserLocationImplCopyWithImpl<$Res>
   $Res call({
     Object? latitude = null,
     Object? longitude = null,
-    Object? timestamp = null,
     Object? altitude = null,
+    Object? timestamp = null,
   }) {
     return _then(
       _$UserLocationImpl(
@@ -140,16 +140,16 @@ class __$$UserLocationImplCopyWithImpl<$Res>
                 ? _value.longitude
                 : longitude // ignore: cast_nullable_to_non_nullable
                     as double,
-        timestamp:
-            null == timestamp
-                ? _value.timestamp
-                : timestamp // ignore: cast_nullable_to_non_nullable
-                    as DateTime,
         altitude:
             null == altitude
                 ? _value.altitude
                 : altitude // ignore: cast_nullable_to_non_nullable
                     as double,
+        timestamp:
+            null == timestamp
+                ? _value.timestamp
+                : timestamp // ignore: cast_nullable_to_non_nullable
+                    as DateTime,
       ),
     );
   }
@@ -157,13 +157,13 @@ class __$$UserLocationImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$UserLocationImpl implements _UserLocation {
+class _$UserLocationImpl extends _UserLocation {
   const _$UserLocationImpl({
     required this.latitude,
     required this.longitude,
-    required this.timestamp,
     required this.altitude,
-  });
+    required this.timestamp,
+  }) : super._();
 
   @override
   final double latitude;
@@ -172,13 +172,14 @@ class _$UserLocationImpl implements _UserLocation {
   final double longitude;
   // (-180, 180]
   @override
-  final DateTime timestamp;
-  @override
   final double altitude;
+  // metres
+  @override
+  final DateTime timestamp;
 
   @override
   String toString() {
-    return 'UserLocation(latitude: $latitude, longitude: $longitude, timestamp: $timestamp, altitude: $altitude)';
+    return 'UserLocation(latitude: $latitude, longitude: $longitude, altitude: $altitude, timestamp: $timestamp)';
   }
 
   @override
@@ -190,15 +191,15 @@ class _$UserLocationImpl implements _UserLocation {
                 other.latitude == latitude) &&
             (identical(other.longitude, longitude) ||
                 other.longitude == longitude) &&
-            (identical(other.timestamp, timestamp) ||
-                other.timestamp == timestamp) &&
             (identical(other.altitude, altitude) ||
-                other.altitude == altitude));
+                other.altitude == altitude) &&
+            (identical(other.timestamp, timestamp) ||
+                other.timestamp == timestamp));
   }
 
   @override
   int get hashCode =>
-      Object.hash(runtimeType, latitude, longitude, timestamp, altitude);
+      Object.hash(runtimeType, latitude, longitude, altitude, timestamp);
 
   /// Create a copy of UserLocation
   /// with the given fields replaced by the non-null parameter values.
@@ -209,22 +210,23 @@ class _$UserLocationImpl implements _UserLocation {
       __$$UserLocationImplCopyWithImpl<_$UserLocationImpl>(this, _$identity);
 }
 
-abstract class _UserLocation implements UserLocation {
+abstract class _UserLocation extends UserLocation {
   const factory _UserLocation({
     required final double latitude,
     required final double longitude,
-    required final DateTime timestamp,
     required final double altitude,
+    required final DateTime timestamp,
   }) = _$UserLocationImpl;
+  const _UserLocation._() : super._();
 
   @override
   double get latitude; // [-90, 90]
   @override
   double get longitude; // (-180, 180]
   @override
-  DateTime get timestamp;
+  double get altitude; // metres
   @override
-  double get altitude;
+  DateTime get timestamp;
 
   /// Create a copy of UserLocation
   /// with the given fields replaced by the non-null parameter values.

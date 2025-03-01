@@ -1,9 +1,13 @@
+import 'package:app/port/out/localization_port.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:camera/camera.dart';
 import 'package:app/port/out/sensors_port.dart';
 import 'package:app/domain/model/sensor_data.dart';
 import 'package:app/adapter/camera_provider.dart';
+
+import 'domain/get_real_data_streams.dart';
+import 'domain/model/user_location.dart';
 
 void main() {
   runApp(ProviderScope(child: MyApp()));
@@ -17,7 +21,7 @@ class MyApp extends StatelessWidget {
 }
 
 class SensorDataStreamWidget extends StatefulWidget {
-  final Stream<SensorData> stream;
+  final Stream<dynamic> stream;
   final String sensorType;
 
   const SensorDataStreamWidget({
@@ -36,37 +40,36 @@ class _SensorDataStreamWidgetState extends State<SensorDataStreamWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<SensorData>(
+    return StreamBuilder<dynamic>(
       stream: widget.stream,
       builder: (context, snapshot) {
+
+        final textStyle = TextStyle(
+          color: Colors.white,
+          fontFamily: 'Monaco',
+          fontSize: 9,
+        );
+
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Text('Loading ${widget.sensorType} data...');
+          return Text('Loading ${widget.sensorType} data...', style: textStyle);
         } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
+          return Text('Error: ${snapshot.error}', style: textStyle);
         } else if (!snapshot.hasData) {
-          return Text('No ${widget.sensorType} data available');
+          return Text('No ${widget.sensorType} data available', style: textStyle);
         } else {
           final data = snapshot.data!;
-          final currentTime = DateTime.now();
 
           if (_lastEventTime != null) {
             _frequencyMs =
-                currentTime.difference(_lastEventTime!).inMilliseconds;
+                data.timestamp.difference(_lastEventTime!).inMilliseconds;
           }
-          _lastEventTime = currentTime;
+          _lastEventTime = data.timestamp;
 
-          String x = data.x.toStringAsFixed(3).padLeft(7);
-          String y = data.y.toStringAsFixed(3).padLeft(7);
-          String z = data.z.toStringAsFixed(3).padLeft(7);
-
+          String frequency = _frequencyMs == null ? '' : '${_frequencyMs.toString().padLeft(4)} ms';
           return Text(
-            '${widget.sensorType.padLeft(14)} [$x, $y, $z] $_frequencyMs ms',
+            '${widget.sensorType.padLeft(14)} ${data.preview} $frequency',
             textAlign: TextAlign.left,
-            style: TextStyle(
-              color: Colors.white,
-              fontFamily: 'Monaco',
-              fontSize: 10,
-            ),
+            style: textStyle,
           );
         }
       },
@@ -77,7 +80,7 @@ class _SensorDataStreamWidgetState extends State<SensorDataStreamWidget> {
 class SensorCameraView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final sensorsDataStreams = ref.watch(sensorsStreamsPortProvider);
+    final dataStreams = ref.watch(getRealDataStreamsProvider);
     final cameraController = ref.watch(cameraProvider);
 
     return Scaffold(
@@ -96,16 +99,34 @@ class SensorCameraView extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SensorDataStreamWidget(
-                    stream: sensorsDataStreams.accelerometerStream,
+                    stream: dataStreams.streams.accelerometerStream,
                     sensorType: 'Accelerometer',
                   ),
                   SensorDataStreamWidget(
-                    stream: sensorsDataStreams.gyroscopeStream,
+                    stream: dataStreams.streams.gyroscopeStream,
                     sensorType: 'Gyroscope',
                   ),
                   SensorDataStreamWidget(
-                    stream: sensorsDataStreams.magnetometerStream,
+                    stream: dataStreams.streams.magnetometerStream,
                     sensorType: 'Magnetometer',
+                  ),
+                  StreamBuilder<UserLocation>(
+                    stream: dataStreams.streams.localizationStream,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Text('Loading Location data...');
+                      } else if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      } else if (!snapshot.hasData) {
+                        return Text('No Location data available');
+                      } else {
+                        final location = snapshot.data!;
+                        return SensorDataStreamWidget(
+                          stream: Stream.value(location),
+                          sensorType: 'Location',
+                        );
+                      }
+                    },
                   ),
                 ],
               ),

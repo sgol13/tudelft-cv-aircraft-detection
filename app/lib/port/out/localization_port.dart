@@ -6,7 +6,9 @@ import '../../adapter/gps_localization_adapter.dart';
 
 part 'localization_port.g.dart';
 
-@riverpod
-Stream<UserLocation> locationStreamPort(Ref ref) {
-  return GpsLocalizationAdapter().locationStream;
+abstract class LocalizationPort {
+  Stream<UserLocation> get locationStream;
 }
+
+@riverpod
+LocalizationPort localizationPort(Ref ref) => GpsLocalizationAdapter();

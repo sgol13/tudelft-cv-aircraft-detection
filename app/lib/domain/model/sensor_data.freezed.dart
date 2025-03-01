@@ -147,13 +147,13 @@ class __$$SensorDataImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$SensorDataImpl implements _SensorData {
+class _$SensorDataImpl extends _SensorData {
   const _$SensorDataImpl({
     required this.x,
     required this.y,
     required this.z,
     required this.timestamp,
-  });
+  }) : super._();
 
   @override
   final double x;
@@ -193,13 +193,14 @@ class _$SensorDataImpl implements _SensorData {
       __$$SensorDataImplCopyWithImpl<_$SensorDataImpl>(this, _$identity);
 }
 
-abstract class _SensorData implements SensorData {
+abstract class _SensorData extends SensorData {
   const factory _SensorData({
     required final double x,
     required final double y,
     required final double z,
     required final DateTime timestamp,
   }) = _$SensorDataImpl;
+  const _SensorData._() : super._();
 
   @override
   double get x;
