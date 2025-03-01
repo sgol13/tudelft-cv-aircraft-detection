@@ -14,7 +14,7 @@ class UserLocation with _$UserLocation {
   const UserLocation._();
 
   String get preview =>
-      '[${formatValue(longitude)}, ${formatValue(latitude)}, ${altitude.toStringAsFixed(0).padLeft(6)} m]';
+      '[${formatValue(latitude)}, ${formatValue(longitude)}, ${altitude.toStringAsFixed(0).padLeft(6)} m]';
 
   static String formatValue(double value) =>
       value.toStringAsFixed(4).padLeft(8);

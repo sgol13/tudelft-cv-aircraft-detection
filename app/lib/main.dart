@@ -1,12 +1,11 @@
-import 'package:app/port/out/localization_port.dart';
+import 'package:app/port/out/adsb_api_port.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:camera/camera.dart';
-import 'package:app/port/out/sensors_port.dart';
-import 'package:app/domain/model/sensor_data.dart';
 import 'package:app/adapter/camera_provider.dart';
 
 import 'domain/get_real_data_streams.dart';
+import 'domain/model/adsb_data.dart';
 import 'domain/model/user_location.dart';
 
 void main() {
@@ -128,11 +127,78 @@ class SensorCameraView extends ConsumerWidget {
                       }
                     },
                   ),
+                  StreamBuilder<AdsbData>(
+                    stream: dataStreams.streams.adsbStream,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Text('Loading Aircraft data...');
+                      } else if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      } else if (!snapshot.hasData || snapshot.data!.aircrafts.isEmpty) {
+                        return Text('No Aircraft data available');
+                      } else {
+                        final aircrafts = snapshot.data!.aircrafts;
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: aircrafts.map((aircraft) {
+                            return Text(
+                              'Flight: ${aircraft.flight}, Lat: ${aircraft.latitude}, Lon: ${aircraft.longitude}',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontFamily: 'Monaco',
+                                fontSize: 9,
+                              ),
+                            );
+                          }).toList(),
+                        );
+                      }
+                    },
+                  ),
                 ],
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+
+class AircraftListScreen extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final adsbStream = ref.watch(adsbApiPortProvider).adsbStream;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Aircraft List'),
+      ),
+      body: StreamBuilder<AdsbData>(
+        stream: adsbStream,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.aircrafts.isEmpty) {
+            return Center(child: Text('No aircrafts available'));
+          }
+
+          final aircrafts = snapshot.data!.aircrafts;
+
+          return ListView.builder(
+            itemCount: aircrafts.length,
+            itemBuilder: (context, index) {
+              final aircraft = aircrafts[index];
+              return ListTile(
+                title: Text(aircraft.flight ?? 'Unknown'),
+                subtitle: Text(
+                    'Lat: ${aircraft.latitude}, Lon: ${aircraft.longitude}'),
+              );
+            },
+          );
+        },
       ),
     );
   }
