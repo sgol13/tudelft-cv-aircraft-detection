@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:camera/camera.dart';
 import 'package:app/adapter/camera_provider.dart';
+import 'package:sensors_plus/sensors_plus.dart';
 
 import 'domain/get_real_data_streams.dart';
 import 'domain/model/adsb_data.dart';
 import 'domain/model/user_location.dart';
+import 'domain/model/position.dart';
 
 void main() {
   runApp(ProviderScope(child: MyApp()));
@@ -42,7 +44,6 @@ class _SensorDataStreamWidgetState extends State<SensorDataStreamWidget> {
     return StreamBuilder<dynamic>(
       stream: widget.stream,
       builder: (context, snapshot) {
-
         final textStyle = TextStyle(
           color: Colors.white,
           fontFamily: 'Monaco',
@@ -85,8 +86,10 @@ class SensorCameraView extends ConsumerWidget {
     return Scaffold(
       body: Stack(
         children: [
-          if (cameraController != null && cameraController.value.isInitialized)
-            CameraPreview(cameraController),
+          CustomPaint(
+            size: Size.infinite,
+            painter: GridPainter(),
+          ),
           Positioned(
             top: 40,
             left: 0,
@@ -102,61 +105,43 @@ class SensorCameraView extends ConsumerWidget {
                     sensorType: 'Accelerometer',
                   ),
                   SensorDataStreamWidget(
-                    stream: dataStreams.streams.gyroscopeStream,
-                    sensorType: 'Gyroscope',
-                  ),
-                  SensorDataStreamWidget(
-                    stream: dataStreams.streams.magnetometerStream,
-                    sensorType: 'Magnetometer',
-                  ),
-                  StreamBuilder<UserLocation>(
-                    stream: dataStreams.streams.localizationStream,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Text('Loading Location data...');
-                      } else if (snapshot.hasError) {
-                        return Text('Error: ${snapshot.error}');
-                      } else if (!snapshot.hasData) {
-                        return Text('No Location data available');
-                      } else {
-                        final location = snapshot.data!;
-                        return SensorDataStreamWidget(
-                          stream: Stream.value(location),
-                          sensorType: 'Location',
-                        );
-                      }
-                    },
-                  ),
-                  StreamBuilder<AdsbData>(
-                    stream: dataStreams.streams.adsbStream,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Text('Loading Aircraft data...');
-                      } else if (snapshot.hasError) {
-                        return Text('Error: ${snapshot.error}');
-                      } else if (!snapshot.hasData || snapshot.data!.aircrafts.isEmpty) {
-                        return Text('No Aircraft data available');
-                      } else {
-                        final aircrafts = snapshot.data!.aircrafts;
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: aircrafts.map((aircraft) {
-                            return Text(
-                              'Flight: ${aircraft.flight}, Lat: ${aircraft.latitude}, Lon: ${aircraft.longitude}',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontFamily: 'Monaco',
-                                fontSize: 9,
-                              ),
-                            );
-                          }).toList(),
-                        );
-                      }
-                    },
+                    stream: dataStreams.streams.position,
+                    sensorType: 'Position',
                   ),
                 ],
               ),
             ),
+          ),
+          StreamBuilder<Position>(
+            stream: dataStreams.streams.position,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                final position = snapshot.data!;
+                final screenWidth = MediaQuery.of(context).size.width;
+                final screenHeight = MediaQuery.of(context).size.height;
+
+                final centerX = screenWidth / 2;
+                final centerY = screenHeight / 2;
+
+                final circleX = centerX + position.x;
+                final circleY = centerY + position.y;
+
+                return Positioned(
+                  left: circleX - 10,
+                  top: circleY - 10,
+                  child: Container(
+                    width: 20,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                );
+              } else {
+                return Container();
+              }
+            },
           ),
         ],
       ),
@@ -164,6 +149,29 @@ class SensorCameraView extends ConsumerWidget {
   }
 }
 
+class GridPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.grey
+      ..strokeWidth = 1.0;
+
+    final double step = 40.0;
+
+    for (double x = 0; x <= size.width; x += step) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+    }
+
+    for (double y = 0; y <= size.height; y += step) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return false;
+  }
+}
 
 class AircraftListScreen extends ConsumerWidget {
   @override

@@ -4,7 +4,7 @@ import '../port/out/sensors_port.dart';
 
 class PhoneSensorsAdapter implements SensorsPort {
   // The sampling period is set not guaranteed on Android
-  static const samplingPeriod = Duration(milliseconds: 100);
+  static const samplingPeriod = Duration(milliseconds: 30);
 
   @override
   SensorsDataStreams get sensorsStreams => (
