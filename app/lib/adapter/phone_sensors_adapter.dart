@@ -1,3 +1,4 @@
+import 'package:rxdart/rxdart.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import '../domain/model/sensor_data.dart';
 import '../port/out/sensors_port.dart';
@@ -8,17 +9,19 @@ class PhoneSensorsAdapter implements SensorsPort {
 
   @override
   SensorsDataStreams get sensorsStreams => (
-  accelerometerStream: userAccelerometerEventStream(
-    samplingPeriod: samplingPeriod,
-  ).map(_toSensorData<UserAccelerometerEvent>),
+    accelerometerStream: userAccelerometerEventStream(
+          samplingPeriod: samplingPeriod,
+        )
+        .map(_toSensorData<UserAccelerometerEvent>),
+        // .throttle((_) => Stream.periodic(Duration(seconds: 1))),
 
-  gyroscopeStream: gyroscopeEventStream(
-    samplingPeriod: samplingPeriod,
-  ).map(_toSensorData<GyroscopeEvent>),
+    gyroscopeStream: gyroscopeEventStream(
+      samplingPeriod: samplingPeriod,
+    ).map(_toSensorData<GyroscopeEvent>),
 
-  magnetometerStream: magnetometerEventStream(
-    samplingPeriod: samplingPeriod,
-  ).map(_toSensorData<MagnetometerEvent>),
+    magnetometerStream: magnetometerEventStream(
+      samplingPeriod: samplingPeriod,
+    ).map(_toSensorData<MagnetometerEvent>),
   );
 
   SensorData _toSensorData<T extends dynamic>(T event) => SensorData(
