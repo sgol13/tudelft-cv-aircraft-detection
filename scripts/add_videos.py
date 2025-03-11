@@ -90,9 +90,10 @@ def read_video(video_path: str) -> Video:
 
     metadata = extract_video_metadata(video_path)
     hash_value = hash_mp4(video_path)
+    hash_prefix = hash_value[:8],  # 8 digits, ~0.2% collision probability on 10k videos
 
     return metadata | {
-        'hash': hash_value[:8],  # 8 digits, ~0.2% collision probability on 10k videos
+        'name': f'{hash_prefix}.mp4',
         'original_name': filename,
         'source': directory_name,
         'path': video_path,
@@ -110,7 +111,7 @@ def process_videos(video_paths: List[str]):
 def verify_no_duplicates(videos: List[Video]) -> bool:
     hash_to_videos = defaultdict(list)
     for video in videos:
-        hash_to_videos[video['hash']].append(video)
+        hash_to_videos[video['name']].append(video)
 
     duplicates = {
         hash_value: video_list
@@ -132,7 +133,7 @@ def verify_no_duplicates(videos: List[Video]) -> bool:
 
 
 def save_csv_output(videos: List[Video], output_dir: str):
-    columns_to_save = ['hash', 'original_name', 'source', 'timestamp', 'resolution', 'duration', 'framerate',
+    columns_to_save = ['name', 'original_name', 'source', 'timestamp', 'resolution', 'duration', 'framerate',
                        'total_frames']
     df = pd.DataFrame(videos)
     os.makedirs(output_dir, exist_ok=True)
@@ -141,7 +142,7 @@ def save_csv_output(videos: List[Video], output_dir: str):
 
 
 def copy_video(video: Video, output_dir: str):
-    dest_path = os.path.join(output_dir, video['hash'] + '.mp4')
+    dest_path = os.path.join(output_dir, video['name'])
     if os.path.exists(dest_path):
         raise RuntimeError(f"{dest_path} already exists")
 
@@ -166,7 +167,7 @@ def add_videos(directory: str, list_filename: Optional[str], output_dir: Optiona
     if verify_no_duplicates(videos):
         return
 
-    new_videos = [v for v in videos if v['hash'] not in current_videos]
+    new_videos = [v for v in videos if v['name'] not in current_videos]
 
     print(f"{len(new_videos)} new mp4 videos found")
 
@@ -178,6 +179,7 @@ def add_videos(directory: str, list_filename: Optional[str], output_dir: Optiona
 
 
 def main():
+    raise NotImplementedError
     parser = argparse.ArgumentParser(description='Add videos to the dataset')
     parser.add_argument('directory', type=str, help='Directory with new videos to process')
     parser.add_argument('--list', type=str, help='CSV file with existing videos in the dataset')

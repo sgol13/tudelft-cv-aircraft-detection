@@ -1,7 +1,6 @@
 import argparse
 import os
 import shutil
-from asyncio import log
 from typing import List
 
 import requests
@@ -42,7 +41,7 @@ def fetch_task_filenames_from_spreadsheet(task_id: str) -> List[str]:
         raise ValueError(f"[spreadsheet error]: 'videos' row not found in the task {task_id} column.")
 
     task_content = task_column[videos_row_index + 1:]
-    task_content = [f'{v}.mp4' for v in task_content if v]
+    task_content = [v for v in task_content if v]
 
     return task_content
 
@@ -80,11 +79,11 @@ def remove_extra_files(task_videos_dir: str, filenames: List[str]):
 
 
 def update_task(task_id: str):
-    task_videos_path = os.path.join(get_task_path(task_id), 'videos')
-    os.makedirs(task_videos_path, exist_ok=True)
-
     filenames = fetch_task_filenames_from_spreadsheet(task_id)
     print(f"TASK {task_id}\n{len(filenames)} videos")
+
+    task_videos_path = os.path.join(get_task_path(task_id), 'videos')
+    os.makedirs(task_videos_path, exist_ok=True)
 
     num_copied = copy_videos_to_task(task_videos_path, filenames, VIDEOS_DIR)
     num_removed = remove_extra_files(task_videos_path, filenames)
