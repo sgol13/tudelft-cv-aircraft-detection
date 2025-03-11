@@ -1,24 +1,20 @@
 import argparse
 import os
 import shutil
-import re
+from asyncio import log
 from typing import List
 
-from tqdm import tqdm
 import requests
 import csv
 
-TASK_VIDEOS_PATH = 'videos'
+from tqdm import tqdm
 
-def get_task_id(task_path: str) -> str:
-    dir_name = os.path.basename(os.path.normpath(task_path))
+from common import VIDEOS_DIR, LABELING_DIR
 
-    try:
-        task_id = re.search(r'\d+$', dir_name).group()
-    except AttributeError:
-        raise ValueError(f"Cannot read task ID from the directory name {dir_name}")
 
-    return task_id
+def get_task_path(task_id: str):
+    return os.path.join(LABELING_DIR, task_id)
+
 
 def fetch_task_filenames_from_spreadsheet(task_id: str) -> List[str]:
     file_id = "1hAqC2Pz3xIEqdslCMa91_bKWBSlOHUs2sL5UKU8Wr7c"
@@ -36,14 +32,14 @@ def fetch_task_filenames_from_spreadsheet(task_id: str) -> List[str]:
     try:
         column_index = rows[0].index(task_id)
     except ValueError:
-        raise ValueError(f"Task ID {task_id} not found in the first row.")
+        raise ValueError(f"Task {task_id} does not exist.")
 
     task_column = [row[column_index] for row in rows]
 
     try:
         videos_row_index = task_column.index('videos')
     except ValueError:
-        raise ValueError(f"'videos' row not found in the task {task_id} column.")
+        raise ValueError(f"[spreadsheet error]: 'videos' row not found in the task {task_id} column.")
 
     task_content = task_column[videos_row_index + 1:]
     task_content = [f'{v}.mp4' for v in task_content if v]
@@ -51,14 +47,14 @@ def fetch_task_filenames_from_spreadsheet(task_id: str) -> List[str]:
     return task_content
 
 
-def copy_files_to_videos_dir(task_videos_dir: str, filenames: list, all_videos_dir: str):
-    filenames = set(filenames)
-
+def copy_videos_to_task(task_videos_dir: str, filenames: List[str], all_videos_dir: str):
     existing_files = set(os.listdir(task_videos_dir))
     files_to_copy = set(filenames) - existing_files
 
-    # copy new files
-    for filename in tqdm(files_to_copy):
+    if not files_to_copy:
+        return 0
+
+    for filename in tqdm(files_to_copy, desc="Copying task videos"):
         src_path = os.path.join(all_videos_dir, filename)
         dest_path = os.path.join(task_videos_dir, filename)
         if os.path.exists(src_path):
@@ -66,37 +62,52 @@ def copy_files_to_videos_dir(task_videos_dir: str, filenames: list, all_videos_d
         else:
             raise RuntimeError(f"File {src_path} does not exist")
 
-    # remove extra files
-    extra_files = existing_files - filenames
-    for filename in extra_files:
+    return len(files_to_copy)
+
+
+def remove_extra_files(task_videos_dir: str, filenames: List[str]):
+    existing_files = set(os.listdir(task_videos_dir))
+    extra_files = existing_files - set(filenames)
+
+    if not extra_files:
+        return 0
+
+    for filename in tqdm(extra_files, desc="Removing extra files"):
         file_path = os.path.join(task_videos_dir, filename)
         os.remove(file_path)
-        print(f"Removed extra file: {file_path}")
+
+    return len(extra_files)
 
 
-def update_labeling_task(task_path: str, all_videos_dir: str):
-    task_videos_dir = os.path.join(task_path, TASK_VIDEOS_PATH)
-    os.makedirs(task_videos_dir, exist_ok=True)
+def update_task(task_id: str):
+    task_videos_path = os.path.join(get_task_path(task_id), 'videos')
+    os.makedirs(task_videos_path, exist_ok=True)
 
-    task_id = get_task_id(task_path)
     filenames = fetch_task_filenames_from_spreadsheet(task_id)
+    print(f"TASK {task_id}\n{len(filenames)} videos")
 
-    print("Copying videos...")
-    copy_files_to_videos_dir(task_videos_dir, filenames, all_videos_dir)
+    num_copied = copy_videos_to_task(task_videos_path, filenames, VIDEOS_DIR)
+    num_removed = remove_extra_files(task_videos_path, filenames)
+
+    print(f"Updated: {num_copied} added, {num_removed} removed")
+
+
+def finalize_task(task_id: int):
+    pass
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Update videos in a task directory based on videos list in a txt file.')
-    parser.add_argument('task_path', type=str, help='Labeling task directory')
-    parser.add_argument('all_videos_dir', type=str, help='Path to a directory with all videos (soruce).')
+        description='Update a labeling task (sync with spreadsheet), optionally finalize it.')
+    parser.add_argument('task_id', type=str, help='ID of the task to update, should be an integer')
+    parser.add_argument('-f', '--finalize', action='store_true', help='Finalize the task, render videos with bboxes.')
 
     args = parser.parse_args()
 
-    print(f"Task directory: {args.task_path}")
-    print(f"All videos directory: {args.all_videos_dir}")
+    update_task(args.task_id)
 
-    update_labeling_task(args.task_path, args.all_videos_dir)
+    if args.finalize:
+        finalize_task(args.task_id)
 
 
 if __name__ == "__main__":
