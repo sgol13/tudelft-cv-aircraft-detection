@@ -102,55 +102,63 @@ def extract_video_name_from_zip_name(filename: str) -> str:
     return name
 
 
-def unzip_cvat_annotations(cvat_dir: str, output_dir: str):
+def unzip_cvat_labels(cvat_dir: str, output_dir: str):
     zip_files = [file for file in os.listdir(cvat_dir) if file.endswith('.zip')]
 
-    for zip_file in zip_files:
+    videos_to_filenames = {}
+    for zip_file in tqdm(zip_files, desc="Unzipping CVAT annotations"):
         video_name = extract_video_name_from_zip_name(zip_file)
-        output_video_dir = os.path.join(output_dir, video_name)
-        os.makedirs(output_video_dir, exist_ok=True)
-        shutil.unpack_archive(os.path.join(cvat_dir, zip_file), output_video_dir)
 
-        shutil.move(os.path.join(output_video_dir, 'annotations/instances_default.json'),
-                    os.path.join(output_video_dir, f'{video_name}.json'))
+        if video_name in videos_to_filenames:
+            raise ValueError(
+                f"Duplicate labels for the video: {video_name} [{zip_file}] [{videos_to_filenames[video_name]}]")
+        videos_to_filenames[video_name] = zip_file
 
-        shutil.rmtree(os.path.join(output_video_dir, 'annotations'))
+        shutil.unpack_archive(os.path.join(cvat_dir, zip_file), output_dir)
+
+        shutil.move(os.path.join(output_dir, 'annotations.xml'),
+                    os.path.join(output_dir, f'{video_name}.xml'))
 
 
-def render_labeled_videos(videos_dir: str, output_dir: str):
-    videos = [file for file in os.listdir(output_dir)]
+def verify_task(videos_dir: str, output_dir: str):
+    task_videos = set(file for file in os.listdir(videos_dir))
+    labeled_videos = set(f'{file.split('.')[0]}.mp4' for file in os.listdir(output_dir))
 
-    for video_id in tqdm(videos, desc="Rendering labeled videos"):
-        video_path = os.path.join(videos_dir, video_id + '.mp4')
-        labels_file = os.path.splitext(video_id)[0] + '.json'
-        labels_path = os.path.join(output_dir, video_id, labels_file)
+    missing_videos = task_videos - labeled_videos
 
-        labeled_vide_path = os.path.join(output_dir, video_id, f'{video_id}_labeled.mp4')
+    print(f'Labeled videos: {len(labeled_videos)} / {len(task_videos)}')
 
-        render_labels(video_path, labels_path, labeled_vide_path)
+    # if missing_videos:
+    #     print("NOT LABELED:")
+    #     for video in missing_videos:
+    #         print(video)
+    # else:
+    #     print("TASK COMPLETE")
 
 
 def finalize_task(task_id: str):
     task_path = get_task_path(task_id)
+    cvat_dir = os.path.join(task_path, 'cvat')
     output_dir = os.path.join(task_path, f'task_{task_id}')
+    videos_dir = os.path.join(task_path, 'videos')
     os.makedirs(output_dir, exist_ok=True)
 
-    unzip_cvat_annotations(os.path.join(task_path, 'cvat'), output_dir)
-    render_labeled_videos(os.path.join(task_path, 'videos'), output_dir)
+    unzip_cvat_labels(cvat_dir, output_dir)
+    verify_task(videos_dir, output_dir)
+
+
+def labeling_task_script(task_id: str):
+    update_task(task_id)
+    finalize_task(task_id)
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description='Update a labeling task (sync with spreadsheet), optionally finalize it.')
+    parser = argparse.ArgumentParser(description='Update a labeling task')
     parser.add_argument('task_id', type=str, help='ID of the task to update, should be an integer')
-    parser.add_argument('-f', '--finalize', action='store_true', help='Finalize the task, render videos with bboxes.')
 
     args = parser.parse_args()
 
-    update_task(args.task_id)
-
-    if args.finalize:
-        finalize_task(args.task_id)
+    labeling_task_script(args.task_id)
 
 
 if __name__ == "__main__":
