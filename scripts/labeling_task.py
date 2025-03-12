@@ -2,7 +2,7 @@ import argparse
 import os
 import shutil
 from typing import List
-
+import re
 import requests
 import csv
 
@@ -82,8 +82,10 @@ def update_task(task_id: str):
     filenames = fetch_task_filenames_from_spreadsheet(task_id)
     print(f"TASK {task_id}\n{len(filenames)} videos")
 
-    task_videos_path = os.path.join(get_task_path(task_id), 'videos')
+    task_path = get_task_path(task_id)
+    task_videos_path = os.path.join(task_path, 'videos')
     os.makedirs(task_videos_path, exist_ok=True)
+    os.makedirs(os.path.join(task_path, 'cvat'), exist_ok=True)
 
     num_copied = copy_videos_to_task(task_videos_path, filenames, VIDEOS_DIR)
     num_removed = remove_extra_files(task_videos_path, filenames)
@@ -91,8 +93,37 @@ def update_task(task_id: str):
     print(f"Updated: {num_copied} added, {num_removed} removed")
 
 
-def finalize_task(task_id: int):
-    pass
+def extract_video_name_from_zip_name(filename: str) -> str:
+    try:
+        name = re.search(r'task_(\w+)\.mp4', filename).group(1)
+    except AttributeError:
+        raise ValueError(f"Invalid zip name: {filename}")
+    return name
+
+
+def unzip_cvat_annotations(cvat_dir: str, output_dir: str):
+    zip_files = [file for file in os.listdir(cvat_dir) if file.endswith('.zip')]
+
+    for zip_file in zip_files:
+        print(zip_file)
+        video_name = extract_video_name_from_zip_name(zip_file)
+        output_video_dir = os.path.join(output_dir, video_name)
+        os.makedirs(output_video_dir, exist_ok=True)
+        shutil.unpack_archive(os.path.join(cvat_dir, zip_file), output_video_dir)
+
+        shutil.move(os.path.join(output_video_dir, 'annotations/instances_default.json'),
+                    os.path.join(output_video_dir, f'{video_name}.json'))
+
+        shutil.rmtree(os.path.join(output_video_dir, 'annotations'))
+
+
+def finalize_task(task_id: str):
+    task_path = get_task_path(task_id)
+    cvat_dir = os.path.join(task_path, 'cvat')
+    output_dir = os.path.join(task_path, f'task_{task_id}')
+    os.makedirs(output_dir, exist_ok=True)
+
+    unzip_cvat_annotations(cvat_dir, output_dir)
 
 
 def main():
