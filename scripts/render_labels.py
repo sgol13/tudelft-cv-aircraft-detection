@@ -4,7 +4,7 @@ import cv2
 import os
 
 
-def render_labels(video_path: str, labels_path: str, output_dir: str):
+def render_labels(video_path: str, labels_path: str, output_path: str):
     with open(labels_path) as f:
         coco_data = json.load(f)
 
@@ -21,19 +21,16 @@ def render_labels(video_path: str, labels_path: str, output_dir: str):
 
     cap = cv2.VideoCapture(video_path)
 
+    if not cap.isOpened():
+        raise ValueError(f"Cannot open video file {video_path}")
+
     # Get video properties
     fps = int(cap.get(cv2.CAP_PROP_FPS))
     frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
     # Ensure output directory exists
-    os.makedirs(output_dir, exist_ok=True)
-
-    # Create output path with _labeled suffix
-    video_filename = os.path.basename(video_path)
-    video_name, video_ext = os.path.splitext(video_filename)
-    output_filename = f"{video_name}_labeled{video_ext}"
-    output_path = os.path.join(output_dir, output_filename)
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
     # Define output video writer
     out = cv2.VideoWriter(output_path, cv2.VideoWriter_fourcc(*"mp4v"), fps, (frame_width, frame_height))
@@ -44,8 +41,14 @@ def render_labels(video_path: str, labels_path: str, output_dir: str):
         if not ret:
             break  # End of video
 
+        # hack to solve the upside-down videos issue
+        rotation_flag = cap.get(cv2.CAP_PROP_ORIENTATION_META)
+        if rotation_flag == 180:
+            frame = cv2.rotate(frame, cv2.ROTATE_180)
+
         # Draw bounding boxes if annotations exist for this frame
         if frame_id in annotations_by_image:
+
             for ann in annotations_by_image[frame_id]:
                 x, y, w, h = map(int, ann["bbox"])
                 category_id = ann["category_id"]
@@ -75,8 +78,6 @@ def render_labels(video_path: str, labels_path: str, output_dir: str):
     out.release()
     cv2.destroyAllWindows()
 
-    print(f"Rendering complete! Saved as {output_path}")
-
 
 def main():
     parser = argparse.ArgumentParser(description='Render a video with given labels (COCO 1.0 format).')
@@ -89,7 +90,14 @@ def main():
     if args.output is None:
         args.output = os.path.dirname(args.labels)
 
-    render_labels(args.video, args.labels, args.output)
+    video_filename = os.path.basename(args.video)
+    video_name, video_ext = os.path.splitext(video_filename)
+    output_filename = f"{video_name}_labeled{video_ext}"
+    output_path = os.path.join(args.output, output_filename)
+
+    render_labels(args.video, args.labels, output_path)
+
+    print(f"Rendering complete! Saved as {output_path}")
 
 
 if __name__ == "__main__":

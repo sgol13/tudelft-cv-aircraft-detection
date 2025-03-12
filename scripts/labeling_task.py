@@ -9,6 +9,7 @@ import csv
 from tqdm import tqdm
 
 from common import VIDEOS_DIR, LABELING_DIR
+from render_labels import render_labels
 
 
 def get_task_path(task_id: str):
@@ -105,7 +106,6 @@ def unzip_cvat_annotations(cvat_dir: str, output_dir: str):
     zip_files = [file for file in os.listdir(cvat_dir) if file.endswith('.zip')]
 
     for zip_file in zip_files:
-        print(zip_file)
         video_name = extract_video_name_from_zip_name(zip_file)
         output_video_dir = os.path.join(output_dir, video_name)
         os.makedirs(output_video_dir, exist_ok=True)
@@ -117,13 +117,26 @@ def unzip_cvat_annotations(cvat_dir: str, output_dir: str):
         shutil.rmtree(os.path.join(output_video_dir, 'annotations'))
 
 
+def render_labeled_videos(videos_dir: str, output_dir: str):
+    videos = [file for file in os.listdir(output_dir)]
+
+    for video_id in tqdm(videos, desc="Rendering labeled videos"):
+        video_path = os.path.join(videos_dir, video_id + '.mp4')
+        labels_file = os.path.splitext(video_id)[0] + '.json'
+        labels_path = os.path.join(output_dir, video_id, labels_file)
+
+        labeled_vide_path = os.path.join(output_dir, video_id, f'{video_id}_labeled.mp4')
+
+        render_labels(video_path, labels_path, labeled_vide_path)
+
+
 def finalize_task(task_id: str):
     task_path = get_task_path(task_id)
-    cvat_dir = os.path.join(task_path, 'cvat')
     output_dir = os.path.join(task_path, f'task_{task_id}')
     os.makedirs(output_dir, exist_ok=True)
 
-    unzip_cvat_annotations(cvat_dir, output_dir)
+    unzip_cvat_annotations(os.path.join(task_path, 'cvat'), output_dir)
+    render_labeled_videos(os.path.join(task_path, 'videos'), output_dir)
 
 
 def main():
