@@ -120,7 +120,7 @@ def unzip_cvat_labels(cvat_dir: str, output_dir: str):
                     os.path.join(output_dir, f'{video_name}.xml'))
 
 
-def verify_task(videos_dir: str, output_dir: str):
+def verify_task(videos_dir: str, output_dir: str, list_tasks: bool):
     task_videos = set(file for file in os.listdir(videos_dir))
     labeled_videos = set(f'{file.split('.')[0]}.mp4' for file in os.listdir(output_dir))
 
@@ -128,15 +128,15 @@ def verify_task(videos_dir: str, output_dir: str):
 
     print(f'Labeled videos: {len(labeled_videos)} / {len(task_videos)}')
 
-    # if missing_videos:
-    #     print("NOT LABELED:")
-    #     for video in missing_videos:
-    #         print(video)
-    # else:
-    #     print("TASK COMPLETE")
+    if not missing_videos:
+        print("TASK COMPLETE")
+    elif list_tasks:
+        print("NOT LABELED:")
+        for video in missing_videos:
+            print(video)
 
 
-def finalize_task(task_id: str):
+def finalize_task(task_id: str, list_tasks: bool):
     task_path = get_task_path(task_id)
     cvat_dir = os.path.join(task_path, 'cvat')
     output_dir = os.path.join(task_path, f'task_{task_id}')
@@ -144,21 +144,22 @@ def finalize_task(task_id: str):
     os.makedirs(output_dir, exist_ok=True)
 
     unzip_cvat_labels(cvat_dir, output_dir)
-    verify_task(videos_dir, output_dir)
+    verify_task(videos_dir, output_dir, list_tasks)
 
 
-def labeling_task_script(task_id: str):
+def labeling_task_script(task_id: str, list_tasks: bool):
     update_task(task_id)
-    finalize_task(task_id)
+    finalize_task(task_id, list_tasks)
 
 
 def main():
     parser = argparse.ArgumentParser(description='Update a labeling task')
     parser.add_argument('task_id', type=str, help='ID of the task to update, should be an integer')
+    parser.add_argument('-l', '--list', action='store_true', help='List all not labeled videos', default=False)
 
     args = parser.parse_args()
 
-    labeling_task_script(args.task_id)
+    labeling_task_script(args.task_id, list_tasks=args.list)
 
 
 if __name__ == "__main__":
