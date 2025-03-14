@@ -1,76 +1,93 @@
 import argparse
-import json
+import xml.etree.ElementTree as ET
 import cv2
 import os
 
 
-def render_labels(video_path: str, labels_path: str, output_path: str):
-    with open(labels_path) as f:
-        coco_data = json.load(f)
+def parse_cvat_annotations(xml_path):
+    tree = ET.parse(xml_path)
+    root = tree.getroot()
 
-    # Create a mapping from category_id to category name
-    category_map = {category["id"]: category["name"] for category in coco_data["categories"]}
+    annotations_by_frame = {}
 
-    # Map image ID to annotations
-    annotations_by_image = {}
-    for ann in coco_data["annotations"]:
-        image_id = ann["image_id"]
-        if image_id not in annotations_by_image:
-            annotations_by_image[image_id] = []
-        annotations_by_image[image_id].append(ann)
+    for track in root.findall("track"):
+        label = track.get("label")
+
+        for box in track.findall("box"):
+            frame_id = int(box.get("frame"))
+            x1 = float(box.get("xtl"))
+            y1 = float(box.get("ytl"))
+            x2 = float(box.get("xbr"))
+            y2 = float(box.get("ybr"))
+            occluded = int(box.get("occluded"))
+
+            if frame_id not in annotations_by_frame:
+                annotations_by_frame[frame_id] = []
+
+            annotations_by_frame[frame_id].append({
+                "bbox": (int(x1), int(y1), int(x2), int(y2)),
+                "label": label,
+                "occluded": occluded
+            })
+
+    return annotations_by_frame
+
+
+
+def render_labels(video_path: str, labels_path: str, output_path):
+    annotations_by_frame = parse_cvat_annotations(labels_path)
 
     cap = cv2.VideoCapture(video_path)
-
     if not cap.isOpened():
         raise ValueError(f"Cannot open video file {video_path}")
 
-    # Get video properties
     fps = int(cap.get(cv2.CAP_PROP_FPS))
     frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    rotation_flag = cap.get(cv2.CAP_PROP_ORIENTATION_META)
 
-    # Ensure output directory exists
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-    # Define output video writer
-    out = cv2.VideoWriter(output_path, cv2.VideoWriter_fourcc(*"mp4v"), fps, (frame_width, frame_height))
+    if rotation_flag in [90, 270]:
+        frame_width, frame_height = frame_height, frame_width
 
-    frame_id = 1
+    out = cv2.VideoWriter(output_path, cv2.VideoWriter_fourcc(*"H264"), fps, (frame_width, frame_height))
+
+    frame_id = 0
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
-            break  # End of video
+            break
 
-        # hack to solve the upside-down videos issue
-        rotation_flag = cap.get(cv2.CAP_PROP_ORIENTATION_META)
-        if rotation_flag == 180:
+        if rotation_flag == 90:
+            frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
+        elif rotation_flag == 180:
             frame = cv2.rotate(frame, cv2.ROTATE_180)
+        elif rotation_flag == 270:
+            frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
 
-        # Draw bounding boxes if annotations exist for this frame
-        if frame_id in annotations_by_image:
+        # Create an overlay in BGR format (same as the original frame)
+        overlay = frame.copy()
 
-            for ann in annotations_by_image[frame_id]:
-                x, y, w, h = map(int, ann["bbox"])
-                category_id = ann["category_id"]
+        if frame_id in annotations_by_frame:
+            for ann in annotations_by_frame[frame_id]:
+                x1, y1, x2, y2 = ann["bbox"]
+                label = ann["label"]
+                occluded = ann["occluded"]
 
-                # Check if the object is occluded
-                is_occluded = ann["attributes"].get("occluded", False)
+                # Set the color (green for visible, red for occluded)
+                opacity = 0.3
+                color = (0, 255, 0) if not occluded else (0, 0, 255)
 
-                # Choose color based on occlusion status
-                color = (0, 0, 255) if is_occluded else (0, 255, 0)  # Red for occluded, Green for non-occluded
-                thickness = 1
+                # Draw a semi-transparent rectangle on the overlay
+                cv2.rectangle(overlay, (x1, y1), (x2, y2), color, thickness=1)
 
-                # Get category name
-                category_name = category_map.get(category_id, "Unknown")
+                # Blend the overlay with the original frame
+                frame = cv2.addWeighted(overlay, opacity, frame, 1 - opacity, 0)
 
-                # Draw rectangle (bounding box)
-                cv2.rectangle(frame, (x, y), (x + w, y + h), color, thickness)
+                # Draw the label text
+                cv2.putText(frame, label, (x1, y1 - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
 
-                # Draw label
-                label = f"{category_name}"
-                cv2.putText(frame, label, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness)
-
-        # Write frame to output video
         out.write(frame)
         frame_id += 1
 
@@ -79,10 +96,12 @@ def render_labels(video_path: str, labels_path: str, output_path: str):
     cv2.destroyAllWindows()
 
 
+
+
 def main():
-    parser = argparse.ArgumentParser(description='Render a video with given labels (COCO 1.0 format).')
+    parser = argparse.ArgumentParser(description='Render a video with given labels (CVAT format).')
     parser.add_argument('video', type=str, help='Path to the video file')
-    parser.add_argument('labels', type=str, help='Path to the labels file')
+    parser.add_argument('labels', type=str, help='Path to the CVAT XML annotation file')
     parser.add_argument('--output', type=str, help='Output directory (labels dir by default)', default=None)
 
     args = parser.parse_args()
@@ -96,7 +115,6 @@ def main():
     output_path = os.path.join(args.output, output_filename)
 
     render_labels(args.video, args.labels, output_path)
-
     print(f"Rendering complete! Saved as {output_path}")
 
 
