@@ -80,7 +80,8 @@ def render_labels(video_path: str, labels_path: str, output_path):
                 color = (0, 255, 0) if not occluded else (0, 0, 255)
 
                 # Draw a semi-transparent rectangle on the overlay
-                cv2.rectangle(overlay, (x1, y1), (x2, y2), color, thickness=1)
+                # cv2.rectangle(overlay, (x1, y1), (x2, y2), color, thickness=1)
+                cv2.rectangle(frame, (x1, y1), (x2, y2), color, thickness=1)
 
                 # Blend the overlay with the original frame
                 frame = cv2.addWeighted(overlay, opacity, frame, 1 - opacity, 0)

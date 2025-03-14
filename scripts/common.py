@@ -4,3 +4,4 @@ DATA_DIR = 'data'
 LABELING_DIR = os.path.join(DATA_DIR, "labeling")
 VIDEOS_DIR = os.path.join(DATA_DIR, "videos")
 
+RENDERED_LABELS_DIR = os.path.join(DATA_DIR, "rendered_labels")

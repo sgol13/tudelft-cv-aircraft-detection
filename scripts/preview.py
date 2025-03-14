@@ -5,8 +5,10 @@ from typing import List
 import fiftyone as fo
 from tempfile import TemporaryDirectory
 import xml.etree.ElementTree as ET
+from tqdm import tqdm
 
-from common import VIDEOS_DIR
+from common import VIDEOS_DIR, RENDERED_LABELS_DIR
+from render_labels import render_labels
 
 
 def get_all_files(labels_path: str, extension: str):
@@ -20,19 +22,19 @@ def get_all_files(labels_path: str, extension: str):
 
     return xml_files
 
-def render_videos(xml_files: List[str]):
-    video_names = [os.path.basename(file).split(".")[0] for file in xml_files]
+def prepare_videos(xml_files: List[str], output_dir: str):
 
-    for video in video_names
+    for xml_file in tqdm(xml_files, desc='Rendering videos'):
+        video_name = os.path.basename(xml_file).split(".")[0]
+        video_path = os.path.join(VIDEOS_DIR, video_name) + '.mp4'
+        output_path = os.path.join(output_dir, video_name) + '.mp4'
+
+        if not os.path.exists(output_path):
+            render_labels(video_path, xml_file, output_path)
 
 
-def start_fiftyone(videos_path: str, labels_path: str):
-    dataset = fo.Dataset.from_dir(
-        dataset_type=fo.types.CVATVideoDataset,
-        data_path=videos_path,
-        labels_path=labels_path,
-        progress=True
-    )
+def start_fiftyone(videos_dir: str):
+    dataset = fo.Dataset.from_videos_dir(videos_dir)
 
     for sample in dataset:
         sample["name"] = os.path.basename(sample.filepath)
@@ -42,34 +44,28 @@ def start_fiftyone(videos_path: str, labels_path: str):
     session.wait()
 
 
-def preview(labels_path: str):
+def preview(labels_path: str, clean: bool):
     xml_files = get_all_files(labels_path, '.xml')
 
-    with TemporaryDirectory() as temp_dir:
-        print(f"Temp directory: {temp_dir}")
+    output_dir = os.path.join(RENDERED_LABELS_DIR, labels_path.replace('/', '_'))
 
-        render_videos(xml_files)
-        # for xml_file in xml_files:
-        #     tree = ET.parse(xml_file)
-        #
-        #     root = tree.getroot()
-        #     increment_frame_ids(root)
-        #     mark_occluded_frames(root)
-        #
-        #     temp_file_path = os.path.join(temp_dir, os.path.basename(xml_file))
-        #     tree.write(temp_file_path)
+    os.makedirs(output_dir, exist_ok=True)
+    if clean:
+        os.system(f"rm -rf {output_dir}")
 
-        # start_fiftyone(VIDEOS_DIR, temp_dir)
+    prepare_videos(xml_files, output_dir)
+    start_fiftyone(output_dir)
 
 
 
 def main():
     parser = argparse.ArgumentParser(description='Preview videos in fiftyone.')
     parser.add_argument('path', type=str, help='Path to a directory with labels to preview')
+    parser.add_argument('-c', '--clean', action='store_true', help='Rerender all videos')
 
     args = parser.parse_args()
 
-    preview(args.path)
+    preview(args.path, args.clean)
 
 
 if __name__ == "__main__":
