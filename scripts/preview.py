@@ -1,5 +1,7 @@
 import argparse
 import os
+from typing import List
+
 import fiftyone as fo
 from tempfile import TemporaryDirectory
 import xml.etree.ElementTree as ET
@@ -18,35 +20,10 @@ def get_all_files(labels_path: str, extension: str):
 
     return xml_files
 
+def render_videos(xml_files: List[str]):
+    video_names = [os.path.basename(file).split(".")[0] for file in xml_files]
 
-def increment_frame_ids(root: ET.Element):
-    """
-    CVAT format uses 0-based frame IDs. Increment them by 1 to match fiftyone's 1-based frame IDs.
-    """
-    for box in root.findall(".//box"):
-        frame = int(box.get("frame"))
-        box.set("frame", str(frame + 1))
-
-
-def mark_occluded_frames(root: ET.Element):
-    removed_bboxes = []
-
-    for track in root.findall(".//track"):
-        bboxes = track.findall("box")
-        for box in bboxes:
-            if box.get("occluded") == "1":
-                removed_bboxes.append((track.get("label"), box))
-                track.remove(box)
-
-        # if removed_bboxes:
-        #     new_track = ET.Element("track", {
-        #         "id": str(len(root.findall(".//track"))),
-        #         "label": f"{removed_bboxes[0][0]}[x]",
-        #         "source": "file"
-        #     })
-        #     for _, box in removed_bboxes:
-        #         new_track.append(box)
-        #     root.append(new_track)
+    for video in video_names
 
 
 def start_fiftyone(videos_path: str, labels_path: str):
@@ -66,12 +43,12 @@ def start_fiftyone(videos_path: str, labels_path: str):
 
 
 def preview(labels_path: str):
-    xml_files = get_all_files(labels_path)
-    videos = [file.split(".")[0] for file in xml_files]
-    print(videos)
+    xml_files = get_all_files(labels_path, '.xml')
 
     with TemporaryDirectory() as temp_dir:
         print(f"Temp directory: {temp_dir}")
+
+        render_videos(xml_files)
         # for xml_file in xml_files:
         #     tree = ET.parse(xml_file)
         #
