@@ -66,7 +66,6 @@ def render_labels(video_path: str, labels_path: str, output_path):
         elif rotation_flag == 270:
             frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
 
-        # Create an overlay in BGR format (same as the original frame)
         overlay = frame.copy()
 
         if frame_id in annotations_by_frame:
@@ -75,18 +74,15 @@ def render_labels(video_path: str, labels_path: str, output_path):
                 label = ann["label"]
                 occluded = ann["occluded"]
 
-                # Set the color (green for visible, red for occluded)
                 opacity = 0.3
                 color = (0, 255, 0) if not occluded else (0, 0, 255)
 
-                # Draw a semi-transparent rectangle on the overlay
-                # cv2.rectangle(overlay, (x1, y1), (x2, y2), color, thickness=1)
+                # draw a semi-transparent rectangle on the overlay
                 cv2.rectangle(frame, (x1, y1), (x2, y2), color, thickness=1)
 
-                # Blend the overlay with the original frame
+                # blend the overlay with the original frame
                 frame = cv2.addWeighted(overlay, opacity, frame, 1 - opacity, 0)
 
-                # Draw the label text
                 cv2.putText(frame, label, (x1, y1 - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
 
         out.write(frame)

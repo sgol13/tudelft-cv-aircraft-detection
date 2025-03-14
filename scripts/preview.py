@@ -3,8 +3,6 @@ import os
 from typing import List
 
 import fiftyone as fo
-from tempfile import TemporaryDirectory
-import xml.etree.ElementTree as ET
 from tqdm import tqdm
 
 from common import VIDEOS_DIR, RENDERED_LABELS_DIR
