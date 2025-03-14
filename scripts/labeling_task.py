@@ -122,7 +122,7 @@ def unzip_cvat_labels(cvat_dir: str, output_dir: str):
 
 def verify_task(videos_dir: str, output_dir: str, list_tasks: bool):
     task_videos = set(file for file in os.listdir(videos_dir))
-    labeled_videos = set(f'{file.split('.')[0]}.mp4' for file in os.listdir(output_dir))
+    labeled_videos = set(f'{file.split(".")[0]}.mp4' for file in os.listdir(output_dir))
 
     missing_videos = task_videos - labeled_videos
 

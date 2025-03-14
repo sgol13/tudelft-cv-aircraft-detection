@@ -7,11 +7,13 @@ import xml.etree.ElementTree as ET
 from common import VIDEOS_DIR
 
 
-def get_xml_files(labels_path: str):
+def get_all_files(labels_path: str, extension: str):
+    assert extension.startswith('.')
+
     xml_files = []
     for root, dirs, files in os.walk(labels_path):
         for file in files:
-            if file.endswith('.xml'):
+            if file.endswith(extension):
                 xml_files.append(os.path.join(root, file))
 
     return xml_files
@@ -64,19 +66,21 @@ def start_fiftyone(videos_path: str, labels_path: str):
 
 
 def preview(labels_path: str):
-    xml_files = get_xml_files(labels_path)
+    xml_files = get_all_files(labels_path)
+    videos = [file.split(".")[0] for file in xml_files]
+    print(videos)
 
     with TemporaryDirectory() as temp_dir:
         print(f"Temp directory: {temp_dir}")
-        for xml_file in xml_files:
-            tree = ET.parse(xml_file)
-
-            root = tree.getroot()
-            increment_frame_ids(root)
-            mark_occluded_frames(root)
-
-            temp_file_path = os.path.join(temp_dir, os.path.basename(xml_file))
-            tree.write(temp_file_path)
+        # for xml_file in xml_files:
+        #     tree = ET.parse(xml_file)
+        #
+        #     root = tree.getroot()
+        #     increment_frame_ids(root)
+        #     mark_occluded_frames(root)
+        #
+        #     temp_file_path = os.path.join(temp_dir, os.path.basename(xml_file))
+        #     tree.write(temp_file_path)
 
         # start_fiftyone(VIDEOS_DIR, temp_dir)
 
