@@ -1,5 +1,7 @@
 .idea/
 data/
 yolo_data/
+datasets/
+runs/
 requirements.txt
 **/__pycache__
