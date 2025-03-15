@@ -1,4 +1,5 @@
 .idea/
 data/
-
+yolo_data/
+requirements.txt
 **/__pycache__
