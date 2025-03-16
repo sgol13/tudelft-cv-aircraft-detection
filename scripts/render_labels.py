@@ -51,7 +51,7 @@ def render_labels(video_path: str, labels_path: str, output_path):
     if rotation_flag in [90, 270]:
         frame_width, frame_height = frame_height, frame_width
 
-    out = cv2.VideoWriter(output_path, cv2.VideoWriter_fourcc(*"H264"), fps, (frame_width, frame_height))
+    out = cv2.VideoWriter(output_path, cv2.VideoWriter_fourcc(*"avc1"), fps, (frame_width, frame_height))
 
     frame_id = 0
     while cap.isOpened():
