@@ -1,107 +1,117 @@
 import argparse
-import io
 import os
-import pprint
-import shutil
-from typing import List
-import re
-import requests
-import csv
 
+
+from cvat_sdk.core.proxies.tasks import ResourceType
 from tqdm import tqdm
 
-from common import VIDEOS_DIR, LABELING_DIR
-from render_labels import render_labels
-from cvat_sdk.api_client import Configuration, ApiClient, exceptions
-from cvat_sdk.api_client.models import *
+from common import LABELING_DIR
+from cvat_sdk import make_client, Client
 
-CONFIGURATION = Configuration(
-    host="http://localhost:8080",
-    username='szymong',
-    password='cvatpassword', # only local, can be commited
-)
+CVAT_HOST = "http://localhost:8080"
+CVAT_USERNAME = "szymong"
+CVAT_PASSWORD = "cvatpassword"  # only local, can be commited
+
+LABELS_CONFIG = [
+    {
+        "name": "contrail",
+        "color": "#2900ff",
+        "type": "rectangle",
+        "attributes": []
+    },
+    {
+        "name": "high_airliner",
+        "color": "#b83df5",
+        "type": "rectangle",
+        "attributes": []
+    },
+    {
+        "name": "low_airliner",
+        "color": "#ffcc33",
+        "type": "rectangle",
+        "attributes": []
+    },
+    {
+        "name": "light_airplane",
+        "color": "#83e070",
+        "type": "rectangle",
+        "attributes": []
+    },
+    {
+        "name": "helicopter",
+        "color": "#24b353",
+        "type": "rectangle",
+        "attributes": []
+    },
+    {
+        "name": "other",
+        "color": "#51b90a",
+        "type": "rectangle",
+        "attributes": []
+    },
+    {
+        "name": "high_airliner_contrail",
+        "color": "#8c78f0",
+        "type": "rectangle",
+        "attributes": []
+    },
+    {
+        "name": "faint_contrail",
+        "color": "#ff003f",
+        "type": "rectangle",
+        "attributes": []
+    }
+]
+
 
 def get_task_path(task_id: str):
     return os.path.join(LABELING_DIR, task_id)
 
 
-def create_cvat_project(project_name: str):
-    with ApiClient(CONFIGURATION) as api_client:
-        project_request = ProjectWriteRequest(
-            name=project_name,
-            labels=[],
-            owner_id=1,
-            assignee_id=1,
-        )
-
-        try:
-            data, response = api_client.projects_api.create(project_request)
-            return data['id']
-
-        except exceptions.ApiException as e:
-            print(f"Exception when calling ProjectsApi.create(): {e}")
-            return None
-
-def create_cvat_task(cvat_project_id: int, video_path: str):
-    print(video_path)
-    with ApiClient(CONFIGURATION) as api_client:
-        task_request = TaskWriteRequest(
-            name=os.path.basename(video_path),
-            project_id=int(cvat_project_id),
-            owner_id=1,
-            assignee_id=1,
-        )
-
-        try:
-            task_data, response = api_client.tasks_api.create(task_request)
-
-            task_id = task_data.id
-
-            with open(video_path, "rb") as video_file:
-                file_obj = io.BytesIO(video_file.read())
-                print(type(video_file), type(file_obj))
-                print(cvat_project_id)
-                # print(type(video_file))
-                data_request = DataRequest(
-                    client_files=[video_file],
-                    image_quality=100,
-                    storage_method=StorageMethod("cache"),
-                    storage=StorageType("local"),
-                )
-
-                api_client.tasks_api.create_data(
-                    task_id,
-                    upload_finish=True,
-                    upload_multiple=True,
-                    upload_start=True,
-                    data_request=data_request,
-                )
-
-            return task_data
-        except exceptions.ApiException as e:
-            print(f"Exception when calling TasksApi.create(): {e}")
-            return None
+def create_cvat_project(client: Client, project_name: str):
+    project = client.projects.create({
+        "name": project_name,
+        "labels": LABELS_CONFIG
+    })
+    return project.id
 
 
-def upload_videos(cvat_project_id: int, task_path: str):
+def create_cvat_task(client: Client, cvat_project_id: int, video_path: str, labels_path: str):
+    task_spec = {
+        'name': os.path.basename(video_path),
+        'project_id': cvat_project_id,
+    }
+
+    task = client.tasks.create_from_data(
+        spec=task_spec,
+        resource_type=ResourceType.LOCAL,
+        resources=[video_path],
+        annotation_path=labels_path,
+        annotation_format="CVAT 1.1",
+    )
+
+    return task.id
+
+
+def upload_videos_and_labels(client: Client, task_id: str, cvat_project_id: int):
+    task_path = get_task_path(task_id)
     task_videos_dir = os.path.join(task_path, 'videos')
+    task_labels_dir = os.path.join(task_path, f'task_{task_id}')
+
     videos = [file for file in os.listdir(task_videos_dir) if file.endswith('.mp4')]
 
     for video in tqdm(videos, desc="Uploading videos"):
         video_path = os.path.join(task_videos_dir, video)
-        create_cvat_task(cvat_project_id, video_path)
+        labels_path = os.path.join(task_labels_dir, f'{video.split('.')[0]}.xml')
+        assert os.path.isfile(labels_path)
 
+        create_cvat_task(client, cvat_project_id, video_path, labels_path)
 
-def upload_labels():
-    pass
 
 def upload_to_cvat(task_id: str):
-    task_path = get_task_path(task_id)
-
-    # cvat_project_id = create_cvat_project(task_id)
-    cvat_project_id = 48
-
-    upload_videos(cvat_project_id, task_path)
+    with make_client(host=CVAT_HOST, credentials=(CVAT_USERNAME, CVAT_PASSWORD)) as client:
+        cvat_project_id = create_cvat_project(client, task_id)
+        upload_videos_and_labels(client, task_id, cvat_project_id)
 
 
 def main():

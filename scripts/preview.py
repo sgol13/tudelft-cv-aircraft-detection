@@ -12,13 +12,13 @@ from render_labels import render_labels
 def get_all_files(labels_path: str, extension: str):
     assert extension.startswith('.')
 
-    xml_files = []
+    paths = []
     for root, dirs, files in os.walk(labels_path):
         for file in files:
             if file.endswith(extension):
-                xml_files.append(os.path.join(root, file))
+                paths.append(os.path.join(root, file))
 
-    return xml_files
+    return paths
 
 def prepare_videos(xml_files: List[str], output_dir: str):
 
