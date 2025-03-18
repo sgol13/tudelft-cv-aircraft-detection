@@ -8,13 +8,7 @@ import csv
 
 from tqdm import tqdm
 
-from common import VIDEOS_DIR, LABELING_DIR
-from render_labels import render_labels
-
-
-def get_task_path(task_id: str):
-    return os.path.join(LABELING_DIR, task_id)
-
+from common import VIDEOS_DIR, get_task_path
 
 def fetch_task_filenames_from_spreadsheet(task_id: str) -> List[str]:
     file_id = "1hAqC2Pz3xIEqdslCMa91_bKWBSlOHUs2sL5UKU8Wr7c"
