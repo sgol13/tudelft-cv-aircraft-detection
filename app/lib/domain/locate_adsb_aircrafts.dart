@@ -27,18 +27,17 @@ class LocateAdsbAircrafts {
       Rx.combineLatest2<AdsbData, UserLocation, LocatedAircrafts>(
         _currentDataStreams.streams.adsbStream,
         _currentDataStreams.streams.localizationStream,
-        calculatePositions,
+        calculateRelativeAircraftPositions,
       );
 
-  LocatedAircrafts calculatePositions(
+  LocatedAircrafts calculateRelativeAircraftPositions(
     AdsbData adsbData,
     UserLocation userLocation,
   ) {
     final locatedAircrafts =
         adsbData.aircrafts
             .map(
-              (aircraft) =>
-                  calculateRelativeAircraftPosition(aircraft, userLocation),
+              (aircraft) => calculateRelativePosition(aircraft, userLocation),
             )
             .toList();
 
@@ -48,11 +47,38 @@ class LocateAdsbAircrafts {
     );
   }
 
-  LocatedAircraft calculateRelativeAircraftPosition(
+  LocatedAircraft calculateRelativePosition(
     Aircraft aircraft,
     UserLocation userLocation,
   ) {
-    return LocatedAircraft(aircraft: aircraft, distance: 0, azimuth: 0);
+    const double earthRadius = 6371000; // Earth radius in meters
+
+    // Convert latitude and longitude from degrees to radians
+    double lat1 = degToRad(userLocation.latitude);
+    double lon1 = degToRad(userLocation.longitude);
+    double lat2 = degToRad(aircraft.latitude);
+    double lon2 = degToRad(aircraft.longitude);
+
+    // Haversine formula for distance
+    double dLat = lat2 - lat1;
+    double dLon = lon2 - lon1;
+
+    double a =
+        pow(sin(dLat / 2), 2) + cos(lat1) * cos(lat2) * pow(sin(dLon / 2), 2);
+    double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+    double distance = earthRadius * c;
+
+    // Compute azimuth (bearing)
+    double y = sin(dLon) * cos(lat2);
+    double x = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dLon);
+    double azimuth =
+        (radToDeg(atan2(y, x)) + 360) % 360; // Normalize to [0, 360)
+
+    return LocatedAircraft(
+      aircraft: aircraft,
+      distance: distance,
+      azimuth: azimuth,
+    );
   }
 }
 
