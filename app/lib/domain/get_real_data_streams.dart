@@ -31,11 +31,11 @@ class GetRealDataStreams {
   );
 
   AllDataStreams get streams => (
-    accelerometerStream: _sensorsPort.sensorsStreams.accelerometerStream,
-    gyroscopeStream: _sensorsPort.sensorsStreams.gyroscopeStream,
-    magnetometerStream: _sensorsPort.sensorsStreams.magnetometerStream,
-    localizationStream: _localizationPort.locationStream,
-    adsbStream: _adsbApiPort.adsbStream,
+    accelerometerStream: _sensorsPort.accelerometerStream(),
+    gyroscopeStream: _sensorsPort.gyroscopeStream(),
+    magnetometerStream: _sensorsPort.magnetometerStream(),
+    localizationStream: _localizationPort.locationStream(),
+    adsbStream: _adsbApiPort.adsbStream(),
   );
 }
 

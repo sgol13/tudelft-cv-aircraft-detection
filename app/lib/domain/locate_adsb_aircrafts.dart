@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:app/common.dart';
 import 'package:app/domain/get_current_data_streams.dart';
-import 'package:app/domain/model/aircraft.dart';
+import 'package:app/domain/model/adsb_aircraft.dart';
 import 'package:app/domain/model/located_aircraft.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';

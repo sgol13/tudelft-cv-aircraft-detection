@@ -89,7 +89,7 @@ class SensorCameraView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final dataStreams = ref.watch(getCurrentDataStreamsProvider);
+    final currentDataStreams = ref.watch(getCurrentDataStreamsProvider);
     final cameraController = ref.watch(cameraProvider);
     final orientationStream = ref.watch(estimateOrientationProvider).stream;
 
@@ -109,19 +109,19 @@ class SensorCameraView extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SensorDataStreamWidget(
-                    stream: dataStreams.streams.accelerometerStream,
+                    stream: currentDataStreams.streams.accelerometerStream,
                     sensorType: 'Accelerometer',
                   ),
                   SensorDataStreamWidget(
-                    stream: dataStreams.streams.gyroscopeStream,
+                    stream: currentDataStreams.streams.gyroscopeStream,
                     sensorType: 'Gyroscope',
                   ),
                   SensorDataStreamWidget(
-                    stream: dataStreams.streams.magnetometerStream,
+                    stream: currentDataStreams.streams.magnetometerStream,
                     sensorType: 'Magnetometer',
                   ),
                   StreamBuilder<Location>(
-                    stream: dataStreams.streams.localizationStream,
+                    stream: currentDataStreams.streams.localizationStream,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return Text('Loading Location data...');
@@ -143,7 +143,7 @@ class SensorCameraView extends ConsumerWidget {
                     sensorType: 'Orientation',
                   ),
                   StreamBuilder<AdsbData>(
-                    stream: dataStreams.streams.adsbStream,
+                    stream: currentDataStreams.streams.adsbStream,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return Text('Loading Aircraft data...');
