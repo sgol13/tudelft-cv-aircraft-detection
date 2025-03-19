@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:camera/camera.dart';
 import 'package:app/adapter/camera_provider.dart';
 
-import 'domain/get_real_data_streams.dart';
+import 'domain/get_current_data_streams.dart';
 import 'domain/model/adsb_data.dart';
 import 'domain/model/user_location.dart';
 
@@ -79,7 +79,7 @@ class _SensorDataStreamWidgetState extends State<SensorDataStreamWidget> {
 class SensorCameraView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final dataStreams = ref.watch(getRealDataStreamsProvider);
+    final dataStreams = ref.watch(getCurrentDataStreamsProvider);
     final cameraController = ref.watch(cameraProvider);
 
     return Scaffold(
