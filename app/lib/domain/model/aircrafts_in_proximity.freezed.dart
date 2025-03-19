@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'located_aircrafts.dart';
+part of 'aircrafts_in_proximity.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -16,38 +16,41 @@ final _privateConstructorUsedError = UnsupportedError(
 );
 
 /// @nodoc
-mixin _$LocatedAircrafts {
+mixin _$AircraftsInProximity {
   List<LocatedAircraft> get aircrafts => throw _privateConstructorUsedError;
   DateTime get timestamp => throw _privateConstructorUsedError;
 
-  /// Create a copy of LocatedAircrafts
+  /// Create a copy of AircraftsInProximity
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $LocatedAircraftsCopyWith<LocatedAircrafts> get copyWith =>
+  $AircraftsInProximityCopyWith<AircraftsInProximity> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $LocatedAircraftsCopyWith<$Res> {
-  factory $LocatedAircraftsCopyWith(
-    LocatedAircrafts value,
-    $Res Function(LocatedAircrafts) then,
-  ) = _$LocatedAircraftsCopyWithImpl<$Res, LocatedAircrafts>;
+abstract class $AircraftsInProximityCopyWith<$Res> {
+  factory $AircraftsInProximityCopyWith(
+    AircraftsInProximity value,
+    $Res Function(AircraftsInProximity) then,
+  ) = _$AircraftsInProximityCopyWithImpl<$Res, AircraftsInProximity>;
   @useResult
   $Res call({List<LocatedAircraft> aircrafts, DateTime timestamp});
 }
 
 /// @nodoc
-class _$LocatedAircraftsCopyWithImpl<$Res, $Val extends LocatedAircrafts>
-    implements $LocatedAircraftsCopyWith<$Res> {
-  _$LocatedAircraftsCopyWithImpl(this._value, this._then);
+class _$AircraftsInProximityCopyWithImpl<
+  $Res,
+  $Val extends AircraftsInProximity
+>
+    implements $AircraftsInProximityCopyWith<$Res> {
+  _$AircraftsInProximityCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
   final $Val _value;
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of LocatedAircrafts
+  /// Create a copy of AircraftsInProximity
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -71,33 +74,33 @@ class _$LocatedAircraftsCopyWithImpl<$Res, $Val extends LocatedAircrafts>
 }
 
 /// @nodoc
-abstract class _$$LocatedAircraftsImplCopyWith<$Res>
-    implements $LocatedAircraftsCopyWith<$Res> {
-  factory _$$LocatedAircraftsImplCopyWith(
-    _$LocatedAircraftsImpl value,
-    $Res Function(_$LocatedAircraftsImpl) then,
-  ) = __$$LocatedAircraftsImplCopyWithImpl<$Res>;
+abstract class _$$AircraftsInProximityImplCopyWith<$Res>
+    implements $AircraftsInProximityCopyWith<$Res> {
+  factory _$$AircraftsInProximityImplCopyWith(
+    _$AircraftsInProximityImpl value,
+    $Res Function(_$AircraftsInProximityImpl) then,
+  ) = __$$AircraftsInProximityImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({List<LocatedAircraft> aircrafts, DateTime timestamp});
 }
 
 /// @nodoc
-class __$$LocatedAircraftsImplCopyWithImpl<$Res>
-    extends _$LocatedAircraftsCopyWithImpl<$Res, _$LocatedAircraftsImpl>
-    implements _$$LocatedAircraftsImplCopyWith<$Res> {
-  __$$LocatedAircraftsImplCopyWithImpl(
-    _$LocatedAircraftsImpl _value,
-    $Res Function(_$LocatedAircraftsImpl) _then,
+class __$$AircraftsInProximityImplCopyWithImpl<$Res>
+    extends _$AircraftsInProximityCopyWithImpl<$Res, _$AircraftsInProximityImpl>
+    implements _$$AircraftsInProximityImplCopyWith<$Res> {
+  __$$AircraftsInProximityImplCopyWithImpl(
+    _$AircraftsInProximityImpl _value,
+    $Res Function(_$AircraftsInProximityImpl) _then,
   ) : super(_value, _then);
 
-  /// Create a copy of LocatedAircrafts
+  /// Create a copy of AircraftsInProximity
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({Object? aircrafts = null, Object? timestamp = null}) {
     return _then(
-      _$LocatedAircraftsImpl(
+      _$AircraftsInProximityImpl(
         aircrafts:
             null == aircrafts
                 ? _value._aircrafts
@@ -115,8 +118,8 @@ class __$$LocatedAircraftsImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$LocatedAircraftsImpl implements _LocatedAircrafts {
-  const _$LocatedAircraftsImpl({
+class _$AircraftsInProximityImpl implements _AircraftsInProximity {
+  const _$AircraftsInProximityImpl({
     required final List<LocatedAircraft> aircrafts,
     required this.timestamp,
   }) : _aircrafts = aircrafts;
@@ -134,14 +137,14 @@ class _$LocatedAircraftsImpl implements _LocatedAircrafts {
 
   @override
   String toString() {
-    return 'LocatedAircrafts(aircrafts: $aircrafts, timestamp: $timestamp)';
+    return 'AircraftsInProximity(aircrafts: $aircrafts, timestamp: $timestamp)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$LocatedAircraftsImpl &&
+            other is _$AircraftsInProximityImpl &&
             const DeepCollectionEquality().equals(
               other._aircrafts,
               _aircrafts,
@@ -157,33 +160,34 @@ class _$LocatedAircraftsImpl implements _LocatedAircrafts {
     timestamp,
   );
 
-  /// Create a copy of LocatedAircrafts
+  /// Create a copy of AircraftsInProximity
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$LocatedAircraftsImplCopyWith<_$LocatedAircraftsImpl> get copyWith =>
-      __$$LocatedAircraftsImplCopyWithImpl<_$LocatedAircraftsImpl>(
+  _$$AircraftsInProximityImplCopyWith<_$AircraftsInProximityImpl>
+  get copyWith =>
+      __$$AircraftsInProximityImplCopyWithImpl<_$AircraftsInProximityImpl>(
         this,
         _$identity,
       );
 }
 
-abstract class _LocatedAircrafts implements LocatedAircrafts {
-  const factory _LocatedAircrafts({
+abstract class _AircraftsInProximity implements AircraftsInProximity {
+  const factory _AircraftsInProximity({
     required final List<LocatedAircraft> aircrafts,
     required final DateTime timestamp,
-  }) = _$LocatedAircraftsImpl;
+  }) = _$AircraftsInProximityImpl;
 
   @override
   List<LocatedAircraft> get aircrafts;
   @override
   DateTime get timestamp;
 
-  /// Create a copy of LocatedAircrafts
+  /// Create a copy of AircraftsInProximity
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$LocatedAircraftsImplCopyWith<_$LocatedAircraftsImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+  _$$AircraftsInProximityImplCopyWith<_$AircraftsInProximityImpl>
+  get copyWith => throw _privateConstructorUsedError;
 }

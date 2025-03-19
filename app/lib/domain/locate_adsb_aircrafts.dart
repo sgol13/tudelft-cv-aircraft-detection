@@ -9,7 +9,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'model/adsb_data.dart';
-import 'model/located_aircrafts.dart';
+import 'model/aircrafts_in_proximity.dart';
 import 'model/location.dart';
 
 part 'locate_adsb_aircrafts.g.dart';
@@ -19,14 +19,14 @@ class LocateAdsbAircrafts {
 
   LocateAdsbAircrafts(this._currentDataStreams);
 
-  Stream<LocatedAircrafts> get stream =>
-      Rx.combineLatest2<AdsbData, Location, LocatedAircrafts>(
+  Stream<AircraftsInProximity> get stream =>
+      Rx.combineLatest2<AdsbData, Location, AircraftsInProximity>(
         _currentDataStreams.streams.adsbStream,
         _currentDataStreams.streams.localizationStream,
         _calculateRelativeAircraftPositions,
       );
 
-  LocatedAircrafts _calculateRelativeAircraftPositions(
+  AircraftsInProximity _calculateRelativeAircraftPositions(
     AdsbData adsbData,
     Location userLocation,
   ) {
@@ -37,7 +37,7 @@ class LocateAdsbAircrafts {
             )
             .toList();
 
-    return LocatedAircrafts(
+    return AircraftsInProximity(
       aircrafts: locatedAircrafts,
       timestamp: maxTimestamp([adsbData.timestamp, userLocation.timestamp]),
     );

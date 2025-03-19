@@ -36,6 +36,8 @@ abstract class $LocatedAircraftCopyWith<$Res> {
   ) = _$LocatedAircraftCopyWithImpl<$Res, LocatedAircraft>;
   @useResult
   $Res call({AdsbAircraft aircraft, double azimuth, double distance});
+
+  $AdsbAircraftCopyWith<$Res> get aircraft;
 }
 
 /// @nodoc
@@ -53,14 +55,14 @@ class _$LocatedAircraftCopyWithImpl<$Res, $Val extends LocatedAircraft>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? aircraft = freezed,
+    Object? aircraft = null,
     Object? azimuth = null,
     Object? distance = null,
   }) {
     return _then(
       _value.copyWith(
             aircraft:
-                freezed == aircraft
+                null == aircraft
                     ? _value.aircraft
                     : aircraft // ignore: cast_nullable_to_non_nullable
                         as AdsbAircraft,
@@ -78,6 +80,16 @@ class _$LocatedAircraftCopyWithImpl<$Res, $Val extends LocatedAircraft>
           as $Val,
     );
   }
+
+  /// Create a copy of LocatedAircraft
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $AdsbAircraftCopyWith<$Res> get aircraft {
+    return $AdsbAircraftCopyWith<$Res>(_value.aircraft, (value) {
+      return _then(_value.copyWith(aircraft: value) as $Val);
+    });
+  }
 }
 
 /// @nodoc
@@ -90,6 +102,9 @@ abstract class _$$LocatedAircraftImplCopyWith<$Res>
   @override
   @useResult
   $Res call({AdsbAircraft aircraft, double azimuth, double distance});
+
+  @override
+  $AdsbAircraftCopyWith<$Res> get aircraft;
 }
 
 /// @nodoc
@@ -106,14 +121,14 @@ class __$$LocatedAircraftImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? aircraft = freezed,
+    Object? aircraft = null,
     Object? azimuth = null,
     Object? distance = null,
   }) {
     return _then(
       _$LocatedAircraftImpl(
         aircraft:
-            freezed == aircraft
+            null == aircraft
                 ? _value.aircraft
                 : aircraft // ignore: cast_nullable_to_non_nullable
                     as AdsbAircraft,
@@ -158,19 +173,15 @@ class _$LocatedAircraftImpl implements _LocatedAircraft {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$LocatedAircraftImpl &&
-            const DeepCollectionEquality().equals(other.aircraft, aircraft) &&
+            (identical(other.aircraft, aircraft) ||
+                other.aircraft == aircraft) &&
             (identical(other.azimuth, azimuth) || other.azimuth == azimuth) &&
             (identical(other.distance, distance) ||
                 other.distance == distance));
   }
 
   @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    const DeepCollectionEquality().hash(aircraft),
-    azimuth,
-    distance,
-  );
+  int get hashCode => Object.hash(runtimeType, aircraft, azimuth, distance);
 
   /// Create a copy of LocatedAircraft
   /// with the given fields replaced by the non-null parameter values.

@@ -16,7 +16,7 @@ class AdsbLolApiAdapter implements AdsbApiPort {
   Location? _location;
 
   AdsbLolApiAdapter(this._localizationPort) {
-    _localizationPort.locationStream.listen((location) {
+    _localizationPort.locationStream().listen((location) {
       _location = location;
     });
   }
