@@ -1,4 +1,4 @@
-import 'package:app/domain/model/user_location.dart';
+import 'package:app/domain/model/location.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -11,14 +11,14 @@ class GpsLocalizationAdapter implements LocalizationPort {
   }
 
   @override
-  Stream<UserLocation> get locationStream => Geolocator.getPositionStream(
+  Stream<Location> locationStream() => Geolocator.getPositionStream(
     locationSettings: const LocationSettings(
       accuracy: LocationAccuracy.high,
       distanceFilter: 10,
     ),
   ).map(_toUserLocation);
 
-  UserLocation _toUserLocation(position) => UserLocation(
+  Location _toUserLocation(position) => Location(
     latitude: position.latitude,
     longitude: position.longitude,
     timestamp: position.timestamp,

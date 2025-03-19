@@ -1,19 +1,17 @@
-import 'package:app/adapter/phone_sensors_adapter.dart';
+import 'package:app/adapter/device_sensors_adapter.dart';
 import 'package:app/domain/model/sensor_data.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'sensors_port.g.dart';
 
-typedef SensorsDataStreams = ({
-  Stream<SensorData> accelerometerStream,
-  Stream<SensorData> gyroscopeStream,
-  Stream<SensorData> magnetometerStream,
-});
-
 abstract class SensorsPort {
-  SensorsDataStreams get sensorsStreams;
+  Stream<SensorData> accelerometerStream();
+
+  Stream<SensorData> gyroscopeStream();
+
+  Stream<SensorData> magnetometerStream();
 }
 
 @riverpod
-SensorsPort sensorsPort(Ref ref) => PhoneSensorsAdapter();
+SensorsPort sensorsPort(Ref ref) => DeviceSensorsAdapter();

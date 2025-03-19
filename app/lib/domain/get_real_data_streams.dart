@@ -1,4 +1,4 @@
-import 'package:app/domain/model/user_location.dart';
+import 'package:app/domain/model/location.dart';
 import 'package:app/port/out/adsb_api_port.dart';
 import 'package:app/port/out/localization_port.dart';
 import 'package:app/port/out/sensors_port.dart';
@@ -15,7 +15,7 @@ typedef AllDataStreams =
       Stream<SensorData> accelerometerStream,
       Stream<SensorData> gyroscopeStream,
       Stream<SensorData> magnetometerStream,
-      Stream<UserLocation> localizationStream,
+      Stream<Location> localizationStream,
       Stream<AdsbData> adsbStream,
     });
 

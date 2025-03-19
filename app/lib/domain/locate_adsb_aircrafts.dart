@@ -2,19 +2,15 @@ import 'dart:math';
 
 import 'package:app/common.dart';
 import 'package:app/domain/get_current_data_streams.dart';
-import 'package:app/domain/get_real_data_streams.dart';
 import 'package:app/domain/model/aircraft.dart';
 import 'package:app/domain/model/located_aircraft.dart';
-import 'package:app/port/out/adsb_api_port.dart';
-import 'package:app/port/out/localization_port.dart';
-import 'package:app/port/out/sensors_port.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'model/adsb_data.dart';
 import 'model/located_aircrafts.dart';
-import 'model/user_location.dart';
+import 'model/location.dart';
 
 part 'locate_adsb_aircrafts.g.dart';
 
@@ -24,32 +20,32 @@ class LocateAdsbAircrafts {
   LocateAdsbAircrafts(this._currentDataStreams);
 
   Stream<LocatedAircrafts> get stream =>
-      Rx.combineLatest2<AdsbData, UserLocation, LocatedAircrafts>(
+      Rx.combineLatest2<AdsbData, Location, LocatedAircrafts>(
         _currentDataStreams.streams.adsbStream,
         _currentDataStreams.streams.localizationStream,
-        calculateRelativeAircraftPositions,
+        _calculateRelativeAircraftPositions,
       );
 
-  LocatedAircrafts calculateRelativeAircraftPositions(
+  LocatedAircrafts _calculateRelativeAircraftPositions(
     AdsbData adsbData,
-    UserLocation userLocation,
+    Location userLocation,
   ) {
     final locatedAircrafts =
         adsbData.aircrafts
             .map(
-              (aircraft) => calculateRelativePosition(aircraft, userLocation),
+              (aircraft) => _calculateRelativePosition(aircraft, userLocation),
             )
             .toList();
 
     return LocatedAircrafts(
       aircrafts: locatedAircrafts,
-      timestamp: maxTimestamp(adsbData.timestamp, userLocation.timestamp),
+      timestamp: maxTimestamp([adsbData.timestamp, userLocation.timestamp]),
     );
   }
 
-  LocatedAircraft calculateRelativePosition(
-    Aircraft aircraft,
-    UserLocation userLocation,
+  LocatedAircraft _calculateRelativePosition(
+    AdsbAircraft aircraft,
+    Location userLocation,
   ) {
     const double earthRadius = 6371000; // Earth radius in meters
 

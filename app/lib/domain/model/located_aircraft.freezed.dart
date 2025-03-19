@@ -17,7 +17,7 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$LocatedAircraft {
-  Aircraft get aircraft => throw _privateConstructorUsedError;
+  AdsbAircraft get aircraft => throw _privateConstructorUsedError;
   double get azimuth => throw _privateConstructorUsedError;
   double get distance => throw _privateConstructorUsedError;
 
@@ -35,9 +35,7 @@ abstract class $LocatedAircraftCopyWith<$Res> {
     $Res Function(LocatedAircraft) then,
   ) = _$LocatedAircraftCopyWithImpl<$Res, LocatedAircraft>;
   @useResult
-  $Res call({Aircraft aircraft, double azimuth, double distance});
-
-  $AircraftCopyWith<$Res> get aircraft;
+  $Res call({AdsbAircraft aircraft, double azimuth, double distance});
 }
 
 /// @nodoc
@@ -55,17 +53,17 @@ class _$LocatedAircraftCopyWithImpl<$Res, $Val extends LocatedAircraft>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? aircraft = null,
+    Object? aircraft = freezed,
     Object? azimuth = null,
     Object? distance = null,
   }) {
     return _then(
       _value.copyWith(
             aircraft:
-                null == aircraft
+                freezed == aircraft
                     ? _value.aircraft
                     : aircraft // ignore: cast_nullable_to_non_nullable
-                        as Aircraft,
+                        as AdsbAircraft,
             azimuth:
                 null == azimuth
                     ? _value.azimuth
@@ -80,16 +78,6 @@ class _$LocatedAircraftCopyWithImpl<$Res, $Val extends LocatedAircraft>
           as $Val,
     );
   }
-
-  /// Create a copy of LocatedAircraft
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $AircraftCopyWith<$Res> get aircraft {
-    return $AircraftCopyWith<$Res>(_value.aircraft, (value) {
-      return _then(_value.copyWith(aircraft: value) as $Val);
-    });
-  }
 }
 
 /// @nodoc
@@ -101,10 +89,7 @@ abstract class _$$LocatedAircraftImplCopyWith<$Res>
   ) = __$$LocatedAircraftImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({Aircraft aircraft, double azimuth, double distance});
-
-  @override
-  $AircraftCopyWith<$Res> get aircraft;
+  $Res call({AdsbAircraft aircraft, double azimuth, double distance});
 }
 
 /// @nodoc
@@ -121,17 +106,17 @@ class __$$LocatedAircraftImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? aircraft = null,
+    Object? aircraft = freezed,
     Object? azimuth = null,
     Object? distance = null,
   }) {
     return _then(
       _$LocatedAircraftImpl(
         aircraft:
-            null == aircraft
+            freezed == aircraft
                 ? _value.aircraft
                 : aircraft // ignore: cast_nullable_to_non_nullable
-                    as Aircraft,
+                    as AdsbAircraft,
         azimuth:
             null == azimuth
                 ? _value.azimuth
@@ -157,7 +142,7 @@ class _$LocatedAircraftImpl implements _LocatedAircraft {
   });
 
   @override
-  final Aircraft aircraft;
+  final AdsbAircraft aircraft;
   @override
   final double azimuth;
   @override
@@ -173,15 +158,19 @@ class _$LocatedAircraftImpl implements _LocatedAircraft {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$LocatedAircraftImpl &&
-            (identical(other.aircraft, aircraft) ||
-                other.aircraft == aircraft) &&
+            const DeepCollectionEquality().equals(other.aircraft, aircraft) &&
             (identical(other.azimuth, azimuth) || other.azimuth == azimuth) &&
             (identical(other.distance, distance) ||
                 other.distance == distance));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, aircraft, azimuth, distance);
+  int get hashCode => Object.hash(
+    runtimeType,
+    const DeepCollectionEquality().hash(aircraft),
+    azimuth,
+    distance,
+  );
 
   /// Create a copy of LocatedAircraft
   /// with the given fields replaced by the non-null parameter values.
@@ -197,13 +186,13 @@ class _$LocatedAircraftImpl implements _LocatedAircraft {
 
 abstract class _LocatedAircraft implements LocatedAircraft {
   const factory _LocatedAircraft({
-    required final Aircraft aircraft,
+    required final AdsbAircraft aircraft,
     required final double azimuth,
     required final double distance,
   }) = _$LocatedAircraftImpl;
 
   @override
-  Aircraft get aircraft;
+  AdsbAircraft get aircraft;
   @override
   double get azimuth;
   @override

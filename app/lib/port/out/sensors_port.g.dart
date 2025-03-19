@@ -6,7 +6,7 @@ part of 'sensors_port.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$sensorsPortHash() => r'c6fd617b38f3a78efa92fd026cc45e0f26747525';
+String _$sensorsPortHash() => r'dbdf0e002df27e792ae0e46970c50f7656f78bff';
 
 /// See also [sensorsPort].
 @ProviderFor(sensorsPort)

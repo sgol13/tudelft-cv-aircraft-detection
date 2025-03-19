@@ -1,17 +1,17 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'user_location.freezed.dart';
+part 'location.freezed.dart';
 
 @freezed
-class UserLocation with _$UserLocation {
-  const factory UserLocation({
+class Location with _$Location {
+  const factory Location({
     required double latitude, // [-90, 90]
     required double longitude, // (-180, 180]
     required double altitude, // metres
     required DateTime timestamp,
-  }) = _UserLocation;
+  }) = _Location;
 
-  const UserLocation._();
+  const Location._();
 
   String get preview =>
       '[${formatValue(latitude)}, ${formatValue(longitude)}, ${altitude.toStringAsFixed(0).padLeft(6)} m]';

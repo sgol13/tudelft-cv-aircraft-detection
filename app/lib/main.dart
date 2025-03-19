@@ -4,15 +4,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:camera/camera.dart';
 import 'package:app/adapter/camera_provider.dart';
 
+import 'domain/estimate_orientation.dart';
 import 'domain/get_current_data_streams.dart';
 import 'domain/model/adsb_data.dart';
-import 'domain/model/user_location.dart';
+import 'domain/model/location.dart';
 
 void main() {
   runApp(ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(home: SensorCameraView());
@@ -24,10 +27,10 @@ class SensorDataStreamWidget extends StatefulWidget {
   final String sensorType;
 
   const SensorDataStreamWidget({
-    Key? key,
+    super.key,
     required this.stream,
     required this.sensorType,
-  }) : super(key: key);
+  });
 
   @override
   _SensorDataStreamWidgetState createState() => _SensorDataStreamWidgetState();
@@ -42,7 +45,6 @@ class _SensorDataStreamWidgetState extends State<SensorDataStreamWidget> {
     return StreamBuilder<dynamic>(
       stream: widget.stream,
       builder: (context, snapshot) {
-
         final textStyle = TextStyle(
           color: Colors.white,
           fontFamily: 'Monaco',
@@ -54,7 +56,10 @@ class _SensorDataStreamWidgetState extends State<SensorDataStreamWidget> {
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}', style: textStyle);
         } else if (!snapshot.hasData) {
-          return Text('No ${widget.sensorType} data available', style: textStyle);
+          return Text(
+            'No ${widget.sensorType} data available',
+            style: textStyle,
+          );
         } else {
           final data = snapshot.data!;
 
@@ -64,7 +69,10 @@ class _SensorDataStreamWidgetState extends State<SensorDataStreamWidget> {
           }
           _lastEventTime = data.timestamp;
 
-          String frequency = _frequencyMs == null ? '' : '${_frequencyMs.toString().padLeft(4)} ms';
+          String frequency =
+              _frequencyMs == null
+                  ? ''
+                  : '${_frequencyMs.toString().padLeft(4)} ms';
           return Text(
             '${widget.sensorType.padLeft(14)} ${data.preview} $frequency',
             textAlign: TextAlign.left,
@@ -77,10 +85,13 @@ class _SensorDataStreamWidgetState extends State<SensorDataStreamWidget> {
 }
 
 class SensorCameraView extends ConsumerWidget {
+  const SensorCameraView({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final dataStreams = ref.watch(getCurrentDataStreamsProvider);
     final cameraController = ref.watch(cameraProvider);
+    final orientationStream = ref.watch(estimateOrientationProvider).stream;
 
     return Scaffold(
       body: Stack(
@@ -109,7 +120,7 @@ class SensorCameraView extends ConsumerWidget {
                     stream: dataStreams.streams.magnetometerStream,
                     sensorType: 'Magnetometer',
                   ),
-                  StreamBuilder<UserLocation>(
+                  StreamBuilder<Location>(
                     stream: dataStreams.streams.localizationStream,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
@@ -126,6 +137,10 @@ class SensorCameraView extends ConsumerWidget {
                         );
                       }
                     },
+                  ),
+                  SensorDataStreamWidget(
+                    stream: orientationStream,
+                    sensorType: 'Orientation',
                   ),
                   StreamBuilder<AdsbData>(
                     stream: dataStreams.streams.adsbStream,
@@ -164,16 +179,15 @@ class SensorCameraView extends ConsumerWidget {
   }
 }
 
-
 class AircraftListScreen extends ConsumerWidget {
+  const AircraftListScreen({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final adsbStream = ref.watch(adsbApiPortProvider).adsbStream;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Aircraft List'),
-      ),
+      appBar: AppBar(title: Text('Aircraft List')),
       body: StreamBuilder<AdsbData>(
         stream: adsbStream,
         builder: (context, snapshot) {
@@ -194,7 +208,8 @@ class AircraftListScreen extends ConsumerWidget {
               return ListTile(
                 title: Text(aircraft.flight ?? 'Unknown'),
                 subtitle: Text(
-                    'Lat: ${aircraft.latitude}, Lon: ${aircraft.longitude}'),
+                  'Lat: ${aircraft.latitude}, Lon: ${aircraft.longitude}',
+                ),
               );
             },
           );

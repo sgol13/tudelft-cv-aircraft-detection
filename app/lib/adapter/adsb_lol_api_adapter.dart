@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:app/domain/model/adsb_data.dart';
-import 'package:app/domain/model/aircraft.dart';
-import 'package:app/domain/model/user_location.dart';
+import 'package:app/domain/model/adsb_aircraft.dart';
+import 'package:app/domain/model/location.dart';
 import 'package:app/port/out/adsb_api_port.dart';
 import 'package:app/port/out/localization_port.dart';
 import 'dart:async';
@@ -13,7 +13,7 @@ class AdsbLolApiAdapter implements AdsbApiPort {
   static final int radius = 25; // nm
 
   final LocalizationPort _localizationPort;
-  UserLocation? _location;
+  Location? _location;
 
   AdsbLolApiAdapter(this._localizationPort) {
     _localizationPort.locationStream.listen((location) {
@@ -22,7 +22,7 @@ class AdsbLolApiAdapter implements AdsbApiPort {
   }
 
   @override
-  Stream<AdsbData> get adsbStream => Stream.periodic(Duration(seconds: 10))
+  Stream<AdsbData> adsbStream() => Stream.periodic(Duration(seconds: 10))
       .map((_) => _location)
       .whereNotNull()
       .asyncMap((location) => _fetchDataWithRetry(location, retry: 3))
@@ -30,7 +30,7 @@ class AdsbLolApiAdapter implements AdsbApiPort {
       .map(_parseResponse);
 
   Future<http.Response?> _fetchDataWithRetry(
-    UserLocation location, {
+    Location location, {
     required int retry,
   }) async {
     final String url =
@@ -53,7 +53,7 @@ class AdsbLolApiAdapter implements AdsbApiPort {
   AdsbData _parseResponse(http.Response response) {
     final jsonResponse = jsonDecode(response.body);
 
-    final List<Aircraft> aircrafts =
+    final List<AdsbAircraft> aircrafts =
         (jsonResponse['ac'] as List)
             .map((aircraft) => _parseAircraft(aircraft as Map<String, dynamic>))
             .toList();
@@ -61,7 +61,7 @@ class AdsbLolApiAdapter implements AdsbApiPort {
     return AdsbData(aircrafts: aircrafts, timestamp: DateTime.now());
   }
 
-  Aircraft _parseAircraft(Map<String, dynamic> json) => Aircraft(
+  AdsbAircraft _parseAircraft(Map<String, dynamic> json) => AdsbAircraft(
     flight: json['flight'],
     latitude: json['lat'],
     longitude: json['lon'],

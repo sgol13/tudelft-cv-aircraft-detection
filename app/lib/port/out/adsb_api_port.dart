@@ -8,7 +8,7 @@ import 'localization_port.dart';
 part 'adsb_api_port.g.dart';
 
 abstract class AdsbApiPort {
-  Stream<AdsbData> get adsbStream;
+  Stream<AdsbData> adsbStream();
 }
 
 @riverpod

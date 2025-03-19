@@ -17,7 +17,7 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$AdsbData {
-  List<Aircraft> get aircrafts => throw _privateConstructorUsedError;
+  List<AdsbAircraft> get aircrafts => throw _privateConstructorUsedError;
   DateTime get timestamp => throw _privateConstructorUsedError;
 
   /// Create a copy of AdsbData
@@ -32,7 +32,7 @@ abstract class $AdsbDataCopyWith<$Res> {
   factory $AdsbDataCopyWith(AdsbData value, $Res Function(AdsbData) then) =
       _$AdsbDataCopyWithImpl<$Res, AdsbData>;
   @useResult
-  $Res call({List<Aircraft> aircrafts, DateTime timestamp});
+  $Res call({List<AdsbAircraft> aircrafts, DateTime timestamp});
 }
 
 /// @nodoc
@@ -56,7 +56,7 @@ class _$AdsbDataCopyWithImpl<$Res, $Val extends AdsbData>
                 null == aircrafts
                     ? _value.aircrafts
                     : aircrafts // ignore: cast_nullable_to_non_nullable
-                        as List<Aircraft>,
+                        as List<AdsbAircraft>,
             timestamp:
                 null == timestamp
                     ? _value.timestamp
@@ -77,7 +77,7 @@ abstract class _$$AdsbDataImplCopyWith<$Res>
   ) = __$$AdsbDataImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({List<Aircraft> aircrafts, DateTime timestamp});
+  $Res call({List<AdsbAircraft> aircrafts, DateTime timestamp});
 }
 
 /// @nodoc
@@ -100,7 +100,7 @@ class __$$AdsbDataImplCopyWithImpl<$Res>
             null == aircrafts
                 ? _value._aircrafts
                 : aircrafts // ignore: cast_nullable_to_non_nullable
-                    as List<Aircraft>,
+                    as List<AdsbAircraft>,
         timestamp:
             null == timestamp
                 ? _value.timestamp
@@ -115,13 +115,13 @@ class __$$AdsbDataImplCopyWithImpl<$Res>
 
 class _$AdsbDataImpl implements _AdsbData {
   const _$AdsbDataImpl({
-    required final List<Aircraft> aircrafts,
+    required final List<AdsbAircraft> aircrafts,
     required this.timestamp,
   }) : _aircrafts = aircrafts;
 
-  final List<Aircraft> _aircrafts;
+  final List<AdsbAircraft> _aircrafts;
   @override
-  List<Aircraft> get aircrafts {
+  List<AdsbAircraft> get aircrafts {
     if (_aircrafts is EqualUnmodifiableListView) return _aircrafts;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(_aircrafts);
@@ -166,12 +166,12 @@ class _$AdsbDataImpl implements _AdsbData {
 
 abstract class _AdsbData implements AdsbData {
   const factory _AdsbData({
-    required final List<Aircraft> aircrafts,
+    required final List<AdsbAircraft> aircrafts,
     required final DateTime timestamp,
   }) = _$AdsbDataImpl;
 
   @override
-  List<Aircraft> get aircrafts;
+  List<AdsbAircraft> get aircrafts;
   @override
   DateTime get timestamp;
 

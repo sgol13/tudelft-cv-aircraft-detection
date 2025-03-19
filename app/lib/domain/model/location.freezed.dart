@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'user_location.dart';
+part of 'location.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -16,25 +16,23 @@ final _privateConstructorUsedError = UnsupportedError(
 );
 
 /// @nodoc
-mixin _$UserLocation {
+mixin _$Location {
   double get latitude => throw _privateConstructorUsedError; // [-90, 90]
   double get longitude => throw _privateConstructorUsedError; // (-180, 180]
   double get altitude => throw _privateConstructorUsedError; // metres
   DateTime get timestamp => throw _privateConstructorUsedError;
 
-  /// Create a copy of UserLocation
+  /// Create a copy of Location
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $UserLocationCopyWith<UserLocation> get copyWith =>
+  $LocationCopyWith<Location> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $UserLocationCopyWith<$Res> {
-  factory $UserLocationCopyWith(
-    UserLocation value,
-    $Res Function(UserLocation) then,
-  ) = _$UserLocationCopyWithImpl<$Res, UserLocation>;
+abstract class $LocationCopyWith<$Res> {
+  factory $LocationCopyWith(Location value, $Res Function(Location) then) =
+      _$LocationCopyWithImpl<$Res, Location>;
   @useResult
   $Res call({
     double latitude,
@@ -45,16 +43,16 @@ abstract class $UserLocationCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$UserLocationCopyWithImpl<$Res, $Val extends UserLocation>
-    implements $UserLocationCopyWith<$Res> {
-  _$UserLocationCopyWithImpl(this._value, this._then);
+class _$LocationCopyWithImpl<$Res, $Val extends Location>
+    implements $LocationCopyWith<$Res> {
+  _$LocationCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
   final $Val _value;
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of UserLocation
+  /// Create a copy of Location
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -93,12 +91,12 @@ class _$UserLocationCopyWithImpl<$Res, $Val extends UserLocation>
 }
 
 /// @nodoc
-abstract class _$$UserLocationImplCopyWith<$Res>
-    implements $UserLocationCopyWith<$Res> {
-  factory _$$UserLocationImplCopyWith(
-    _$UserLocationImpl value,
-    $Res Function(_$UserLocationImpl) then,
-  ) = __$$UserLocationImplCopyWithImpl<$Res>;
+abstract class _$$LocationImplCopyWith<$Res>
+    implements $LocationCopyWith<$Res> {
+  factory _$$LocationImplCopyWith(
+    _$LocationImpl value,
+    $Res Function(_$LocationImpl) then,
+  ) = __$$LocationImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({
@@ -110,15 +108,15 @@ abstract class _$$UserLocationImplCopyWith<$Res>
 }
 
 /// @nodoc
-class __$$UserLocationImplCopyWithImpl<$Res>
-    extends _$UserLocationCopyWithImpl<$Res, _$UserLocationImpl>
-    implements _$$UserLocationImplCopyWith<$Res> {
-  __$$UserLocationImplCopyWithImpl(
-    _$UserLocationImpl _value,
-    $Res Function(_$UserLocationImpl) _then,
+class __$$LocationImplCopyWithImpl<$Res>
+    extends _$LocationCopyWithImpl<$Res, _$LocationImpl>
+    implements _$$LocationImplCopyWith<$Res> {
+  __$$LocationImplCopyWithImpl(
+    _$LocationImpl _value,
+    $Res Function(_$LocationImpl) _then,
   ) : super(_value, _then);
 
-  /// Create a copy of UserLocation
+  /// Create a copy of Location
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -129,7 +127,7 @@ class __$$UserLocationImplCopyWithImpl<$Res>
     Object? timestamp = null,
   }) {
     return _then(
-      _$UserLocationImpl(
+      _$LocationImpl(
         latitude:
             null == latitude
                 ? _value.latitude
@@ -157,8 +155,8 @@ class __$$UserLocationImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$UserLocationImpl extends _UserLocation {
-  const _$UserLocationImpl({
+class _$LocationImpl extends _Location {
+  const _$LocationImpl({
     required this.latitude,
     required this.longitude,
     required this.altitude,
@@ -179,14 +177,14 @@ class _$UserLocationImpl extends _UserLocation {
 
   @override
   String toString() {
-    return 'UserLocation(latitude: $latitude, longitude: $longitude, altitude: $altitude, timestamp: $timestamp)';
+    return 'Location(latitude: $latitude, longitude: $longitude, altitude: $altitude, timestamp: $timestamp)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$UserLocationImpl &&
+            other is _$LocationImpl &&
             (identical(other.latitude, latitude) ||
                 other.latitude == latitude) &&
             (identical(other.longitude, longitude) ||
@@ -201,23 +199,23 @@ class _$UserLocationImpl extends _UserLocation {
   int get hashCode =>
       Object.hash(runtimeType, latitude, longitude, altitude, timestamp);
 
-  /// Create a copy of UserLocation
+  /// Create a copy of Location
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$UserLocationImplCopyWith<_$UserLocationImpl> get copyWith =>
-      __$$UserLocationImplCopyWithImpl<_$UserLocationImpl>(this, _$identity);
+  _$$LocationImplCopyWith<_$LocationImpl> get copyWith =>
+      __$$LocationImplCopyWithImpl<_$LocationImpl>(this, _$identity);
 }
 
-abstract class _UserLocation extends UserLocation {
-  const factory _UserLocation({
+abstract class _Location extends Location {
+  const factory _Location({
     required final double latitude,
     required final double longitude,
     required final double altitude,
     required final DateTime timestamp,
-  }) = _$UserLocationImpl;
-  const _UserLocation._() : super._();
+  }) = _$LocationImpl;
+  const _Location._() : super._();
 
   @override
   double get latitude; // [-90, 90]
@@ -228,10 +226,10 @@ abstract class _UserLocation extends UserLocation {
   @override
   DateTime get timestamp;
 
-  /// Create a copy of UserLocation
+  /// Create a copy of Location
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$UserLocationImplCopyWith<_$UserLocationImpl> get copyWith =>
+  _$$LocationImplCopyWith<_$LocationImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

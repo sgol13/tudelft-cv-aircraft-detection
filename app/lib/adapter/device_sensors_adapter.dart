@@ -2,24 +2,24 @@ import 'package:sensors_plus/sensors_plus.dart';
 import '../domain/model/sensor_data.dart';
 import '../port/out/sensors_port.dart';
 
-class PhoneSensorsAdapter implements SensorsPort {
+class DeviceSensorsAdapter implements SensorsPort {
   // The sampling period is set not guaranteed on Android
   static const samplingPeriod = Duration(milliseconds: 100);
 
   @override
-  SensorsDataStreams get sensorsStreams => (
-  accelerometerStream: userAccelerometerEventStream(
+  Stream<SensorData> accelerometerStream() => accelerometerEventStream(
     samplingPeriod: samplingPeriod,
-  ).map(_toSensorData<UserAccelerometerEvent>),
+  ).map(_toSensorData<AccelerometerEvent>);
 
-  gyroscopeStream: gyroscopeEventStream(
+  @override
+  Stream<SensorData> gyroscopeStream() => gyroscopeEventStream(
     samplingPeriod: samplingPeriod,
-  ).map(_toSensorData<GyroscopeEvent>),
+  ).map(_toSensorData<GyroscopeEvent>);
 
-  magnetometerStream: magnetometerEventStream(
+  @override
+  Stream<SensorData> magnetometerStream() => magnetometerEventStream(
     samplingPeriod: samplingPeriod,
-  ).map(_toSensorData<MagnetometerEvent>),
-  );
+  ).map(_toSensorData<MagnetometerEvent>);
 
   SensorData _toSensorData<T extends dynamic>(T event) => SensorData(
     x: event.x,

@@ -1,8 +1,10 @@
 import 'dart:math';
 
-DateTime maxTimestamp(DateTime t1, DateTime t2) => t1.isAfter(t2) ? t1 : t2;
+DateTime maxTimestamp(List<DateTime> timestamps) =>
+    timestamps.reduce((t1, t2) => t1.isAfter(t2) ? t1 : t2);
 
-DateTime minTimestamp(DateTime t1, DateTime t2) => t1.isBefore(t2) ? t1 : t2;
+DateTime minTimestamp(List<DateTime> timestamps) =>
+    timestamps.reduce((t1, t2) => t1.isBefore(t2) ? t1 : t2);
 
 double degToRad(double degrees) => degrees * pi / 180;
 
