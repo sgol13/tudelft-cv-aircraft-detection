@@ -7,7 +7,7 @@ import os
 model = YOLO('./aircraft_detection/yolov8n_finetune6/weights/best.pt')
 
 # Path to test image
-image_path = './datasets/yolo_data/train/images/3cdfa11e_000002.jpg'
+image_path = './datasets/yolo_data/test/images/23acbdcd_000002.jpg'
 label_path = image_path.replace('images', 'labels').replace('.jpg', '.txt')
 
 # Class names (adjust based on your data.yaml)
@@ -202,3 +202,6 @@ while True:
         break
 
 cv2.destroyAllWindows()
+cv2.waitKey(1)  # Ensure all windows are closed
+print("Closed all windows")
+
