@@ -12,7 +12,7 @@ class EstimateOrientation {
 
   EstimateOrientation(this._currentDataStreams);
 
-  Stream<DeviceOrientation> orientationStream() => FlutterCompass.events!
+  Stream<DeviceOrientation> get stream => FlutterCompass.events!
       .map((compassEvent) => compassEvent.heading)
       .whereNotNull()
       .map(

@@ -91,7 +91,7 @@ class SensorCameraView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentDataStreams = ref.watch(getCurrentDataStreamsProvider);
     final cameraController = ref.watch(cameraProvider);
-    final orientationStream = ref.watch(estimateOrientationProvider).orientationStream();
+    final orientationStream = ref.watch(estimateOrientationProvider).stream;
 
     return Scaffold(
       body: Stack(

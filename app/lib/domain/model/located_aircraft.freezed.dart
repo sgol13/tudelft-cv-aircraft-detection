@@ -17,7 +17,7 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$LocatedAircraft {
-  AdsbAircraft get aircraft => throw _privateConstructorUsedError;
+  AdsbAircraft get adsbAircraft => throw _privateConstructorUsedError;
   double get azimuth => throw _privateConstructorUsedError;
   double get distance => throw _privateConstructorUsedError;
 
@@ -63,7 +63,7 @@ class _$LocatedAircraftCopyWithImpl<$Res, $Val extends LocatedAircraft>
       _value.copyWith(
             aircraft:
                 null == aircraft
-                    ? _value.aircraft
+                    ? _value.adsbAircraft
                     : aircraft // ignore: cast_nullable_to_non_nullable
                         as AdsbAircraft,
             azimuth:
@@ -86,7 +86,7 @@ class _$LocatedAircraftCopyWithImpl<$Res, $Val extends LocatedAircraft>
   @override
   @pragma('vm:prefer-inline')
   $AdsbAircraftCopyWith<$Res> get aircraft {
-    return $AdsbAircraftCopyWith<$Res>(_value.aircraft, (value) {
+    return $AdsbAircraftCopyWith<$Res>(_value.adsbAircraft, (value) {
       return _then(_value.copyWith(aircraft: value) as $Val);
     });
   }
@@ -127,9 +127,9 @@ class __$$LocatedAircraftImplCopyWithImpl<$Res>
   }) {
     return _then(
       _$LocatedAircraftImpl(
-        aircraft:
+        adsbAircraft:
             null == aircraft
-                ? _value.aircraft
+                ? _value.adsbAircraft
                 : aircraft // ignore: cast_nullable_to_non_nullable
                     as AdsbAircraft,
         azimuth:
@@ -151,13 +151,13 @@ class __$$LocatedAircraftImplCopyWithImpl<$Res>
 
 class _$LocatedAircraftImpl implements _LocatedAircraft {
   const _$LocatedAircraftImpl({
-    required this.aircraft,
+    required this.adsbAircraft,
     required this.azimuth,
     required this.distance,
   });
 
   @override
-  final AdsbAircraft aircraft;
+  final AdsbAircraft adsbAircraft;
   @override
   final double azimuth;
   @override
@@ -165,7 +165,7 @@ class _$LocatedAircraftImpl implements _LocatedAircraft {
 
   @override
   String toString() {
-    return 'LocatedAircraft(aircraft: $aircraft, azimuth: $azimuth, distance: $distance)';
+    return 'LocatedAircraft(aircraft: $adsbAircraft, azimuth: $azimuth, distance: $distance)';
   }
 
   @override
@@ -173,15 +173,15 @@ class _$LocatedAircraftImpl implements _LocatedAircraft {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$LocatedAircraftImpl &&
-            (identical(other.aircraft, aircraft) ||
-                other.aircraft == aircraft) &&
+            (identical(other.adsbAircraft, adsbAircraft) ||
+                other.adsbAircraft == adsbAircraft) &&
             (identical(other.azimuth, azimuth) || other.azimuth == azimuth) &&
             (identical(other.distance, distance) ||
                 other.distance == distance));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, aircraft, azimuth, distance);
+  int get hashCode => Object.hash(runtimeType, adsbAircraft, azimuth, distance);
 
   /// Create a copy of LocatedAircraft
   /// with the given fields replaced by the non-null parameter values.
@@ -203,7 +203,7 @@ abstract class _LocatedAircraft implements LocatedAircraft {
   }) = _$LocatedAircraftImpl;
 
   @override
-  AdsbAircraft get aircraft;
+  AdsbAircraft get adsbAircraft;
   @override
   double get azimuth;
   @override
