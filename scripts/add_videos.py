@@ -147,6 +147,7 @@ def copy_video(video: Video, output_dir: str):
         raise RuntimeError(f"{dest_path} already exists")
 
     shutil.copy(video['path'], dest_path)
+    os.remove(video['path'])
 
 
 def copy_all_videos(videos: List[Video], output_dir: str):
@@ -179,7 +180,8 @@ def add_videos(directory: str, list_filename: Optional[str], output_dir: Optiona
 
 
 def main():
-    raise NotImplementedError
+    raise NotImplementedError("fix error ('f99c40a7',).mp4")
+
     parser = argparse.ArgumentParser(description='Add videos to the dataset')
     parser.add_argument('directory', type=str, help='Directory with new videos to process')
     parser.add_argument('--list', type=str, help='CSV file with existing videos in the dataset')

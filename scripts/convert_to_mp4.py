@@ -9,6 +9,7 @@ def convert_to_mp4(file_path: str):
     output_path = os.path.splitext(file_path)[0] + MP4_FORMAT
     print(f"Converting {file_path}")
     subprocess.run(['ffmpeg', '-i', file_path, output_path], check=True)
+    os.remove(file_path)
 
 def process_all_videos(directory: str):
     for root, _, files in os.walk(directory):
