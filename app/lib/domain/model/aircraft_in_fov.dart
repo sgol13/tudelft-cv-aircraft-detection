@@ -8,6 +8,7 @@ part 'aircraft_in_fov.freezed.dart';
 class AircraftInFov with _$AircraftInFov {
   const factory AircraftInFov({
     required AdsbAircraft aircraft,
-    required double relativeX
+    required double relativeX,
+    required double distance
   }) = _AircraftInFov;
 }

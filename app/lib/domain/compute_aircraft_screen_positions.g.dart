@@ -6,26 +6,26 @@ part of 'compute_aircraft_screen_positions.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$computerAircraftScreenPositionsHash() =>
-    r'2518683d0fac39d764c74f76b0bd67bfdd0e0d55';
+String _$computeAircraftScreenPositionsHash() =>
+    r'496820c1815756b85e934ea553f007511e391870';
 
-/// See also [computerAircraftScreenPositions].
-@ProviderFor(computerAircraftScreenPositions)
-final computerAircraftScreenPositionsProvider =
+/// See also [computeAircraftScreenPositions].
+@ProviderFor(computeAircraftScreenPositions)
+final computeAircraftScreenPositionsProvider =
     AutoDisposeProvider<ComputeAircraftScreenPositions>.internal(
-      computerAircraftScreenPositions,
-      name: r'computerAircraftScreenPositionsProvider',
+      computeAircraftScreenPositions,
+      name: r'computeAircraftScreenPositionsProvider',
       debugGetCreateSourceHash:
           const bool.fromEnvironment('dart.vm.product')
               ? null
-              : _$computerAircraftScreenPositionsHash,
+              : _$computeAircraftScreenPositionsHash,
       dependencies: null,
       allTransitiveDependencies: null,
     );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef ComputerAircraftScreenPositionsRef =
+typedef ComputeAircraftScreenPositionsRef =
     AutoDisposeProviderRef<ComputeAircraftScreenPositions>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

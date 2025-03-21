@@ -7,7 +7,7 @@ part 'located_aircraft.freezed.dart';
 @freezed
 class LocatedAircraft with _$LocatedAircraft {
   const factory LocatedAircraft({
-    required AdsbAircraft aircraft,
+    required AdsbAircraft adsbAircraft,
     required double azimuth,
     required double distance,
   }) = _LocatedAircraft;

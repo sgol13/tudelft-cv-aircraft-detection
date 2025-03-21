@@ -71,7 +71,7 @@ class LocateAdsbAircrafts {
         (radToDeg(atan2(y, x)) + 360) % 360; // Normalize to [0, 360)
 
     return LocatedAircraft(
-      aircraft: aircraft,
+      adsbAircraft: aircraft,
       distance: distance,
       azimuth: azimuth,
     );

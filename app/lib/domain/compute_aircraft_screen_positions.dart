@@ -25,7 +25,7 @@ class ComputeAircraftScreenPositions {
     this._estimateOrientation,
   );
 
-  Stream<AircraftsInFov> aircraftsInFieldOfView() => Rx.combineLatest2<
+  Stream<AircraftsInFov> get stream => Rx.combineLatest2<
     AircraftsInProximity,
     DeviceOrientation,
     AircraftsInFov
@@ -61,17 +61,19 @@ class ComputeAircraftScreenPositions {
     DeviceOrientation orientation,
   ) {
     double relativeX =
-        (aircraft.azimuth -
-            orientation.heading +
-            0.5 * _cameraHorizontalFov) /
+        (aircraft.azimuth - orientation.heading + 0.5 * _cameraHorizontalFov) /
         _cameraHorizontalFov;
 
-    return AircraftInFov(aircraft: aircraft.adsbAircraft, relativeX: relativeX);
+    return AircraftInFov(
+      aircraft: aircraft.adsbAircraft,
+      distance: aircraft.distance,
+      relativeX: relativeX,
+    );
   }
 }
 
 @riverpod
-ComputeAircraftScreenPositions computerAircraftScreenPositions(Ref ref) {
+ComputeAircraftScreenPositions computeAircraftScreenPositions(Ref ref) {
   final locateAdsbAircrafts = ref.watch(locateAdsbAircraftsProvider);
   final estimateOrientation = ref.watch(estimateOrientationProvider);
 

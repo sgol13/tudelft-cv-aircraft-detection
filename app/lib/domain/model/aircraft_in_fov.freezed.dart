@@ -19,6 +19,7 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$AircraftInFov {
   AdsbAircraft get aircraft => throw _privateConstructorUsedError;
   double get relativeX => throw _privateConstructorUsedError;
+  double get distance => throw _privateConstructorUsedError;
 
   /// Create a copy of AircraftInFov
   /// with the given fields replaced by the non-null parameter values.
@@ -34,7 +35,7 @@ abstract class $AircraftInFovCopyWith<$Res> {
     $Res Function(AircraftInFov) then,
   ) = _$AircraftInFovCopyWithImpl<$Res, AircraftInFov>;
   @useResult
-  $Res call({AdsbAircraft aircraft, double relativeX});
+  $Res call({AdsbAircraft aircraft, double relativeX, double distance});
 
   $AdsbAircraftCopyWith<$Res> get aircraft;
 }
@@ -53,7 +54,11 @@ class _$AircraftInFovCopyWithImpl<$Res, $Val extends AircraftInFov>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? aircraft = null, Object? relativeX = null}) {
+  $Res call({
+    Object? aircraft = null,
+    Object? relativeX = null,
+    Object? distance = null,
+  }) {
     return _then(
       _value.copyWith(
             aircraft:
@@ -65,6 +70,11 @@ class _$AircraftInFovCopyWithImpl<$Res, $Val extends AircraftInFov>
                 null == relativeX
                     ? _value.relativeX
                     : relativeX // ignore: cast_nullable_to_non_nullable
+                        as double,
+            distance:
+                null == distance
+                    ? _value.distance
+                    : distance // ignore: cast_nullable_to_non_nullable
                         as double,
           )
           as $Val,
@@ -91,7 +101,7 @@ abstract class _$$AircraftInFovImplCopyWith<$Res>
   ) = __$$AircraftInFovImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({AdsbAircraft aircraft, double relativeX});
+  $Res call({AdsbAircraft aircraft, double relativeX, double distance});
 
   @override
   $AdsbAircraftCopyWith<$Res> get aircraft;
@@ -110,7 +120,11 @@ class __$$AircraftInFovImplCopyWithImpl<$Res>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? aircraft = null, Object? relativeX = null}) {
+  $Res call({
+    Object? aircraft = null,
+    Object? relativeX = null,
+    Object? distance = null,
+  }) {
     return _then(
       _$AircraftInFovImpl(
         aircraft:
@@ -123,6 +137,11 @@ class __$$AircraftInFovImplCopyWithImpl<$Res>
                 ? _value.relativeX
                 : relativeX // ignore: cast_nullable_to_non_nullable
                     as double,
+        distance:
+            null == distance
+                ? _value.distance
+                : distance // ignore: cast_nullable_to_non_nullable
+                    as double,
       ),
     );
   }
@@ -131,16 +150,22 @@ class __$$AircraftInFovImplCopyWithImpl<$Res>
 /// @nodoc
 
 class _$AircraftInFovImpl implements _AircraftInFov {
-  const _$AircraftInFovImpl({required this.aircraft, required this.relativeX});
+  const _$AircraftInFovImpl({
+    required this.aircraft,
+    required this.relativeX,
+    required this.distance,
+  });
 
   @override
   final AdsbAircraft aircraft;
   @override
   final double relativeX;
+  @override
+  final double distance;
 
   @override
   String toString() {
-    return 'AircraftInFov(aircraft: $aircraft, relativeX: $relativeX)';
+    return 'AircraftInFov(aircraft: $aircraft, relativeX: $relativeX, distance: $distance)';
   }
 
   @override
@@ -151,11 +176,13 @@ class _$AircraftInFovImpl implements _AircraftInFov {
             (identical(other.aircraft, aircraft) ||
                 other.aircraft == aircraft) &&
             (identical(other.relativeX, relativeX) ||
-                other.relativeX == relativeX));
+                other.relativeX == relativeX) &&
+            (identical(other.distance, distance) ||
+                other.distance == distance));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, aircraft, relativeX);
+  int get hashCode => Object.hash(runtimeType, aircraft, relativeX, distance);
 
   /// Create a copy of AircraftInFov
   /// with the given fields replaced by the non-null parameter values.
@@ -170,12 +197,15 @@ abstract class _AircraftInFov implements AircraftInFov {
   const factory _AircraftInFov({
     required final AdsbAircraft aircraft,
     required final double relativeX,
+    required final double distance,
   }) = _$AircraftInFovImpl;
 
   @override
   AdsbAircraft get aircraft;
   @override
   double get relativeX;
+  @override
+  double get distance;
 
   /// Create a copy of AircraftInFov
   /// with the given fields replaced by the non-null parameter values.

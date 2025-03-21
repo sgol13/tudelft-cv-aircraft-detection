@@ -14,7 +14,7 @@ class GpsLocalizationAdapter implements LocalizationPort {
   Stream<Location> locationStream() => Geolocator.getPositionStream(
     locationSettings: const LocationSettings(
       accuracy: LocationAccuracy.high,
-      distanceFilter: 10,
+      distanceFilter: 1,
     ),
   ).map(_toUserLocation);
 

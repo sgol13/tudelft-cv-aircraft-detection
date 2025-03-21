@@ -35,9 +35,9 @@ abstract class $LocatedAircraftCopyWith<$Res> {
     $Res Function(LocatedAircraft) then,
   ) = _$LocatedAircraftCopyWithImpl<$Res, LocatedAircraft>;
   @useResult
-  $Res call({AdsbAircraft aircraft, double azimuth, double distance});
+  $Res call({AdsbAircraft adsbAircraft, double azimuth, double distance});
 
-  $AdsbAircraftCopyWith<$Res> get aircraft;
+  $AdsbAircraftCopyWith<$Res> get adsbAircraft;
 }
 
 /// @nodoc
@@ -55,16 +55,16 @@ class _$LocatedAircraftCopyWithImpl<$Res, $Val extends LocatedAircraft>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? aircraft = null,
+    Object? adsbAircraft = null,
     Object? azimuth = null,
     Object? distance = null,
   }) {
     return _then(
       _value.copyWith(
-            aircraft:
-                null == aircraft
+            adsbAircraft:
+                null == adsbAircraft
                     ? _value.adsbAircraft
-                    : aircraft // ignore: cast_nullable_to_non_nullable
+                    : adsbAircraft // ignore: cast_nullable_to_non_nullable
                         as AdsbAircraft,
             azimuth:
                 null == azimuth
@@ -85,9 +85,9 @@ class _$LocatedAircraftCopyWithImpl<$Res, $Val extends LocatedAircraft>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $AdsbAircraftCopyWith<$Res> get aircraft {
+  $AdsbAircraftCopyWith<$Res> get adsbAircraft {
     return $AdsbAircraftCopyWith<$Res>(_value.adsbAircraft, (value) {
-      return _then(_value.copyWith(aircraft: value) as $Val);
+      return _then(_value.copyWith(adsbAircraft: value) as $Val);
     });
   }
 }
@@ -101,10 +101,10 @@ abstract class _$$LocatedAircraftImplCopyWith<$Res>
   ) = __$$LocatedAircraftImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({AdsbAircraft aircraft, double azimuth, double distance});
+  $Res call({AdsbAircraft adsbAircraft, double azimuth, double distance});
 
   @override
-  $AdsbAircraftCopyWith<$Res> get aircraft;
+  $AdsbAircraftCopyWith<$Res> get adsbAircraft;
 }
 
 /// @nodoc
@@ -121,16 +121,16 @@ class __$$LocatedAircraftImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? aircraft = null,
+    Object? adsbAircraft = null,
     Object? azimuth = null,
     Object? distance = null,
   }) {
     return _then(
       _$LocatedAircraftImpl(
         adsbAircraft:
-            null == aircraft
+            null == adsbAircraft
                 ? _value.adsbAircraft
-                : aircraft // ignore: cast_nullable_to_non_nullable
+                : adsbAircraft // ignore: cast_nullable_to_non_nullable
                     as AdsbAircraft,
         azimuth:
             null == azimuth
@@ -165,7 +165,7 @@ class _$LocatedAircraftImpl implements _LocatedAircraft {
 
   @override
   String toString() {
-    return 'LocatedAircraft(aircraft: $adsbAircraft, azimuth: $azimuth, distance: $distance)';
+    return 'LocatedAircraft(adsbAircraft: $adsbAircraft, azimuth: $azimuth, distance: $distance)';
   }
 
   @override
@@ -197,7 +197,7 @@ class _$LocatedAircraftImpl implements _LocatedAircraft {
 
 abstract class _LocatedAircraft implements LocatedAircraft {
   const factory _LocatedAircraft({
-    required final AdsbAircraft aircraft,
+    required final AdsbAircraft adsbAircraft,
     required final double azimuth,
     required final double distance,
   }) = _$LocatedAircraftImpl;

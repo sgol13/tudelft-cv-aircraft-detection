@@ -10,7 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:rxdart/rxdart.dart';
 
 class AdsbLolApiAdapter implements AdsbApiPort {
-  static final int radius = 25; // nm
+  static final int radius = 100; // nm
 
   final LocalizationPort _localizationPort;
   Location? _location;
@@ -22,7 +22,7 @@ class AdsbLolApiAdapter implements AdsbApiPort {
   }
 
   @override
-  Stream<AdsbData> adsbStream() => Stream.periodic(Duration(seconds: 10))
+  Stream<AdsbData> adsbStream() => Stream.periodic(Duration(seconds: 3))
       .map((_) => _location)
       .whereNotNull()
       .asyncMap((location) => _fetchDataWithRetry(location, retry: 3))

@@ -1,3 +1,5 @@
+import 'package:app/domain/compute_aircraft_screen_positions.dart';
+import 'package:app/domain/model/aircrafts_in_fov.dart';
 import 'package:app/port/out/adsb_api_port.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -92,6 +94,8 @@ class SensorCameraView extends ConsumerWidget {
     final currentDataStreams = ref.watch(getCurrentDataStreamsProvider);
     final cameraController = ref.watch(cameraProvider);
     final orientationStream = ref.watch(estimateOrientationProvider).stream;
+    final aircraftsInFovStream =
+        ref.watch(computeAircraftScreenPositionsProvider).stream;
 
     return Scaffold(
       body: Stack(
@@ -142,29 +146,32 @@ class SensorCameraView extends ConsumerWidget {
                     stream: orientationStream,
                     sensorType: 'Orientation',
                   ),
-                  StreamBuilder<AdsbData>(
-                    stream: currentDataStreams.streams.adsbStream,
+                  StreamBuilder<AircraftsInFov>(
+                    stream: aircraftsInFovStream,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return Text('Loading Aircraft data...');
                       } else if (snapshot.hasError) {
                         return Text('Error: ${snapshot.error}');
-                      } else if (!snapshot.hasData || snapshot.data!.aircrafts.isEmpty) {
+                      } else if (!snapshot.hasData ||
+                          snapshot.data!.aircrafts.isEmpty) {
                         return Text('No Aircraft data available');
                       } else {
                         final aircrafts = snapshot.data!.aircrafts;
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: aircrafts.map((aircraft) {
-                            return Text(
-                              'Flight: ${aircraft.flight}, Lat: ${aircraft.latitude}, Lon: ${aircraft.longitude}',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontFamily: 'Monaco',
-                                fontSize: 9,
-                              ),
-                            );
-                          }).toList(),
+                          children:
+                              aircrafts.map((aircraft) {
+                                return Text(
+                                  'Flight: ${aircraft.aircraft.flight}, [${aircraft.aircraft.latitude.toStringAsFixed(3)},'
+                                      ' ${aircraft.aircraft.longitude.toStringAsFixed(3)}] ${(aircraft.distance / 1000).toStringAsFixed(0)} km, ${aircraft.relativeX.toStringAsFixed(2)}',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: 'Monaco',
+                                    fontSize: 9,
+                                  ),
+                                );
+                              }).toList(),
                         );
                       }
                     },
@@ -174,46 +181,6 @@ class SensorCameraView extends ConsumerWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class AircraftListScreen extends ConsumerWidget {
-  const AircraftListScreen({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final adsbStream = ref.watch(adsbApiPortProvider).adsbStream();
-
-    return Scaffold(
-      appBar: AppBar(title: Text('Aircraft List')),
-      body: StreamBuilder<AdsbData>(
-        stream: adsbStream,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.aircrafts.isEmpty) {
-            return Center(child: Text('No aircrafts available'));
-          }
-
-          final aircrafts = snapshot.data!.aircrafts;
-
-          return ListView.builder(
-            itemCount: aircrafts.length,
-            itemBuilder: (context, index) {
-              final aircraft = aircrafts[index];
-              return ListTile(
-                title: Text(aircraft.flight ?? 'Unknown'),
-                subtitle: Text(
-                  'Lat: ${aircraft.latitude}, Lon: ${aircraft.longitude}',
-                ),
-              );
-            },
-          );
-        },
       ),
     );
   }
