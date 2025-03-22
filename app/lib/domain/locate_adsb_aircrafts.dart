@@ -10,7 +10,7 @@ import 'package:rxdart/rxdart.dart';
 
 import 'model/adsb_data.dart';
 import 'model/aircrafts_in_proximity.dart';
-import 'model/location.dart';
+import 'model/device_location_event.dart';
 
 part 'locate_adsb_aircrafts.g.dart';
 

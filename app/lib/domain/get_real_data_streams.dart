@@ -1,49 +1,42 @@
-import 'package:app/domain/model/location.dart';
+import 'package:app/domain/model/device_orientation_event.dart';
+import 'package:app/domain/model/device_location_event.dart';
 import 'package:app/port/out/adsb_api_port.dart';
+import 'package:app/port/out/device_orientation_port.dart';
 import 'package:app/port/out/localization_port.dart';
 import 'package:app/port/out/sensors_port.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import 'get_data_streams.dart';
 import 'model/adsb_data.dart';
-import 'model/sensor_data.dart';
 
 part 'get_real_data_streams.g.dart';
 
-typedef AllDataStreams =
-    ({
-      Stream<SensorData> accelerometerStream,
-      Stream<SensorData> gyroscopeStream,
-      Stream<SensorData> magnetometerStream,
-      Stream<Location> localizationStream,
-      Stream<AdsbData> adsbStream,
-    });
-
-class GetRealDataStreams {
-  final SensorsPort _sensorsPort;
+class GetRealDataStreams extends GetDataStreams {
+  final DeviceOrientationPort _deviceOrientationPort;
   final LocalizationPort _localizationPort;
-  final AdsbApiPort _adsbApiPort;
+
+  // final AdsbApiPort _adsbApiPort;
 
   GetRealDataStreams(
-    this._sensorsPort,
+    this._deviceOrientationPort,
     this._localizationPort,
-    this._adsbApiPort,
+    // this._adsbApiPort,
   );
 
-  AllDataStreams get streams => (
-    accelerometerStream: _sensorsPort.accelerometerStream(),
-    gyroscopeStream: _sensorsPort.gyroscopeStream(),
-    magnetometerStream: _sensorsPort.magnetometerStream(),
-    localizationStream: _localizationPort.locationStream(),
-    adsbStream: _adsbApiPort.adsbStream(),
-  );
+  @override
+  Stream<DeviceOrientationEvent> get deviceOrientationStream =>
+      _deviceOrientationPort.stream;
+
+  @override
+  Stream<DeviceLocationEvent> get locationStream => _localizationPort.stream;
 }
 
 @riverpod
 GetRealDataStreams getRealDataStreams(Ref ref) {
-  final sensorsPort = ref.watch(sensorsPortProvider);
+  final deviceOrientationPort = ref.watch(deviceOrientationPortProvider);
   final localizationPort = ref.watch(localizationPortProvider);
-  final adsbApiPort = ref.watch(adsbApiPortProvider);
+  // final adsbApiPort = ref.watch(adsbApiPortProvider);
 
-  return GetRealDataStreams(sensorsPort, localizationPort, adsbApiPort);
+  return GetRealDataStreams(deviceOrientationPort, localizationPort);
 }

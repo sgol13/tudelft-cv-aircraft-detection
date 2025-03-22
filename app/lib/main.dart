@@ -7,7 +7,7 @@ import 'package:app/adapter/camera_provider.dart';
 
 import 'domain/estimate_orientation.dart';
 import 'domain/get_current_data_streams.dart';
-import 'domain/model/location.dart';
+import 'domain/model/device_location_event.dart';
 
 void main() {
   runApp(ProviderScope(child: MyApp()));

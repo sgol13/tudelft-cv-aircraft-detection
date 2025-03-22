@@ -1,24 +1,23 @@
-import 'package:app/domain/model/location.dart';
+import 'package:app/domain/model/device_location_event.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../port/out/localization_port.dart';
 
 class GpsLocalizationAdapter implements LocalizationPort {
-
   GpsLocalizationAdapter() {
     _requestLocationPermission();
   }
 
   @override
-  Stream<Location> locationStream() => Geolocator.getPositionStream(
+  Stream<DeviceLocationEvent> get stream => Geolocator.getPositionStream(
     locationSettings: const LocationSettings(
       accuracy: LocationAccuracy.high,
       distanceFilter: 1,
     ),
-  ).map(_toUserLocation);
+  ).map(_toDeviceLocationEvent);
 
-  Location _toUserLocation(position) => Location(
+  DeviceLocationEvent _toDeviceLocationEvent(position) => DeviceLocationEvent(
     latitude: position.latitude,
     longitude: position.longitude,
     timestamp: position.timestamp,
@@ -32,4 +31,3 @@ class GpsLocalizationAdapter implements LocalizationPort {
     }
   }
 }
-
