@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:app/common.dart';
 import 'package:app/domain/model/real_time_event.dart';
 import 'package:flutter_rotation_sensor/flutter_rotation_sensor.dart';
 
@@ -15,4 +18,10 @@ class DeviceOrientationEvent extends RealTimeEvent {
     required super.timestamp,
     required this.rawOrientation,
   });
+
+  String get preview =>
+      '[${formatValue(heading)}, ${formatValue(pitch)}, ${formatValue(roll)}]';
+
+  static String formatValue(double value) =>
+      radToDeg(value).toStringAsFixed(4).padLeft(8);
 }

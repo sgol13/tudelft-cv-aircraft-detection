@@ -13,24 +13,24 @@ class AdsbLolApiAdapter implements AdsbApiPort {
   static final int radius = 100; // nm
 
   final LocalizationPort _localizationPort;
-  Location? _location;
+  DeviceLocationEvent? _lastLocation;
 
   AdsbLolApiAdapter(this._localizationPort) {
-    _localizationPort.locationStream().listen((location) {
-      _location = location;
+    _localizationPort.stream.listen((location) {
+      _lastLocation = location;
     });
   }
 
   @override
   Stream<AdsbData> adsbStream() => Stream.periodic(Duration(seconds: 3))
-      .map((_) => _location)
+      .map((_) => _lastLocation)
       .whereNotNull()
       .asyncMap((location) => _fetchDataWithRetry(location, retry: 3))
       .whereNotNull()
       .map(_parseResponse);
 
   Future<http.Response?> _fetchDataWithRetry(
-    Location location, {
+    DeviceLocationEvent location, {
     required int retry,
   }) async {
     final String url =

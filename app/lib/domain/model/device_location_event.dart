@@ -5,7 +5,12 @@ class DeviceLocationEvent extends RealTimeEvent {
   final double longitude; // (-180, 180]
   final double altitude;
 
-  DeviceLocationEvent({required super.timestamp, required this.latitude, required this.longitude, required this.altitude}); // metres
+  DeviceLocationEvent({
+    required super.timestamp,
+    required this.latitude,
+    required this.longitude,
+    required this.altitude,
+  });
 
   String get preview =>
       '[${formatValue(latitude)}, ${formatValue(longitude)}, ${altitude.toStringAsFixed(0).padLeft(6)} m]';

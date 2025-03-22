@@ -18,8 +18,8 @@ class GetCurrentDataStreams extends GetDataStreams {
       _getRealDataStreams.deviceOrientationStream;
 
   @override
-  Stream<DeviceLocationEvent> get locationStream =>
-      _getRealDataStreams.locationStream;
+  Stream<DeviceLocationEvent> get deviceLocationStream =>
+      _getRealDataStreams.deviceLocationStream;
 }
 
 @riverpod

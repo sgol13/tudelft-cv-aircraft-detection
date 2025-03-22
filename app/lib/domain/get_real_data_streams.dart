@@ -29,7 +29,7 @@ class GetRealDataStreams extends GetDataStreams {
       _deviceOrientationPort.stream;
 
   @override
-  Stream<DeviceLocationEvent> get locationStream => _localizationPort.stream;
+  Stream<DeviceLocationEvent> get deviceLocationStream => _localizationPort.stream;
 }
 
 @riverpod

@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:camera/camera.dart';
 import 'package:app/adapter/camera_provider.dart';
 
-import 'domain/estimate_orientation.dart';
 import 'domain/get_current_data_streams.dart';
 import 'domain/model/device_location_event.dart';
 
@@ -91,9 +90,6 @@ class SensorCameraView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentDataStreams = ref.watch(getCurrentDataStreamsProvider);
     final cameraController = ref.watch(cameraProvider);
-    final orientationStream = ref.watch(estimateOrientationProvider).stream;
-    final aircraftsInFovStream =
-        ref.watch(computeAircraftScreenPositionsProvider).stream;
 
     return Scaffold(
       body: Stack(
@@ -110,20 +106,8 @@ class SensorCameraView extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SensorDataStreamWidget(
-                    stream: currentDataStreams.streams.accelerometerStream,
-                    sensorType: 'Accelerometer',
-                  ),
-                  SensorDataStreamWidget(
-                    stream: currentDataStreams.streams.gyroscopeStream,
-                    sensorType: 'Gyroscope',
-                  ),
-                  SensorDataStreamWidget(
-                    stream: currentDataStreams.streams.magnetometerStream,
-                    sensorType: 'Magnetometer',
-                  ),
-                  StreamBuilder<Location>(
-                    stream: currentDataStreams.streams.localizationStream,
+                  StreamBuilder<DeviceLocationEvent>(
+                    stream: currentDataStreams.deviceLocationStream,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return Text('Loading Location data...');
@@ -141,38 +125,8 @@ class SensorCameraView extends ConsumerWidget {
                     },
                   ),
                   SensorDataStreamWidget(
-                    stream: orientationStream,
+                    stream: currentDataStreams.deviceOrientationStream,
                     sensorType: 'Orientation',
-                  ),
-                  StreamBuilder<AircraftsInFov>(
-                    stream: aircraftsInFovStream,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Text('Loading Aircraft data...');
-                      } else if (snapshot.hasError) {
-                        return Text('Error: ${snapshot.error}');
-                      } else if (!snapshot.hasData ||
-                          snapshot.data!.aircrafts.isEmpty) {
-                        return Text('No Aircraft data available');
-                      } else {
-                        final aircrafts = snapshot.data!.aircrafts;
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children:
-                              aircrafts.map((aircraft) {
-                                return Text(
-                                  'Flight: ${aircraft.aircraft.flight}, [${aircraft.aircraft.latitude.toStringAsFixed(3)},'
-                                      ' ${aircraft.aircraft.longitude.toStringAsFixed(3)}] ${(aircraft.distance / 1000).toStringAsFixed(0)} km, ${aircraft.relativeX.toStringAsFixed(2)}',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontFamily: 'Monaco',
-                                    fontSize: 9,
-                                  ),
-                                );
-                              }).toList(),
-                        );
-                      }
-                    },
                   ),
                 ],
               ),
