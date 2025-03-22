@@ -2,7 +2,7 @@ import 'package:app/domain/get_current_data_streams.dart';
 import 'package:app/domain/locate_adsb_aircrafts.dart';
 import 'package:app/domain/model/aircraft_in_fov.dart';
 import 'package:app/domain/model/aircrafts_in_fov.dart';
-import 'package:app/domain/model/device_orientation.dart';
+import 'package:app/domain/model/device_orientation_event.dart';
 import 'package:app/domain/model/located_aircraft.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -27,7 +27,7 @@ class ComputeAircraftScreenPositions {
 
   Stream<AircraftsInFov> get stream => Rx.combineLatest2<
     AircraftsInProximity,
-    DeviceOrientation,
+    DeviceOrientationEvent,
     AircraftsInFov
   >(
     _locateAdsbAircrafts.stream,
@@ -37,7 +37,7 @@ class ComputeAircraftScreenPositions {
 
   AircraftsInFov _computeAircraftScreenPositions(
     AircraftsInProximity aircraftsInProximity,
-    DeviceOrientation deviceOrientation,
+    DeviceOrientationEvent deviceOrientation,
   ) => AircraftsInFov(
     aircrafts:
         aircraftsInProximity.aircrafts
@@ -50,7 +50,7 @@ class ComputeAircraftScreenPositions {
     timestamp: deviceOrientation.timestamp,
   );
 
-  bool isInFov(LocatedAircraft aircraft, DeviceOrientation orientation) {
+  bool isInFov(LocatedAircraft aircraft, DeviceOrientationEvent orientation) {
     return aircraft.azimuth >
             orientation.heading - 0.5 * _cameraHorizontalFov &&
         aircraft.azimuth < orientation.heading + 0.5 * _cameraHorizontalFov;
@@ -58,7 +58,7 @@ class ComputeAircraftScreenPositions {
 
   AircraftInFov _calculateRelativePosition(
     LocatedAircraft aircraft,
-    DeviceOrientation orientation,
+    DeviceOrientationEvent orientation,
   ) {
     double relativeX =
         (aircraft.azimuth - orientation.heading + 0.5 * _cameraHorizontalFov) /

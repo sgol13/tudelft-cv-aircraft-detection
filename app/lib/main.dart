@@ -1,6 +1,5 @@
 import 'package:app/domain/compute_aircraft_screen_positions.dart';
 import 'package:app/domain/model/aircrafts_in_fov.dart';
-import 'package:app/port/out/adsb_api_port.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:camera/camera.dart';
@@ -8,7 +7,6 @@ import 'package:app/adapter/camera_provider.dart';
 
 import 'domain/estimate_orientation.dart';
 import 'domain/get_current_data_streams.dart';
-import 'domain/model/adsb_data.dart';
 import 'domain/model/location.dart';
 
 void main() {

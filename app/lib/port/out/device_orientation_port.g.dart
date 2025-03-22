@@ -1,30 +1,31 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'estimate_orientation.dart';
+part of 'device_orientation_port.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$estimateOrientationHash() =>
-    r'1d38ef654d290286bc68d9ddaba90f5c841eadd4';
+String _$deviceOrientationPortHash() =>
+    r'565da6ebe7986aad4635e7f9f67fb7da4053f33f';
 
-/// See also [estimateOrientation].
-@ProviderFor(estimateOrientation)
-final estimateOrientationProvider =
-    AutoDisposeProvider<EstimateOrientation>.internal(
-      estimateOrientation,
-      name: r'estimateOrientationProvider',
+/// See also [deviceOrientationPort].
+@ProviderFor(deviceOrientationPort)
+final deviceOrientationPortProvider =
+    AutoDisposeProvider<DeviceOrientationPort>.internal(
+      deviceOrientationPort,
+      name: r'deviceOrientationPortProvider',
       debugGetCreateSourceHash:
           const bool.fromEnvironment('dart.vm.product')
               ? null
-              : _$estimateOrientationHash,
+              : _$deviceOrientationPortHash,
       dependencies: null,
       allTransitiveDependencies: null,
     );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef EstimateOrientationRef = AutoDisposeProviderRef<EstimateOrientation>;
+typedef DeviceOrientationPortRef =
+    AutoDisposeProviderRef<DeviceOrientationPort>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
