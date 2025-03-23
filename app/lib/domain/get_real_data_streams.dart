@@ -1,25 +1,28 @@
 import 'package:app/domain/model/device_orientation_event.dart';
 import 'package:app/domain/model/device_location_event.dart';
+import 'package:app/domain/model/video_frame_event.dart';
 import 'package:app/port/out/adsb_api_port.dart';
+import 'package:app/port/out/camera_port.dart';
 import 'package:app/port/out/device_orientation_port.dart';
 import 'package:app/port/out/localization_port.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'get_data_streams.dart';
-import 'model/adsb_data.dart';
 
 part 'get_real_data_streams.g.dart';
 
 class GetRealDataStreams extends GetDataStreams {
   final DeviceOrientationPort _deviceOrientationPort;
   final LocalizationPort _localizationPort;
+  final CameraPort _cameraPort;
 
   // final AdsbApiPort _adsbApiPort;
 
   GetRealDataStreams(
     this._deviceOrientationPort,
     this._localizationPort,
+    this._cameraPort,
     // this._adsbApiPort,
   );
 
@@ -28,14 +31,23 @@ class GetRealDataStreams extends GetDataStreams {
       _deviceOrientationPort.stream;
 
   @override
-  Stream<DeviceLocationEvent> get deviceLocationStream => _localizationPort.stream;
+  Stream<DeviceLocationEvent> get deviceLocationStream =>
+      _localizationPort.stream;
+
+  @override
+  Stream<VideoFrameEvent> get cameraStream => _cameraPort.stream;
 }
 
 @riverpod
 GetRealDataStreams getRealDataStreams(Ref ref) {
   final deviceOrientationPort = ref.watch(deviceOrientationPortProvider);
   final localizationPort = ref.watch(localizationPortProvider);
+  final cameraPort = ref.watch(cameraPortProvider);
   // final adsbApiPort = ref.watch(adsbApiPortProvider);
 
-  return GetRealDataStreams(deviceOrientationPort, localizationPort);
+  return GetRealDataStreams(
+    deviceOrientationPort,
+    localizationPort,
+    cameraPort,
+  );
 }
