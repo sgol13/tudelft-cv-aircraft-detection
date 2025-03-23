@@ -1,9 +1,7 @@
-import 'package:app/domain/compute_aircraft_screen_positions.dart';
-import 'package:app/domain/model/aircrafts_in_fov.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:camera/camera.dart';
-import 'package:app/adapter/camera_provider.dart';
+import 'package:app/device/camera.dart';
 
 import 'domain/get_current_data_streams.dart';
 import 'domain/model/device_location_event.dart';

@@ -1,12 +1,6 @@
 import 'package:camera/camera.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final cameraProvider = StateNotifierProvider<CameraNotifier, CameraController?>(
-  (ref) {
-    return CameraNotifier();
-  },
-);
-
 class CameraNotifier extends StateNotifier<CameraController?> {
   CameraNotifier() : super(null) {
     initializeCamera();
@@ -32,3 +26,9 @@ class CameraNotifier extends StateNotifier<CameraController?> {
     super.dispose();
   }
 }
+
+final cameraProvider = StateNotifierProvider<CameraNotifier, CameraController?>(
+  (ref) {
+    return CameraNotifier();
+  },
+);

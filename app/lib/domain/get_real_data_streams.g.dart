@@ -7,7 +7,7 @@ part of 'get_real_data_streams.dart';
 // **************************************************************************
 
 String _$getRealDataStreamsHash() =>
-    r'89c0f14bb90cbffd0bae63c5e36eddc1170abbbe';
+    r'c3de67259569493a847390893a2117e0617a35b7';
 
 /// See also [getRealDataStreams].
 @ProviderFor(getRealDataStreams)
