@@ -3,7 +3,6 @@ import 'package:app/domain/model/device_location_event.dart';
 import 'package:app/port/out/adsb_api_port.dart';
 import 'package:app/port/out/device_orientation_port.dart';
 import 'package:app/port/out/localization_port.dart';
-import 'package:app/port/out/sensors_port.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

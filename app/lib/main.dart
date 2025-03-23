@@ -1,10 +1,13 @@
+import 'package:app/port/out/camera_port.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:camera/camera.dart';
 import 'package:app/device/camera.dart';
 
+import 'adapter/camera_adapter.dart';
 import 'domain/get_current_data_streams.dart';
 import 'domain/model/device_location_event.dart';
+import 'domain/model/video_frame_event.dart';
 
 void main() {
   runApp(ProviderScope(child: MyApp()));
@@ -88,6 +91,7 @@ class SensorCameraView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentDataStreams = ref.watch(getCurrentDataStreamsProvider);
     final cameraController = ref.watch(cameraProvider);
+    final cameraAdapter = ref.watch(cameraPortProvider);
 
     return Scaffold(
       body: Stack(
@@ -125,6 +129,10 @@ class SensorCameraView extends ConsumerWidget {
                   SensorDataStreamWidget(
                     stream: currentDataStreams.deviceOrientationStream,
                     sensorType: 'Orientation',
+                  ),
+                  SensorDataStreamWidget(
+                    stream: cameraAdapter.stream,
+                    sensorType: 'Camera',
                   ),
                 ],
               ),
