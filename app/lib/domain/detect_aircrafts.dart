@@ -13,10 +13,10 @@ class DetectAircrafts {
   DetectAircrafts(this._getCurrentDataStreams, this._detectionModelPort);
 
   Stream<DetectedAircraftsEvent> get stream =>
-      _getCurrentDataStreams.cameraStream.map(_processEvent);
+      _getCurrentDataStreams.cameraStream.asyncMap(_processEvent);
 
-  DetectedAircraftsEvent _processEvent(VideoFrameEvent event) {
-    final detectedAircrafts = _detectionModelPort.detectAircrafts(event.image);
+  Future<DetectedAircraftsEvent> _processEvent(VideoFrameEvent event) async {
+    final detectedAircrafts = await _detectionModelPort.detectAircrafts(event.image);
     return DetectedAircraftsEvent(
       aircrafts: detectedAircrafts,
       timestamp: event.timestamp,
