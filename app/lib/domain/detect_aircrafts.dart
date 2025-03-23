@@ -5,6 +5,7 @@ import 'package:app/domain/model/video_frame_event.dart';
 import 'package:app/port/out/detection_model_port.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:rxdart/rxdart.dart';
 
 class DetectAircrafts {
   final GetCurrentDataStreams _getCurrentDataStreams;
@@ -13,10 +14,22 @@ class DetectAircrafts {
   DetectAircrafts(this._getCurrentDataStreams, this._detectionModelPort);
 
   Stream<DetectedAircraftsEvent> get stream =>
-      _getCurrentDataStreams.cameraStream.asyncMap(_processEvent);
+      _getCurrentDataStreams.cameraStream
+          .asyncMap(_processEvent)
+          .whereNotNull();
 
-  Future<DetectedAircraftsEvent> _processEvent(VideoFrameEvent event) async {
-    final detectedAircrafts = await _detectionModelPort.detectAircrafts(event.image);
+  Future<DetectedAircraftsEvent?> _processEvent(VideoFrameEvent event) async {
+    final detectedAircrafts = await _detectionModelPort.detectAircrafts(
+      event.image,
+    );
+
+    if (detectedAircrafts == null) {
+      print('Model unavailable');
+      return null;
+    }
+
+    print('Detected aircrafts: ${detectedAircrafts.length}');
+
     return DetectedAircraftsEvent(
       aircrafts: detectedAircrafts,
       timestamp: event.timestamp,

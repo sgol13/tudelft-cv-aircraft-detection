@@ -1,0 +1,8 @@
+0   contrail
+1   high_airliner
+2   low_airliner
+3   light_airplane
+4   helicopter
+5   other
+6   high_airliner_contrail
+7   faint_contrail

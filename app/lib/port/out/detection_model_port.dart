@@ -8,7 +8,7 @@ part 'detection_model_port.g.dart';
 
 abstract class DetectionModelPort {
 
-  Future<List<DetectedAircraft>> detectAircrafts(CameraImage image);
+  Future<List<DetectedAircraft>?> detectAircrafts(CameraImage image);
 }
 
 @riverpod
