@@ -1,16 +1,10 @@
 import 'package:app/domain/model/adsb_aircraft.dart';
+import 'package:flutter_rotation_sensor/flutter_rotation_sensor.dart';
 
 class LocalizedAdsbAircraft {
   final AdsbAircraft adsb;
 
-  final double x;
-  final double y;
-  final double z;
+  final Vector3 relativeLocation;
 
-  LocalizedAdsbAircraft({
-    required this.adsb,
-    required this.x,
-    required this.y,
-    required this.z,
-  });
+  LocalizedAdsbAircraft({required this.adsb, required this.relativeLocation});
 }

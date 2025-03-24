@@ -1,16 +1,16 @@
 import 'package:app/domain/model/events/real_time_event.dart';
+import 'package:app/domain/model/geo_location.dart';
 
 class DeviceLocationEvent extends RealTimeEvent {
-  final double latitude; // [-90, 90]
-  final double longitude; // (-180, 180]
-  final double altitude;
+  final GeoLocation geoLocation;
 
-  DeviceLocationEvent({
-    required super.timestamp,
-    required this.latitude,
-    required this.longitude,
-    required this.altitude,
-  });
+  DeviceLocationEvent({required super.timestamp, required this.geoLocation});
+
+  double get latitude => geoLocation.latitude;
+
+  double get longitude => geoLocation.longitude;
+
+  double get altitude => geoLocation.altitude;
 
   String get preview =>
       '[${formatValue(latitude)}, ${formatValue(longitude)}, ${altitude.toStringAsFixed(0).padLeft(6)} m]';

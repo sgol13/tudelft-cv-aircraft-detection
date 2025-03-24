@@ -9,6 +9,8 @@ import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'package:rxdart/rxdart.dart';
 
+import '../domain/model/geo_location.dart';
+
 class AdsbLolApiAdapter implements AdsbApiPort {
   static final int radius = 100; // nm
 
@@ -22,7 +24,7 @@ class AdsbLolApiAdapter implements AdsbApiPort {
   }
 
   @override
-  Stream<AdsbEvent> adsbStream() => Stream.periodic(Duration(seconds: 3))
+  Stream<AdsbEvent> get stream => Stream.periodic(Duration(seconds: 3))
       .map((_) => _lastLocation)
       .whereNotNull()
       .asyncMap((location) => _fetchDataWithRetry(location, retry: 3))
@@ -62,8 +64,11 @@ class AdsbLolApiAdapter implements AdsbApiPort {
   }
 
   AdsbAircraft _parseAircraft(Map<String, dynamic> json) => AdsbAircraft(
+    geoLocation: GeoLocation(
+      latitude: json['lat'],
+      longitude: json['lon'],
+      altitude: json['alt_geom'],
+    ),
     flight: json['flight'],
-    latitude: json['lat'],
-    longitude: json['lon'],
   );
 }

@@ -1,4 +1,5 @@
 import 'package:app/domain/model/events/device_location_event.dart';
+import 'package:app/domain/model/geo_location.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -17,12 +18,15 @@ class GpsLocalizationAdapter implements LocalizationPort {
     ),
   ).map(_toDeviceLocationEvent);
 
-  DeviceLocationEvent _toDeviceLocationEvent(position) => DeviceLocationEvent(
-    latitude: position.latitude,
-    longitude: position.longitude,
-    timestamp: position.timestamp,
-    altitude: position.altitude,
-  );
+  DeviceLocationEvent _toDeviceLocationEvent(Position position) =>
+      DeviceLocationEvent(
+        geoLocation: GeoLocation(
+          latitude: position.latitude,
+          longitude: position.longitude,
+          altitude: position.altitude,
+        ),
+        timestamp: position.timestamp,
+      );
 
   void _requestLocationPermission() async {
     PermissionStatus status = await Permission.location.status;
