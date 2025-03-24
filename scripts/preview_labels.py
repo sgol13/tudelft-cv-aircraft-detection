@@ -5,7 +5,7 @@ from typing import List
 import fiftyone as fo
 from tqdm import tqdm
 
-from common import VIDEOS_DIR, RENDERED_LABELS_DIR
+from common import VIDEOS_DIR, RENDERED_LABELS_DIR, start_fiftyone
 from render_labels import render_labels
 
 
@@ -29,17 +29,6 @@ def prepare_videos(xml_files: List[str], output_dir: str):
 
         if not os.path.exists(output_path):
             render_labels(video_path, xml_file, output_path)
-
-
-def start_fiftyone(videos_dir: str):
-    dataset = fo.Dataset.from_videos_dir(videos_dir)
-
-    for sample in dataset:
-        sample["name"] = os.path.basename(sample.filepath)
-        sample.save()
-
-    session = fo.launch_app(dataset)
-    session.wait()
 
 
 def preview(labels_path: str, clean: bool):
