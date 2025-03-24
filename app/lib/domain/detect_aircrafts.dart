@@ -7,6 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
 
+part 'detect_aircrafts.g.dart';
+
 class DetectAircrafts {
   final GetCurrentDataStreams _getCurrentDataStreams;
   final DetectionModelPort _detectionModelPort;
@@ -15,7 +17,8 @@ class DetectAircrafts {
 
   Stream<DetectedAircraftsEvent> get stream =>
       _getCurrentDataStreams.cameraStream
-          .asyncMap(_processEvent)
+          // todo: memory leak
+          .switchMap((event) => Stream.fromFuture(_processEvent(event)))
           .whereNotNull();
 
   Future<DetectedAircraftsEvent?> _processEvent(VideoFrameEvent event) async {

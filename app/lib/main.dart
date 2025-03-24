@@ -1,3 +1,4 @@
+import 'package:app/domain/detect_aircrafts.dart';
 import 'package:app/port/out/camera_port.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

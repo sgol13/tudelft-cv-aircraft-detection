@@ -8,4 +8,7 @@ class DetectedAircraftsEvent extends RealTimeEvent {
     required this.aircrafts,
     required super.timestamp,
   });
+
+  String get preview =>
+      '[${aircrafts.length}]';
 }
