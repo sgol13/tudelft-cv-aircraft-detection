@@ -93,6 +93,7 @@ class SensorCameraView extends ConsumerWidget {
     final currentDataStreams = ref.watch(getCurrentDataStreamsProvider);
     final cameraController = ref.watch(cameraProvider);
     final cameraAdapter = ref.watch(cameraPortProvider);
+    // final detectAircrafts = ref.watch(detectAircraftsProvider);
 
     return Scaffold(
       body: Stack(
@@ -135,6 +136,10 @@ class SensorCameraView extends ConsumerWidget {
                     stream: cameraAdapter.stream,
                     sensorType: 'Camera',
                   ),
+                  // SensorDataStreamWidget(
+                  //   stream: detectAircrafts.stream,
+                  //   sensorType: 'Aircrafts',
+                  // ),
                 ],
               ),
             ),

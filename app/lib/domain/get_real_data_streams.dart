@@ -1,3 +1,4 @@
+import 'package:app/domain/model/adsb_event.dart';
 import 'package:app/domain/model/device_orientation_event.dart';
 import 'package:app/domain/model/device_location_event.dart';
 import 'package:app/domain/model/video_frame_event.dart';
@@ -16,14 +17,13 @@ class GetRealDataStreams extends GetDataStreams {
   final DeviceOrientationPort _deviceOrientationPort;
   final LocalizationPort _localizationPort;
   final CameraPort _cameraPort;
-
-  // final AdsbApiPort _adsbApiPort;
+  final AdsbApiPort _adsbApiPort;
 
   GetRealDataStreams(
     this._deviceOrientationPort,
     this._localizationPort,
     this._cameraPort,
-    // this._adsbApiPort,
+    this._adsbApiPort,
   );
 
   @override
@@ -36,6 +36,9 @@ class GetRealDataStreams extends GetDataStreams {
 
   @override
   Stream<VideoFrameEvent> get cameraStream => _cameraPort.stream;
+
+  @override
+  Stream<AdsbEvent> get adsbStream => _adsbApiPort.stream;
 }
 
 @riverpod
@@ -43,11 +46,12 @@ GetRealDataStreams getRealDataStreams(Ref ref) {
   final deviceOrientationPort = ref.watch(deviceOrientationPortProvider);
   final localizationPort = ref.watch(localizationPortProvider);
   final cameraPort = ref.watch(cameraPortProvider);
-  // final adsbApiPort = ref.watch(adsbApiPortProvider);
+  final adsbApiPort = ref.watch(adsbApiPortProvider);
 
   return GetRealDataStreams(
     deviceOrientationPort,
     localizationPort,
     cameraPort,
+    adsbApiPort,
   );
 }

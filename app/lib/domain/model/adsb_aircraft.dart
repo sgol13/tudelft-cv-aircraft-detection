@@ -1,12 +1,11 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+class AdsbAircraft {
+  final double latitude;
+  final double longitude;
+  final String? flight;
 
-part 'adsb_aircraft.freezed.dart';
-
-@freezed
-class AdsbAircraft with _$AdsbAircraft {
-  const factory AdsbAircraft({
-    required double latitude,
-    required double longitude,
-    String? flight,
-  }) = _AdsbAircraft;
+  AdsbAircraft({
+    required this.latitude,
+    required this.longitude,
+    required this.flight,
+  });
 }

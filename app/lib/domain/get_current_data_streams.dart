@@ -1,4 +1,5 @@
 import 'package:app/domain/get_real_data_streams.dart';
+import 'package:app/domain/model/adsb_event.dart';
 import 'package:app/domain/model/device_location_event.dart';
 import 'package:app/domain/model/device_orientation_event.dart';
 import 'package:app/domain/model/video_frame_event.dart';
@@ -24,6 +25,9 @@ class GetCurrentDataStreams extends GetDataStreams {
 
   @override
   Stream<VideoFrameEvent> get cameraStream => _getRealDataStreams.cameraStream;
+
+  @override
+  Stream<AdsbEvent> get adsbStream => _getRealDataStreams.adsbStream;
 }
 
 @riverpod

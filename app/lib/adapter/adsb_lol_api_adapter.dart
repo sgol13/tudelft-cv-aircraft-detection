@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:app/domain/model/adsb_data.dart';
+import 'package:app/domain/model/adsb_event.dart';
 import 'package:app/domain/model/adsb_aircraft.dart';
 import 'package:app/domain/model/device_location_event.dart';
 import 'package:app/port/out/adsb_api_port.dart';
@@ -22,7 +22,7 @@ class AdsbLolApiAdapter implements AdsbApiPort {
   }
 
   @override
-  Stream<AdsbData> adsbStream() => Stream.periodic(Duration(seconds: 3))
+  Stream<AdsbEvent> adsbStream() => Stream.periodic(Duration(seconds: 3))
       .map((_) => _lastLocation)
       .whereNotNull()
       .asyncMap((location) => _fetchDataWithRetry(location, retry: 3))
@@ -50,7 +50,7 @@ class AdsbLolApiAdapter implements AdsbApiPort {
     return null;
   }
 
-  AdsbData _parseResponse(http.Response response) {
+  AdsbEvent _parseResponse(http.Response response) {
     final jsonResponse = jsonDecode(response.body);
 
     final List<AdsbAircraft> aircrafts =
@@ -58,7 +58,7 @@ class AdsbLolApiAdapter implements AdsbApiPort {
             .map((aircraft) => _parseAircraft(aircraft as Map<String, dynamic>))
             .toList();
 
-    return AdsbData(aircrafts: aircrafts, timestamp: DateTime.now());
+    return AdsbEvent(aircrafts: aircrafts, timestamp: DateTime.now());
   }
 
   AdsbAircraft _parseAircraft(Map<String, dynamic> json) => AdsbAircraft(

@@ -18,7 +18,13 @@ class DetectAircrafts {
   Stream<DetectedAircraftsEvent> get stream =>
       _getCurrentDataStreams.cameraStream
           // todo: memory leak
-          .switchMap((event) => Stream.fromFuture(_processEvent(event)))
+          // .switchMap((event) => Stream.fromFuture(_processEvent(event)))
+          .map(
+            (e) => DetectedAircraftsEvent(
+              aircrafts: List.of([]),
+              timestamp: DateTime.now(),
+            ),
+          )
           .whereNotNull();
 
   Future<DetectedAircraftsEvent?> _processEvent(VideoFrameEvent event) async {

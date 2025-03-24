@@ -2,13 +2,13 @@ import 'package:app/adapter/adsb_lol_api_adapter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../domain/model/adsb_data.dart';
+import '../../domain/model/adsb_event.dart';
 import 'localization_port.dart';
 
 part 'adsb_api_port.g.dart';
 
 abstract class AdsbApiPort {
-  Stream<AdsbData> adsbStream();
+  Stream<AdsbEvent> get stream;
 }
 
 @riverpod
