@@ -1,4 +1,5 @@
 import argparse
+import csv
 import os
 from concurrent.futures import ThreadPoolExecutor
 from typing import List, Optional, Set, Dict, Union
@@ -6,6 +7,7 @@ import pandas as pd
 import cv2
 import hashlib
 import ffmpeg
+import requests
 from tqdm import tqdm
 import shutil
 from collections import defaultdict
@@ -15,13 +17,26 @@ NUM_THREADS = 10
 Video = Dict[str, Union[str, float, int]]
 
 
-def get_current_videos_list(filename: str) -> List[str]:
-    df = pd.read_csv(filename)
-    if 'name' in df.columns:
-        return df['name'].tolist()
-    else:
-        df = pd.read_csv(filename, header=None)
-        return df.iloc[:, 0].tolist()
+def get_current_videos_from_spreadsheet() -> List[str]:
+    file_id = "1hAqC2Pz3xIEqdslCMa91_bKWBSlOHUs2sL5UKU8Wr7c"
+    gid = "286481740"
+    csv_url = f"https://docs.google.com/spreadsheets/d/{file_id}/export?format=csv&gid={gid}"
+
+    response = requests.get(csv_url)
+    response.raise_for_status()  # Raise error if request fails
+
+    rows = list(csv.reader(response.text.splitlines()))
+
+    # for it, row in enumerate(rows[:10]):
+    #     print(it, row[:6])
+
+    assert rows[0][1] == 'name', "The second column is not 'name'"
+
+    names = [row[1] for row in rows[1:] if row[1]]
+
+    assert all(name.endswith('.mp4') for name in names), "Not all names are .mp4 files"
+
+    return names
 
 
 def get_new_videos_paths(directory: str) -> List[str]:
@@ -61,7 +76,11 @@ def hash_mp4(video_path):
 
 
 def extract_video_metadata(video_path: str) -> Dict[str, Optional[Union[float, int, str]]]:
-    vid = ffmpeg.probe(video_path)
+    try:
+        vid = ffmpeg.probe(video_path)
+    except ffmpeg.Error as e:
+        raise RuntimeError(f"ffprobe error on file {video_path}: {e.stderr}")
+
     streams = vid['streams']
     video_stream = next((s for s in streams if s['codec_type'] == 'video'), None)
 
@@ -90,10 +109,10 @@ def read_video(video_path: str) -> Video:
 
     metadata = extract_video_metadata(video_path)
     hash_value = hash_mp4(video_path)
-    hash_prefix = hash_value[:8],  # 8 digits, ~0.2% collision probability on 10k videos
+    hash_prefix = hash_value[:8]  # 8 digits, ~0.2% collision probability on 10k videos
 
     return metadata | {
-        'name': f'{hash_prefix}.mp4',
+        'name': hash_prefix + '.mp4',
         'original_name': filename,
         'source': directory_name,
         'path': video_path,
@@ -131,7 +150,6 @@ def verify_no_duplicates(videos: List[Video]) -> bool:
         return False
 
 
-
 def save_csv_output(videos: List[Video], output_dir: str):
     columns_to_save = ['name', 'original_name', 'source', 'timestamp', 'resolution', 'duration', 'framerate',
                        'total_frames']
@@ -147,7 +165,6 @@ def copy_video(video: Video, output_dir: str):
         raise RuntimeError(f"{dest_path} already exists")
 
     shutil.copy(video['path'], dest_path)
-    os.remove(video['path'])
 
 
 def copy_all_videos(videos: List[Video], output_dir: str):
@@ -157,11 +174,12 @@ def copy_all_videos(videos: List[Video], output_dir: str):
         copy_video(video, output_dir)
 
 
-def add_videos(directory: str, list_filename: Optional[str], output_dir: Optional[str], copy_videos: bool):
-    current_videos: Set[str] = set(get_current_videos_list(list_filename) if list_filename else [])
-    new_video_paths: List[str] = get_new_videos_paths(directory)
+def add_videos(directory: str, output_dir: Optional[str], copy_videos: bool):
+    current_videos: Set[str] = set(get_current_videos_from_spreadsheet())
+    print(f"{len(current_videos)} videos in the dataset")
 
-    print(f"\n{len(new_video_paths)} mp4 videos found")
+    new_video_paths: List[str] = get_new_videos_paths(directory)
+    print(f"{len(new_video_paths)} mp4 videos found")
 
     videos = process_videos(new_video_paths)
 
@@ -173,18 +191,15 @@ def add_videos(directory: str, list_filename: Optional[str], output_dir: Optiona
     print(f"{len(new_videos)} new mp4 videos found")
 
     if output_dir:
-        save_csv_output(videos, output_dir)
+        save_csv_output(new_videos, output_dir)
 
     if copy_videos:
         copy_all_videos(new_videos, output_dir)
 
 
 def main():
-    raise NotImplementedError("fix error ('f99c40a7',).mp4")
-
     parser = argparse.ArgumentParser(description='Add videos to the dataset')
     parser.add_argument('directory', type=str, help='Directory with new videos to process')
-    parser.add_argument('--list', type=str, help='CSV file with existing videos in the dataset')
     parser.add_argument('--output', type=str, help='Output directory for new videos and csv file')
     parser.add_argument('--copy', action='store_true', help="Copy videos (otherwise only csv output)")
 
@@ -196,14 +211,6 @@ def main():
 
     print(f"Processing directory: {args.directory}")
 
-    if args.list:
-        if not os.path.isfile(args.list):
-            print(f"The file {args.list} does not exist.")
-        else:
-            print(f"List of existing videos: {args.list}")
-    else:
-        print("No list of existing videos provided")
-
     if args.output:
         print(f"Output directory: {args.output}")
         if os.path.exists(args.output) and os.listdir(args.output):
@@ -212,7 +219,7 @@ def main():
     else:
         print("No output directory provided")
 
-    add_videos(args.directory, args.list, args.output, args.copy)
+    add_videos(args.directory, args.output, args.copy)
 
 
 if __name__ == "__main__":
