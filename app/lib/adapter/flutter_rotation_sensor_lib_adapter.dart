@@ -1,4 +1,4 @@
-import 'package:app/domain/model/device_orientation_event.dart';
+import 'package:app/domain/model/events/device_orientation_event.dart';
 import 'package:app/port/out/device_orientation_port.dart';
 import 'package:flutter_rotation_sensor/flutter_rotation_sensor.dart';
 

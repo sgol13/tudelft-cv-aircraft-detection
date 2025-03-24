@@ -5,7 +5,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../device/camera.dart';
-import '../domain/model/video_frame_event.dart';
+import '../domain/model/events/video_frame_event.dart';
 
 class CameraAdapter extends CameraPort {
   final StreamController<VideoFrameEvent> _streamController =

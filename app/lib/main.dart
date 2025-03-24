@@ -7,8 +7,8 @@ import 'package:app/device/camera.dart';
 
 import 'adapter/camera_adapter.dart';
 import 'domain/get_current_data_streams.dart';
-import 'domain/model/device_location_event.dart';
-import 'domain/model/video_frame_event.dart';
+import 'domain/model/events/device_location_event.dart';
+import 'domain/model/events/video_frame_event.dart';
 
 void main() {
   runApp(ProviderScope(child: MyApp()));

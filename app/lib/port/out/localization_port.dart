@@ -1,4 +1,4 @@
-import 'package:app/domain/model/device_location_event.dart';
+import 'package:app/domain/model/events/device_location_event.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

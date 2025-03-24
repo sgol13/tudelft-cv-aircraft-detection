@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../domain/model/adsb_event.dart';
-import '../../domain/model/device_orientation_event.dart';
+import '../../domain/model/events/device_orientation_event.dart';
 import 'localization_port.dart';
 
 part 'device_orientation_port.g.dart';

@@ -1,4 +1,4 @@
-import 'package:app/domain/model/device_location_event.dart';
+import 'package:app/domain/model/events/device_location_event.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 

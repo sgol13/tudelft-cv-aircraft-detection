@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:app/common.dart';
-import 'package:app/domain/model/real_time_event.dart';
+import 'package:app/domain/model/events/real_time_event.dart';
 import 'package:flutter_rotation_sensor/flutter_rotation_sensor.dart';
 
 class DeviceOrientationEvent extends RealTimeEvent {

@@ -1,8 +1,8 @@
 import 'package:app/domain/model/adsb_event.dart';
 
-import 'model/device_location_event.dart';
-import 'model/device_orientation_event.dart';
-import 'model/video_frame_event.dart';
+import 'model/events/device_location_event.dart';
+import 'model/events/device_orientation_event.dart';
+import 'model/events/video_frame_event.dart';
 
 abstract class GetDataStreams {
   Stream<DeviceOrientationEvent> get deviceOrientationStream;

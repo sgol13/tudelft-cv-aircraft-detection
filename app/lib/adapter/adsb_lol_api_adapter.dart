@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:app/domain/model/adsb_event.dart';
 import 'package:app/domain/model/adsb_aircraft.dart';
-import 'package:app/domain/model/device_location_event.dart';
+import 'package:app/domain/model/events/device_location_event.dart';
 import 'package:app/port/out/adsb_api_port.dart';
 import 'package:app/port/out/localization_port.dart';
 import 'dart:async';

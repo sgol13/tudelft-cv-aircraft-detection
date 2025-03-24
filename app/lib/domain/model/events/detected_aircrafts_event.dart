@@ -1,5 +1,5 @@
 import 'package:app/domain/model/detected_aircraft.dart';
-import 'package:app/domain/model/real_time_event.dart';
+import 'package:app/domain/model/events/real_time_event.dart';
 
 class DetectedAircraftsEvent extends RealTimeEvent {
   final List<DetectedAircraft> aircrafts;
