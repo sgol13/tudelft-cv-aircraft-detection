@@ -5,4 +5,6 @@ class AircraftsOnScreenEvent extends RealTimeEvent {
   final List<AdsbAircraftOnScreen> aircrafts;
 
   AircraftsOnScreenEvent({required this.aircrafts, required super.timestamp});
+
+  String get preview => '[${aircrafts.length}]';
 }

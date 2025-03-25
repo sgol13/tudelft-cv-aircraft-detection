@@ -8,6 +8,7 @@ import 'package:app/device/camera.dart';
 import 'adapter/camera_adapter.dart';
 import 'domain/estimate_aircraft_screen_positions.dart';
 import 'domain/get_current_data_streams.dart';
+import 'domain/localize_adsb_aircrafts.dart';
 import 'domain/model/events/device_location_event.dart';
 import 'domain/model/events/video_frame_event.dart';
 
@@ -95,6 +96,8 @@ class SensorCameraView extends ConsumerWidget {
     final cameraController = ref.watch(cameraProvider);
     final cameraAdapter = ref.watch(cameraPortProvider);
     // final detectAircrafts = ref.watch(detectAircraftsProvider);
+    final localizeAdsbAircrafts = ref.watch(localizeAdsbAircraftsProvider);
+
     final estimateAircraftScreenPositions = ref.watch(
       estimateAircraftScreenPositionsProvider,
     );
@@ -140,14 +143,14 @@ class SensorCameraView extends ConsumerWidget {
                     stream: cameraAdapter.stream,
                     sensorType: 'Camera',
                   ),
-                  // SensorDataStreamWidget(
-                  //   stream: detectAircrafts.stream,
-                  //   sensorType: 'Aircrafts',
-                  // ),
                   SensorDataStreamWidget(
                     stream: estimateAircraftScreenPositions.stream,
                     sensorType: 'Aircrafts',
                   ),
+                  // SensorDataStreamWidget(
+                  //   stream: localizeAdsbAircrafts.stream,
+                  //   sensorType: 'Aircrafts',
+                  // ),
                 ],
               ),
             ),

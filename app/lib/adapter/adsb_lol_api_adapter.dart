@@ -12,7 +12,7 @@ import 'package:rxdart/rxdart.dart';
 import '../domain/model/geo_location.dart';
 
 class AdsbLolApiAdapter implements AdsbApiPort {
-  static final int radius = 100; // nm
+  static final int radius = 20; // nm
 
   final LocalizationPort _localizationPort;
   DeviceLocationEvent? _lastLocation;
@@ -67,7 +67,7 @@ class AdsbLolApiAdapter implements AdsbApiPort {
     geoLocation: GeoLocation(
       latitude: json['lat'],
       longitude: json['lon'],
-      altitude: json['alt_geom'],
+      altitude: (json['alt_geom'] as num?)?.toDouble() ?? 0.0,
     ),
     flight: json['flight'],
   );

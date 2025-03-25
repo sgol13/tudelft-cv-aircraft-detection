@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:app/domain/compute_coordinates.dart';
 import 'package:app/domain/model/geo_location.dart';
-import 'package:flutter_rotation_sensor/src/math/vector3.dart';
+import 'package:vector_math/vector_math.dart';
 
 class ComputeCoordinatesLTP extends ComputeCoordinates {
   static const double _earthRadius = 6_371_000;

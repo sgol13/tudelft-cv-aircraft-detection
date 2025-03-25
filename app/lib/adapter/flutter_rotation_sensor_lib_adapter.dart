@@ -1,8 +1,13 @@
 import 'package:app/domain/model/events/device_orientation_event.dart';
 import 'package:app/port/out/device_orientation_port.dart';
+
+// Matrix3 is both in vector_math and flutter_rotation_sensor
 import 'package:flutter_rotation_sensor/flutter_rotation_sensor.dart'
     show OrientationEvent, RotationSensor, CoordinateSystem, Axis3;
-import 'package:vector_math/vector_math.dart' show Matrix3;
+import 'package:flutter_rotation_sensor/flutter_rotation_sensor.dart'
+    as flutter_rotation_sensor
+    show Matrix3;
+import 'package:vector_math/vector_math.dart' as vector_math show Matrix3;
 
 class FlutterRotationSensorLibAdapter extends DeviceOrientationPort {
   FlutterRotationSensorLibAdapter() {
@@ -24,17 +29,8 @@ class FlutterRotationSensorLibAdapter extends DeviceOrientationPort {
   }
 
   // Matrix3 is both in vector_math and flutter_rotation_sensor,
-  Matrix3 _toMatrix3(dynamic matrix3) => Matrix3(
-    matrix3[0][0],
-    matrix3[0][1],
-    matrix3[0][2],
-    matrix3[1][0],
-    matrix3[1][1],
-    matrix3[1][2],
-    matrix3[2][0],
-    matrix3[2][1],
-    matrix3[2][2],
-  );
+  vector_math.Matrix3 _toMatrix3(flutter_rotation_sensor.Matrix3 m) =>
+      vector_math.Matrix3(m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8]);
 
   void _config() {
     RotationSensor.coordinateSystem = CoordinateSystem.transformed(
