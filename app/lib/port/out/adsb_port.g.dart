@@ -1,16 +1,16 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'adsb_api_port.dart';
+part of 'adsb_port.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$adsbApiPortHash() => r'39f001827da2a25b5a6f2ae560402fe840fe58ca';
+String _$adsbApiPortHash() => r'0a72ae9dccf4fbf2128b6dd8a4b5c734cba5024b';
 
 /// See also [adsbApiPort].
 @ProviderFor(adsbApiPort)
-final adsbApiPortProvider = AutoDisposeProvider<AdsbApiPort>.internal(
+final adsbApiPortProvider = AutoDisposeProvider<AdsbPort>.internal(
   adsbApiPort,
   name: r'adsbApiPortProvider',
   debugGetCreateSourceHash:
@@ -21,6 +21,6 @@ final adsbApiPortProvider = AutoDisposeProvider<AdsbApiPort>.internal(
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef AdsbApiPortRef = AutoDisposeProviderRef<AdsbApiPort>;
+typedef AdsbApiPortRef = AutoDisposeProviderRef<AdsbPort>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

@@ -19,8 +19,8 @@ import 'model/aircraft_3d.dart';
 part 'estimate_aircraft_screen_positions.g.dart';
 
 class EstimateAircraftScreenPositions {
-  static final double _horizontalFov = degToRad(64.0);
-  static final double _verticalFov = degToRad(36.0);
+  static final double _horizontalFov = degToRad(180.0);
+  static final double _verticalFov = degToRad(180.0);
 
   final GetCurrentDataStreams _getCurrentDataStreams;
 

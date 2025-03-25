@@ -5,14 +5,14 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../domain/model/events/adsb_event.dart';
 import 'localization_port.dart';
 
-part 'adsb_api_port.g.dart';
+part 'adsb_port.g.dart';
 
-abstract class AdsbApiPort {
+abstract class AdsbPort {
   Stream<AdsbEvent> get stream;
 }
 
 @riverpod
-AdsbApiPort adsbApiPort(Ref ref) {
+AdsbPort adsbApiPort(Ref ref) {
   final localizationPort = ref.read(localizationPortProvider);
   return AdsbLolApiAdapter(localizationPort);
 }

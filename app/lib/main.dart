@@ -1,5 +1,6 @@
 import 'package:app/domain/detect_aircrafts.dart';
 import 'package:app/port/out/camera_port.dart';
+import 'package:app/visual_annotator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:camera/camera.dart';
@@ -107,6 +108,7 @@ class SensorCameraView extends ConsumerWidget {
         children: [
           if (cameraController != null && cameraController.value.isInitialized)
             CameraPreview(cameraController),
+          AircraftsAnnotator(),
           Positioned(
             top: 40,
             left: 0,
@@ -144,7 +146,7 @@ class SensorCameraView extends ConsumerWidget {
                     sensorType: 'Camera',
                   ),
                   SensorDataStreamWidget(
-                    stream: estimateAircraftScreenPositions.stream,
+                    stream: localizeAdsbAircrafts.stream,
                     sensorType: 'Aircrafts',
                   ),
                   // SensorDataStreamWidget(

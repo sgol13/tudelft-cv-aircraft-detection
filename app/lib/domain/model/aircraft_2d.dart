@@ -9,5 +9,5 @@ class Aircraft2d {
   Aircraft2d({required this.adsb, required this.position});
 
   String get preview =>
-      '${adsb.flight} [${(position.x.toStringAsFixed(3))}, ${position.y.toStringAsFixed(3)}]';
+      '${adsb.flight} [${(position.x.toStringAsFixed(0))}, ${position.y.toStringAsFixed(0)}]';
 }
