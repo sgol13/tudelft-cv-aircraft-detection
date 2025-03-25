@@ -1,4 +1,4 @@
-import 'package:app/domain/model/adsb_event.dart';
+import 'package:app/domain/model/events/adsb_event.dart';
 import 'package:app/domain/model/events/device_orientation_event.dart';
 import 'package:app/domain/model/events/device_location_event.dart';
 import 'package:app/domain/model/events/video_frame_event.dart';

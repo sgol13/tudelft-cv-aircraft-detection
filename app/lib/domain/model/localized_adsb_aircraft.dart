@@ -1,5 +1,5 @@
 import 'package:app/domain/model/adsb_aircraft.dart';
-import 'package:flutter_rotation_sensor/flutter_rotation_sensor.dart';
+import 'package:vector_math/vector_math.dart';
 
 class LocalizedAdsbAircraft {
   final AdsbAircraft adsb;

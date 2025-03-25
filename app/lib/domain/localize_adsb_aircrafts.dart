@@ -3,7 +3,7 @@ import 'package:app/domain/compute_coordinates.dart';
 import 'package:app/domain/compute_coordinates_ltp.dart';
 import 'package:app/domain/get_current_data_streams.dart';
 import 'package:app/domain/model/adsb_aircraft.dart';
-import 'package:app/domain/model/adsb_event.dart';
+import 'package:app/domain/model/events/adsb_event.dart';
 import 'package:app/domain/model/events/device_location_event.dart';
 import 'package:app/domain/model/geo_location.dart';
 import 'package:app/domain/model/localized_adsb_aircraft.dart';
@@ -11,6 +11,8 @@ import 'package:app/domain/model/events/localized_aircrafts_event.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
+
+part 'localize_adsb_aircrafts.g.dart';
 
 class LocalizeAdsbAircrafts {
   final GetCurrentDataStreams _getCurrentDataStreams;

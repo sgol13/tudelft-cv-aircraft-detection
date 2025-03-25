@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../device/camera.dart';
-import '../../domain/model/adsb_event.dart';
+import '../../domain/model/events/adsb_event.dart';
 import 'localization_port.dart';
 
 part 'camera_port.g.dart';
