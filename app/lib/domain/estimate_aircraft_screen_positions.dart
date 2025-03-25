@@ -4,17 +4,17 @@ import 'package:app/common.dart';
 import 'package:app/domain/get_current_data_streams.dart';
 import 'package:app/domain/localize_adsb_aircrafts.dart';
 import 'package:app/domain/model/events/localized_aircrafts_event.dart';
-import 'package:app/domain/model/events/aircrafts_on_screen_event.dart';
-import 'package:app/domain/model/adsb_aircraft_on_screen.dart';
+import 'package:app/domain/model/events/aircrafts_on_plane_event.dart';
+import 'package:app/domain/model/aircraft_2d.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:vector_math/vector_math.dart';
 
-import 'model/events/aircrafts_on_screen_event.dart';
+import 'model/events/aircrafts_on_plane_event.dart';
 import 'model/events/device_orientation_event.dart';
-import 'model/localized_adsb_aircraft.dart';
+import 'model/aircraft_3d.dart';
 
 part 'estimate_aircraft_screen_positions.g.dart';
 
@@ -26,7 +26,7 @@ class EstimateAircraftScreenPositions {
 
   final LocalizeAdsbAircrafts _localizeAdsbAircrafts;
 
-  List<LocalizedAdsbAircraft>? _currentAircrafts;
+  List<Aircraft3d>? _currentAircrafts;
 
   EstimateAircraftScreenPositions(
     this._getCurrentDataStreams,
@@ -37,12 +37,12 @@ class EstimateAircraftScreenPositions {
     });
   }
 
-  Stream<AircraftsOnScreenEvent> get stream =>
+  Stream<AircraftsOnPlaneEvent> get stream =>
       _getCurrentDataStreams.deviceOrientationStream
           .map(_estimateAircraftPositions)
           .whereNotNull();
 
-  AircraftsOnScreenEvent? _estimateAircraftPositions(
+  AircraftsOnPlaneEvent? _estimateAircraftPositions(
     DeviceOrientationEvent orientationEvent,
   ) {
     if (_currentAircrafts == null) return null;
@@ -57,18 +57,18 @@ class EstimateAircraftScreenPositions {
             )
             .toList();
 
-    return AircraftsOnScreenEvent(
+    return AircraftsOnPlaneEvent(
       aircrafts: projectedAircrafts,
       timestamp: orientationEvent.timestamp,
     );
   }
 
-  AdsbAircraftOnScreen _projectAircraftOntoCameraPlane(
-    LocalizedAdsbAircraft aircraft,
+  Aircraft2d _projectAircraftOntoCameraPlane(
+    Aircraft3d aircraft,
     Matrix3 rotationMatrix,
   ) {
     // Rotate the aircraft's relative location into the camera's coordinate system
-    final posEnu = aircraft.relativeLocation;
+    final posEnu = aircraft.position;
     final posCamera = rotationMatrix.transform(posEnu);
 
     // Project onto the camera plane using the Pinhole Camera Model
@@ -79,7 +79,7 @@ class EstimateAircraftScreenPositions {
     final xNorm = (x / tan(0.5 * _horizontalFov) + 1) * 0.5;
     final yNorm = (y / tan(0.5 * _verticalFov) + 1) * 0.5;
 
-    return AdsbAircraftOnScreen(
+    return Aircraft2d(
       position: Vector2(xNorm, yNorm),
       adsb: aircraft.adsb,
     );
