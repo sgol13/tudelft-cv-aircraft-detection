@@ -1,4 +1,5 @@
 import 'package:app/adapter/adsb_lol_api_adapter.dart';
+import 'package:app/adapter/mock/mock_adsb_adapter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -13,6 +14,7 @@ abstract class AdsbPort {
 
 @riverpod
 AdsbPort adsbApiPort(Ref ref) {
-  final localizationPort = ref.read(localizationPortProvider);
-  return AdsbLolApiAdapter(localizationPort);
+  // final localizationPort = ref.read(localizationPortProvider);
+  // return AdsbLolApiAdapter(localizationPort);
+  return MockAdsbAdapter();
 }

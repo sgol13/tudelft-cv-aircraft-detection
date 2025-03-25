@@ -1,17 +1,17 @@
 import '../../common.dart';
 
 class GeoLocation {
-  final double latitude; // degrees, [-90, 90]
-  final double longitude; // degrees, [-180, 180]
-  final double altitude; // meters
+  final double lat; // degrees, [-90, 90]
+  final double lon; // degrees, [-180, 180]
+  final double alt; // meters
 
-  double get latitudeRad => degToRad(latitude);
+  double get latRad => degToRad(lat);
 
-  double get longitudeRad => degToRad(longitude);
+  double get lonRad => degToRad(lon);
 
-  GeoLocation({
-    required this.latitude,
-    required this.longitude,
-    required this.altitude,
+  const GeoLocation({
+    required this.lat,
+    required this.lon,
+    required this.alt,
   });
 }

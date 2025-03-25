@@ -65,9 +65,9 @@ class AdsbLolApiAdapter implements AdsbPort {
 
   AdsbAircraft _parseAircraft(Map<String, dynamic> json) => AdsbAircraft(
     geoLocation: GeoLocation(
-      latitude: json['lat'],
-      longitude: json['lon'],
-      altitude: (json['alt_geom'] as num?)?.toDouble() ?? 0.0,
+      lat: json['lat'],
+      lon: json['lon'],
+      alt: (json['alt_geom'] as num?)?.toDouble() ?? 0.0,
     ),
     flight: json['flight'],
   );
