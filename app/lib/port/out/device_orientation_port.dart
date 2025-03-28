@@ -1,5 +1,6 @@
 import 'package:app/adapter/adsb_lol_api_adapter.dart';
 import 'package:app/adapter/flutter_rotation_sensor_lib_adapter.dart';
+import 'package:app/adapter/mock/mock_device_orientation_adapter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -15,4 +16,4 @@ abstract class DeviceOrientationPort {
 
 @riverpod
 DeviceOrientationPort deviceOrientationPort(Ref ref) =>
-    FlutterRotationSensorLibAdapter();
+    MockDeviceOrientationAdapter();

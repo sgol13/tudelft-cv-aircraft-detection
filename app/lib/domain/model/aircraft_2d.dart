@@ -6,8 +6,11 @@ class Aircraft2d {
 
   final Vector2 position;
 
-  Aircraft2d({required this.adsb, required this.position});
+  final Vector3 position3d;
+
+  Aircraft2d({required this.adsb, required this.position, required this.position3d});
 
   String get preview =>
-      '${adsb.flight} [${(position.x.toStringAsFixed(0))}, ${position.y.toStringAsFixed(0)}]';
+      '${adsb.flight} [${(position.x.toStringAsFixed(3).padLeft(6))}, ${position.y.toStringAsFixed(3).padLeft(6)}] '
+          '[${(position3d.x.toStringAsFixed(0))}, ${position3d.y.toStringAsFixed(0)}, ${position3d.z.toStringAsFixed(0)}]';
 }

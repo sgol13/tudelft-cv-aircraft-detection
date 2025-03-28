@@ -33,10 +33,10 @@ class FlutterRotationSensorLibAdapter extends DeviceOrientationPort {
       vector_math.Matrix3(m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8]);
 
   void _config() {
-    RotationSensor.coordinateSystem = CoordinateSystem.transformed(
-      Axis3.X,
-      -Axis3.Z,
-    );
+    // RotationSensor.coordinateSystem = CoordinateSystem.transformed(
+    //   Axis3.X,
+    //   -Axis3.Z,
+    // );
     RotationSensor.samplingPeriod = Duration(milliseconds: 200);
   }
 }

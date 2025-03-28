@@ -19,8 +19,8 @@ import 'model/aircraft_3d.dart';
 part 'estimate_aircraft_screen_positions.g.dart';
 
 class EstimateAircraftScreenPositions {
-  static final double _horizontalFov = degToRad(180.0);
-  static final double _verticalFov = degToRad(180.0);
+  static final double _horizontalFov = degToRad(120.0);
+  static final double _verticalFov = degToRad(120.0);
 
   final GetCurrentDataStreams _getCurrentDataStreams;
 
@@ -69,11 +69,12 @@ class EstimateAircraftScreenPositions {
   ) {
     // Rotate the aircraft's relative location into the camera's coordinate system
     final posEnu = aircraft.position;
-    final posCamera = rotationMatrix.transform(posEnu);
+    final posCamera = rotationMatrix.transformed(posEnu);
+
 
     // Project onto the camera plane using the Pinhole Camera Model
-    final x = posCamera.x / posCamera.z;
-    final y = posCamera.y / posCamera.z;
+    final x = posCamera.x / -posCamera.z;
+    final y = posCamera.y / -posCamera.z;
 
     // Normalize to [-1, 1] and then shift to [0, 1]
     final xNorm = (x / tan(0.5 * _horizontalFov) + 1) * 0.5;
@@ -82,6 +83,7 @@ class EstimateAircraftScreenPositions {
     return Aircraft2d(
       position: Vector2(xNorm, yNorm),
       adsb: aircraft.adsb,
+      position3d: posCamera,
     );
   }
 }

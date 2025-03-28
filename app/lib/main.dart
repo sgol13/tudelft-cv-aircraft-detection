@@ -147,12 +147,12 @@ class SensorCameraView extends ConsumerWidget {
                   ),
                   SensorDataStreamWidget(
                     stream: localizeAdsbAircrafts.stream,
-                    sensorType: 'Aircrafts',
+                    sensorType: '',
                   ),
-                  // SensorDataStreamWidget(
-                  //   stream: localizeAdsbAircrafts.stream,
-                  //   sensorType: 'Aircrafts',
-                  // ),
+                  SensorDataStreamWidget(
+                    stream: estimateAircraftScreenPositions.stream,
+                    sensorType: '',
+                  ),
                 ],
               ),
             ),
