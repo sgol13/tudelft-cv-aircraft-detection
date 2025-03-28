@@ -174,7 +174,12 @@ def copy_all_videos(videos: List[Video], output_dir: str):
         copy_video(video, output_dir)
 
 
-def add_videos(directory: str, output_dir: Optional[str], copy_videos: bool):
+def remove_all_videos(videos: List[Video]):
+    for video in tqdm(videos, desc="Removing videos"):
+        os.remove(video['path'])
+
+
+def add_videos(directory: str, output_dir: Optional[str], copy_videos: bool, remove_videos: bool):
     current_videos: Set[str] = set(get_current_videos_from_spreadsheet())
     print(f"{len(current_videos)} videos in the dataset")
 
@@ -187,8 +192,12 @@ def add_videos(directory: str, output_dir: Optional[str], copy_videos: bool):
         return
 
     new_videos = [v for v in videos if v['name'] not in current_videos]
+    repeated_videos = [v for v in videos if v['name'] in current_videos]
+    print(f"{len(repeated_videos)} repeated videos found")
+    for video in repeated_videos:
+        print(f"{video['path']} -> {video['name']}")
 
-    print(f"{len(new_videos)} new mp4 videos found")
+    print(f"\n{len(new_videos)} new mp4 videos found")
 
     if output_dir:
         save_csv_output(new_videos, output_dir)
@@ -196,12 +205,16 @@ def add_videos(directory: str, output_dir: Optional[str], copy_videos: bool):
     if copy_videos:
         copy_all_videos(new_videos, output_dir)
 
+    if remove_videos:
+        remove_all_videos(new_videos)
+
 
 def main():
     parser = argparse.ArgumentParser(description='Add videos to the dataset')
     parser.add_argument('directory', type=str, help='Directory with new videos to process')
     parser.add_argument('--output', type=str, help='Output directory for new videos and csv file')
     parser.add_argument('--copy', action='store_true', help="Copy videos (otherwise only csv output)")
+    parser.add_argument('--remove', action='store_true', help="Remove all copied videos from the directory")
 
     args = parser.parse_args()
 
@@ -219,7 +232,7 @@ def main():
     else:
         print("No output directory provided")
 
-    add_videos(args.directory, args.output, args.copy)
+    add_videos(args.directory, args.output, args.copy, args.remove)
 
 
 if __name__ == "__main__":
