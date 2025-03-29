@@ -12,4 +12,4 @@ abstract class LocalizationPort {
 }
 
 @riverpod
-LocalizationPort localizationPort(Ref ref) => MockLocalizationAdapter();
+LocalizationPort localizationPort(Ref ref) => GpsLocalizationAdapter();

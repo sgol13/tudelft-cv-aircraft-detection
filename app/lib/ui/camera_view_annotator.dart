@@ -4,8 +4,8 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vector_math/vector_math.dart' show Vector2;
 
-import '../domain/estimate_aircraft_screen_positions.dart';
-import '../domain/model/events/aircrafts_on_plane_event.dart';
+import '../domain/estimate_aircraft_2d_positions.dart';
+import '../domain/model/events/aircrafts_on_screen_event.dart';
 
 class CameraViewAnnotator extends ConsumerWidget {
   const CameraViewAnnotator({super.key});
@@ -28,7 +28,7 @@ class CameraViewAnnotator extends ConsumerWidget {
         }
 
         final visibleAircrafts =
-            (snapshot.data as AircraftsOnPlaneEvent).aircrafts
+            (snapshot.data as AircraftsOnScreenEvent).aircrafts
                 .where((aircraft) => aircraft.isOnScreen)
                 .toList();
 

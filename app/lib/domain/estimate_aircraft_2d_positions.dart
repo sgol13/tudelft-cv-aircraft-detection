@@ -4,7 +4,7 @@ import 'package:app/common.dart';
 import 'package:app/domain/get_current_data_streams.dart';
 import 'package:app/domain/localize_adsb_aircrafts.dart';
 import 'package:app/domain/model/events/localized_aircrafts_event.dart';
-import 'package:app/domain/model/events/aircrafts_on_plane_event.dart';
+import 'package:app/domain/model/events/aircrafts_on_screen_event.dart';
 import 'package:app/domain/model/aircraft_2d.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,13 +12,13 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:vector_math/vector_math.dart';
 
-import 'model/events/aircrafts_on_plane_event.dart';
+import 'model/events/aircrafts_on_screen_event.dart';
 import 'model/events/device_orientation_event.dart';
 import 'model/aircraft_3d.dart';
 
-part 'estimate_aircraft_screen_positions.g.dart';
+part 'estimate_aircraft_2d_positions.g.dart';
 
-class EstimateAircraftScreenPositions {
+class EstimateAircraft2dPositions {
   static final double _horizontalFov = degToRad(39.0);
   static final double _verticalFov = degToRad(64.0);
 
@@ -28,7 +28,7 @@ class EstimateAircraftScreenPositions {
 
   List<Aircraft3d>? _currentAircrafts;
 
-  EstimateAircraftScreenPositions(
+  EstimateAircraft2dPositions(
     this._getCurrentDataStreams,
     this._localizeAdsbAircrafts,
   ) {
@@ -37,12 +37,12 @@ class EstimateAircraftScreenPositions {
     });
   }
 
-  Stream<AircraftsOnPlaneEvent> get stream =>
+  Stream<AircraftsOnScreenEvent> get stream =>
       _getCurrentDataStreams.deviceOrientationStream
-          .map(_estimateAircraftPositions)
+          .map(_computeAircraftPositions)
           .whereNotNull();
 
-  AircraftsOnPlaneEvent? _estimateAircraftPositions(
+  AircraftsOnScreenEvent? _computeAircraftPositions(
     DeviceOrientationEvent orientationEvent,
   ) {
     if (_currentAircrafts == null) return null;
@@ -57,7 +57,7 @@ class EstimateAircraftScreenPositions {
             )
             .toList();
 
-    return AircraftsOnPlaneEvent(
+    return AircraftsOnScreenEvent(
       aircrafts: projectedAircrafts,
       timestamp: orientationEvent.timestamp,
     );
@@ -104,11 +104,11 @@ class EstimateAircraftScreenPositions {
 }
 
 @riverpod
-EstimateAircraftScreenPositions estimateAircraftScreenPositions(Ref ref) {
+EstimateAircraft2dPositions estimateAircraft2dPositions(Ref ref) {
   final getCurrentDataStreams = ref.watch(getCurrentDataStreamsProvider);
   final localizeAdsbAircrafts = ref.watch(localizeAdsbAircraftsProvider);
 
-  return EstimateAircraftScreenPositions(
+  return EstimateAircraft2dPositions(
     getCurrentDataStreams,
     localizeAdsbAircrafts,
   );
