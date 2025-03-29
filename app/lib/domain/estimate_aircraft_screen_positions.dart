@@ -19,8 +19,8 @@ import 'model/aircraft_3d.dart';
 part 'estimate_aircraft_screen_positions.g.dart';
 
 class EstimateAircraftScreenPositions {
-  static final double _horizontalFov = degToRad(120.0);
-  static final double _verticalFov = degToRad(120.0);
+  static final double _horizontalFov = degToRad(39.0);
+  static final double _verticalFov = degToRad(64.0);
 
   final GetCurrentDataStreams _getCurrentDataStreams;
 
@@ -71,6 +71,14 @@ class EstimateAircraftScreenPositions {
     final posEnu = aircraft.position;
     final posCamera = rotationMatrix.transformed(posEnu);
 
+    if (posCamera.z >= 0) {
+      return Aircraft2d(
+        position: Vector2.zero(),
+        adsb: aircraft.adsb,
+        position3d: posCamera,
+        isOnScreen: false,
+      );
+    }
 
     // Project onto the camera plane using the Pinhole Camera Model
     final x = posCamera.x / -posCamera.z;
@@ -80,11 +88,18 @@ class EstimateAircraftScreenPositions {
     final xNorm = (x / tan(0.5 * _horizontalFov) + 1) * 0.5;
     final yNorm = (y / tan(0.5 * _verticalFov) + 1) * 0.5;
 
+    final position2d = Vector2(xNorm, yNorm);
+
     return Aircraft2d(
-      position: Vector2(xNorm, yNorm),
+      position: position2d,
       adsb: aircraft.adsb,
       position3d: posCamera,
+      isOnScreen: _isOnScreen(position2d),
     );
+  }
+
+  bool _isOnScreen(Vector2 pos) {
+    return 0 <= pos.x && pos.x <= 1 && 0 <= pos.y && pos.y <= 1;
   }
 }
 

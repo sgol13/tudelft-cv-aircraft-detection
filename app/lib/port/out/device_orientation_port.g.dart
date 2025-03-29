@@ -7,7 +7,7 @@ part of 'device_orientation_port.dart';
 // **************************************************************************
 
 String _$deviceOrientationPortHash() =>
-    r'73ee14e5d3576d92cb286ebbcbc6a443916604fa';
+    r'565da6ebe7986aad4635e7f9f67fb7da4053f33f';
 
 /// See also [deviceOrientationPort].
 @ProviderFor(deviceOrientationPort)

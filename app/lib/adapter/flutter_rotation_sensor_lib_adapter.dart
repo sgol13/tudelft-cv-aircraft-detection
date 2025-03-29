@@ -19,12 +19,15 @@ class FlutterRotationSensorLibAdapter extends DeviceOrientationPort {
       RotationSensor.orientationStream.map(_toDeviceOrientationEvent);
 
   DeviceOrientationEvent _toDeviceOrientationEvent(OrientationEvent event) {
+    final userFriendlyOrientation = CoordinateSystem.transformed(Axis3.X, -Axis3.Z).apply(event);
+    final angles = userFriendlyOrientation.eulerAngles;
+
     return DeviceOrientationEvent(
       timestamp: DateTime.now(),
       rotationMatrix: _toMatrix3(event.rotationMatrix),
-      heading: event.eulerAngles.azimuth,
-      pitch: event.eulerAngles.pitch,
-      roll: event.eulerAngles.roll,
+      heading: angles.azimuth,
+      pitch: angles.pitch,
+      roll: angles.roll,
     );
   }
 
@@ -34,9 +37,11 @@ class FlutterRotationSensorLibAdapter extends DeviceOrientationPort {
 
   void _config() {
     // RotationSensor.coordinateSystem = CoordinateSystem.transformed(
-    //   Axis3.X,
-    //   -Axis3.Z,
+      // Axis3.X,
+      // -Axis3.Y,
+      // CoordinateSystem.device(),
     // );
+    RotationSensor.coordinateSystem = CoordinateSystem.device();
     RotationSensor.samplingPeriod = Duration(milliseconds: 200);
   }
 }

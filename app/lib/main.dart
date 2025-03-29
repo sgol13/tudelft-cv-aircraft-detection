@@ -1,10 +1,12 @@
 import 'package:app/domain/detect_aircrafts.dart';
 import 'package:app/port/out/camera_port.dart';
-import 'package:app/visual_annotator.dart';
+import 'package:app/ui/camera_view_annotator.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:camera/camera.dart';
 import 'package:app/device/camera.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'adapter/camera_adapter.dart';
 import 'domain/estimate_aircraft_screen_positions.dart';
@@ -22,7 +24,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: SensorCameraView());
+    return CupertinoApp(home: SensorCameraView());
   }
 }
 
@@ -108,7 +110,7 @@ class SensorCameraView extends ConsumerWidget {
         children: [
           if (cameraController != null && cameraController.value.isInitialized)
             CameraPreview(cameraController),
-          AircraftsAnnotator(),
+          CameraViewAnnotator(),
           Positioned(
             top: 40,
             left: 0,

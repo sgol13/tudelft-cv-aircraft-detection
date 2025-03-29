@@ -16,4 +16,4 @@ abstract class DeviceOrientationPort {
 
 @riverpod
 DeviceOrientationPort deviceOrientationPort(Ref ref) =>
-    MockDeviceOrientationAdapter();
+    FlutterRotationSensorLibAdapter();
