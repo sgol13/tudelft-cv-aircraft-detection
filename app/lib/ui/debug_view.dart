@@ -1,4 +1,3 @@
-
 import 'package:app/port/out/camera_port.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -13,11 +12,7 @@ class SensorDataStreamWidget extends StatefulWidget {
   final Stream<dynamic> stream;
   final String sensorType;
 
-  const SensorDataStreamWidget({
-    super.key,
-    required this.stream,
-    required this.sensorType,
-  });
+  const SensorDataStreamWidget({super.key, required this.stream, required this.sensorType});
 
   @override
   _SensorDataStreamWidgetState createState() => _SensorDataStreamWidgetState();
@@ -32,34 +27,23 @@ class _SensorDataStreamWidgetState extends State<SensorDataStreamWidget> {
     return StreamBuilder<dynamic>(
       stream: widget.stream,
       builder: (context, snapshot) {
-        final textStyle = TextStyle(
-          color: Colors.white,
-          fontFamily: 'Monaco',
-          fontSize: 9,
-        );
+        final textStyle = TextStyle(color: Colors.white, fontFamily: 'Monaco', fontSize: 9);
 
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Text('Loading ${widget.sensorType} data...', style: textStyle);
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}', style: textStyle);
         } else if (!snapshot.hasData) {
-          return Text(
-            'No ${widget.sensorType} data available',
-            style: textStyle,
-          );
+          return Text('No ${widget.sensorType} data available', style: textStyle);
         } else {
           final data = snapshot.data!;
 
           if (_lastEventTime != null) {
-            _frequencyMs =
-                data.timestamp.difference(_lastEventTime!).inMilliseconds;
+            _frequencyMs = data.timestamp.difference(_lastEventTime!).inMilliseconds;
           }
           _lastEventTime = data.timestamp;
 
-          String frequency =
-          _frequencyMs == null
-              ? ''
-              : '${_frequencyMs.toString().padLeft(4)} ms';
+          String frequency = _frequencyMs == null ? '' : '${_frequencyMs.toString().padLeft(4)} ms';
           return Text(
             '${widget.sensorType.padLeft(14)} ${data.preview} $frequency',
             textAlign: TextAlign.left,
@@ -76,7 +60,6 @@ class DebugView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
     // todo: remove cameraPort and localizeAdsbAircrafts from here
     final cameraPort = ref.watch(cameraPortProvider);
     final localizeAdsbAircrafts = ref.watch(localizeAdsbAircraftsProvider);
@@ -115,10 +98,7 @@ class DebugView extends ConsumerWidget {
               stream: appStreamsPort.orientationStream,
               sensorType: 'Orientation',
             ),
-            SensorDataStreamWidget(
-              stream: cameraPort.stream,
-              sensorType: 'Camera',
-            ),
+            SensorDataStreamWidget(stream: cameraPort.stream, sensorType: 'Camera'),
             // SensorDataStreamWidget(
             //   stream: localizeAdsbAircrafts.stream,
             //   sensorType: '',
@@ -127,6 +107,10 @@ class DebugView extends ConsumerWidget {
             //   stream: appStreamsPort.adsbAircraftsStream,
             //   sensorType: '',
             // ),
+            SensorDataStreamWidget(
+              stream: appStreamsPort.detectedAircraftsStream,
+              sensorType: "Detected",
+            ),
           ],
         ),
       ),
