@@ -7,6 +7,8 @@ import '../../domain/estimate_aircraft_2d_positions.dart';
 import '../../domain/model/events/aircrafts_on_screen_event.dart';
 import '../../domain/model/events/device_orientation_event.dart';
 
+part 'app_streams_port.g.dart';
+
 class AppStreamsPort {
   final GetCurrentDataStreams _getCurrentDataStreams;
   final EstimateAircraft2dPositions _computeAircraft2dPositions;
