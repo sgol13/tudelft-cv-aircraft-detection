@@ -3,6 +3,7 @@ import 'package:app/port/out/camera_port.dart';
 import 'package:app/ui/camera_view_annotator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:camera/camera.dart';
 import 'package:app/device/camera.dart';
@@ -102,7 +103,7 @@ class SensorCameraView extends ConsumerWidget {
     final localizeAdsbAircrafts = ref.watch(localizeAdsbAircraftsProvider);
 
     final estimateAircraftScreenPositions = ref.watch(
-      estimateAircraftScreenPositionsProvider,
+      estimateAircraft2dPositionsProvider,
     );
 
     return Scaffold(
@@ -147,14 +148,14 @@ class SensorCameraView extends ConsumerWidget {
                     stream: cameraAdapter.stream,
                     sensorType: 'Camera',
                   ),
-                  // SensorDataStreamWidget(
-                  //   stream: localizeAdsbAircrafts.stream,
-                  //   sensorType: '',
-                  // ),
-                  // SensorDataStreamWidget(
-                  //   stream: estimateAircraftScreenPositions.stream,
-                  //   sensorType: '',
-                  // ),
+                  SensorDataStreamWidget(
+                    stream: localizeAdsbAircrafts.stream,
+                    sensorType: '',
+                  ),
+                  SensorDataStreamWidget(
+                    stream: estimateAircraftScreenPositions.stream,
+                    sensorType: '',
+                  ),
                 ],
               ),
             ),

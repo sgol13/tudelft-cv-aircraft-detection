@@ -8,6 +8,7 @@ import 'package:app/domain/model/events/device_location_event.dart';
 import 'package:app/domain/model/geo_location.dart';
 import 'package:app/domain/model/aircraft_3d.dart';
 import 'package:app/domain/model/events/localized_aircrafts_event.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';

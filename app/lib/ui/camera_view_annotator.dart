@@ -12,12 +12,12 @@ class CameraViewAnnotator extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final estimateAircraftScreenPositions = ref.watch(
-      estimateAircraftScreenPositionsProvider,
+    final estimateAircraft2dPositions = ref.watch(
+      estimateAircraft2dPositionsProvider,
     );
 
     return StreamBuilder(
-      stream: estimateAircraftScreenPositions.stream,
+      stream: estimateAircraft2dPositions.stream,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Text('Loading aircraft data...');

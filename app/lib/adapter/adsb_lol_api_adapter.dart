@@ -12,7 +12,7 @@ import 'package:rxdart/rxdart.dart';
 import '../domain/model/geo_location.dart';
 
 class AdsbLolApiAdapter implements AdsbPort {
-  static final int radius = 20; // nm
+  static final int radius = 100; // nm
 
   final LocalizationPort _localizationPort;
   DeviceLocationEvent? _lastLocation;

@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:app/domain/model/camera_fov.dart';
 import 'package:app/port/out/camera_port.dart';
 import 'package:camera/camera.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../device/camera.dart';
@@ -41,5 +43,24 @@ class CameraAdapter extends CameraPort {
     // todo: I'm not sure if it's ever called...
     _streamController.close();
     _subscription.close();
+  }
+
+  @override
+  Future<CameraFoV?> get fieldOfView async {
+    try {
+      final Map<dynamic, dynamic>? fov = await MethodChannel(
+        'camera_fov',
+      ).invokeMethod('getCameraFoV');
+
+      if (fov != null) {
+        final double horizontalFoV = fov["horizontalFoV"] as double;
+        final double verticalFoV = fov["verticalFoV"] as double;
+
+        return CameraFoV(horizontal: horizontalFoV, vertical: verticalFoV);
+      }
+    } catch (e) {
+      print("Error getting camera FoV: $e");
+    }
+    return null;
   }
 }

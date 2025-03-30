@@ -3,9 +3,11 @@ import 'dart:math';
 import 'package:app/common.dart';
 import 'package:app/domain/get_current_data_streams.dart';
 import 'package:app/domain/localize_adsb_aircrafts.dart';
+import 'package:app/domain/model/camera_fov.dart';
 import 'package:app/domain/model/events/localized_aircrafts_event.dart';
 import 'package:app/domain/model/events/aircrafts_on_screen_event.dart';
 import 'package:app/domain/model/aircraft_2d.dart';
+import 'package:app/port/out/camera_port.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -19,14 +21,14 @@ import 'model/aircraft_3d.dart';
 part 'estimate_aircraft_2d_positions.g.dart';
 
 class EstimateAircraft2dPositions {
-  static final double _horizontalFov = degToRad(39.0);
-  static final double _verticalFov = degToRad(64.0);
-
   final GetCurrentDataStreams _getCurrentDataStreams;
-
   final LocalizeAdsbAircrafts _localizeAdsbAircrafts;
 
   List<Aircraft3d>? _currentAircrafts;
+  final CameraFoV _cameraFov = CameraFoV(
+    horizontal: degToRad(40.0),
+    vertical: degToRad(65.0),
+  );
 
   EstimateAircraft2dPositions(
     this._getCurrentDataStreams,
@@ -85,8 +87,8 @@ class EstimateAircraft2dPositions {
     final y = posCamera.y / -posCamera.z;
 
     // Normalize to [-1, 1] and then shift to [0, 1]
-    final xNorm = (x / tan(0.5 * _horizontalFov) + 1) * 0.5;
-    final yNorm = (y / tan(0.5 * _verticalFov) + 1) * 0.5;
+    final xNorm = (x / tan(0.5 * _cameraFov!.horizontal) + 1) * 0.5;
+    final yNorm = (y / tan(0.5 * _cameraFov!.vertical) + 1) * 0.5;
 
     final position2d = Vector2(xNorm, yNorm);
 
