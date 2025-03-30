@@ -20,6 +20,13 @@ android {
     }
 
     defaultConfig {
+
+        // for YUV420 -> RGB conversion with libyuv
+        ndk {
+            // todo: we don't support 32-bit Android devices
+            abiFilters += listOf("arm64-v8a") // Target only necessary architectures
+        }
+
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.aircraftdetector.app"
         // You can update the following values to match your application needs.
@@ -28,6 +35,13 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+    }
+
+    // to add c++ code for YUV420 -> RGB conversion with libyuv
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+        }
     }
 
     buildTypes {
