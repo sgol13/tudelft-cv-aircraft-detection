@@ -47,7 +47,7 @@ dependencies:
     git:
       url: git@github.com:sgol13/processing_camera_image.git
       ref: master
-#  tflite: ^1.1.2
+  tflite_flutter: ^0.11.0
 
 dev_dependencies:
   flutter_test:
