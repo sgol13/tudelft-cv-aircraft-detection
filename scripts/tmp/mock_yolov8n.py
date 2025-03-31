@@ -1,7 +1,14 @@
 from ultralytics import YOLO
 
-model = YOLO("yolov8n.pt")
+model = YOLO('yolov8n.pt')
 
-model.export(format="onnx", opset=12, imgsz=1920, dynamic=True)
+# model.export(format='tflite', imgsz=1920, int8=False, half=True)
 
-print("Model saved to ONNX format!")
+class_names = model.names
+print(model.names)
+
+# Save class names to labels.txt
+with open('labels.txt', 'w') as f:
+    for name in class_names.values():
+        f.write(f"{name}\n")
+

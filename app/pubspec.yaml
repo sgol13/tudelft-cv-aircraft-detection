@@ -47,6 +47,7 @@ dependencies:
     git:
       url: git@github.com:sgol13/processing_camera_image.git
       ref: master
+#  tflite: ^1.1.2
 
 dev_dependencies:
   flutter_test:
@@ -78,6 +79,7 @@ flutter:
 
   assets:
     - assets/yolov8n.onnx
+    - assets/yolov8n_float16.tflite
 
   # To add assets to your application, add an assets section, like this:
   # assets:

@@ -15,6 +15,12 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 
+    // for TensorFlow Lite
+    aaptOptions {
+        noCompress("tflite")
+        noCompress("lite")
+    }
+
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_11.toString()
     }
