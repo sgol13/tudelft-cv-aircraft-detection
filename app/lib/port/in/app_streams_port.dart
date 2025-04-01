@@ -4,7 +4,8 @@ import 'package:app/domain/model/events/device_location_event.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../domain/detect_aircrafts.dart';
+import '../../domain/detect_aircrafts/detect_aircrafts.dart';
+import '../../domain/detect_aircrafts/detect_aircrafts_camera_stream.dart';
 import '../../domain/estimate_aircraft_2d_positions.dart';
 import '../../domain/model/events/aircrafts_on_screen_event.dart';
 import '../../domain/model/events/device_orientation_event.dart';

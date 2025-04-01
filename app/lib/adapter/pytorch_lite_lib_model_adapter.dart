@@ -6,7 +6,7 @@ import 'package:pytorch_lite/pytorch_lite.dart';
 import 'package:vector_math/vector_math.dart';
 
 class PytorchLiteLibModelAdapter extends DetectionModelPort {
-  static final String _modelPath = " assets/yolov8n_960.torchscript";
+  static final String _modelPath = "assets/yolov8n_960.torchscript";
   static final String _labelPath = "assets/yolov8n_960_labels.txt";
 
   ModelObjectDetection? _model;
@@ -49,7 +49,6 @@ class PytorchLiteLibModelAdapter extends DetectionModelPort {
       960,
       labelPath: _labelPath,
       objectDetectionModelType: ObjectDetectionModelType.yolov8,
-
     );
   }
 }
