@@ -16,10 +16,10 @@ android {
     }
 
     // for TensorFlow Lite
-    aaptOptions {
-        noCompress("tflite")
-        noCompress("lite")
-    }
+    //    aaptOptions {
+    //        noCompress("tflite")
+    //        noCompress("lite")
+    //    }
 
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_11.toString()
@@ -37,7 +37,8 @@ android {
         applicationId = "com.aircraftdetector.app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+
+        minSdk = 26 // updated to 26 for ultralytic lib
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

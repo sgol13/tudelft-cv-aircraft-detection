@@ -1,7 +1,5 @@
-import 'package:app/adapter/mock/mock_detection_model_adapter.dart';
-import 'package:app/adapter/onnx_model_adapter.dart';
-import 'package:app/adapter/pytorch_lite_lib_model_adapter.dart';
 import 'package:app/adapter/tflite_model_adapter/tflite_model_adapter.dart';
+import 'package:app/adapter/ultralytics_model_adapter/ultralytics_jpg_model_adapter.dart';
 import 'package:app/domain/model/detected_aircraft.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,4 +13,4 @@ abstract class DetectionModelPort {
 }
 
 @riverpod
-DetectionModelPort detectionModelPort(Ref ref) => TfLiteModelAdapter();
+DetectionModelPort detectionModelPort(Ref ref) => UltralyticsJpgModelAdapter();
