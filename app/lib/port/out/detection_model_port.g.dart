@@ -7,7 +7,7 @@ part of 'detection_model_port.dart';
 // **************************************************************************
 
 String _$detectionModelPortHash() =>
-    r'105c20570aa8482de63e4e956218a0730ba5a51c';
+    r'2531d0a2f330dac70b7f2f3ac95f5bccc6f52d34';
 
 /// See also [detectionModelPort].
 @ProviderFor(detectionModelPort)
