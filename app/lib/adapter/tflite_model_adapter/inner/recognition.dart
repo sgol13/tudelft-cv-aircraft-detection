@@ -1,3 +1,5 @@
+// Copied from: https://github.com/tensorflow/flutter-tflite.git
+
 import 'package:app/adapter/tflite_model_adapter/inner/screen_params.dart';
 import 'package:flutter/cupertino.dart';
 
