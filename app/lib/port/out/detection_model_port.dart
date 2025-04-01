@@ -15,4 +15,4 @@ abstract class DetectionModelPort {
 }
 
 @riverpod
-DetectionModelPort detectionModelPort(Ref ref) => MockDetectionModelAdapter();
+DetectionModelPort detectionModelPort(Ref ref) => TfLiteModelAdapter();

@@ -1,3 +1,5 @@
+// Copied from: https://github.com/tensorflow/flutter-tflite.git
+
 import 'dart:math';
 import 'dart:ui';
 

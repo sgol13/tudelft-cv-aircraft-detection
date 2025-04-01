@@ -24,7 +24,6 @@ class DetectAircrafts {
     final detectedAircrafts = await _detectionModelPort.detectAircrafts(event.image);
 
     if (detectedAircrafts == null) {
-      print('Model unavailable');
       return null;
     }
 
