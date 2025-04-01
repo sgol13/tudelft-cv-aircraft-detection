@@ -242,7 +242,7 @@ class _DetectorServer {
         }
 
         final results = analyseImage(image, preConversionTime);
-        _sendPort.send(_Command(_Codes.result, args: [results]));
+        // _sendPort.send(_Command(_Codes.result, args: [results]));
       }
     });
   }
@@ -259,6 +259,10 @@ class _DetectorServer {
       width: _resolution,
       height: _resolution,
     );
+
+    saveImage(imageInput, '/storage/emulated/0/Download', "test_input");
+
+    return {};
 
     // Creating matrix representation, [300, 300, 3]
     final imageMatrix = List.generate(
@@ -353,16 +357,21 @@ class _DetectorServer {
   // }
 
   List<List<num>> _runInferenceYolo(List<List<List<num>>> imageMatrix) {
-    // Set input tensor [1, inputHeight, inputWidth, 3]
     final input = [imageMatrix];
 
-    // YOLOv5/v8 TFLite output shape: [1, numClasses + 4, 75600]
     final output = {
       0: [List<List<num>>.generate(_numClasses! + 4, (_) => List<num>.filled(_numBoxes!, 0))],
     };
 
     _interpreter!.runForMultipleInputs([input], output);
 
-    return output[0]![0];
+    final outputTensor = output[0]![0];
+
+    final List<List<num>> finalOutput = List.generate(
+      _numBoxes!,
+          (i) => List.generate(_numClasses! + 4, (j) => outputTensor[j][i]),
+    );
+
+    return finalOutput;
   }
 }

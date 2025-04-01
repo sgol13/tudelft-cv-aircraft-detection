@@ -48,6 +48,11 @@ dependencies:
       url: git@github.com:sgol13/processing_camera_image.git
       ref: master
   tflite_flutter: ^0.11.0
+#  ultralytics_yolo: ^0.0.3
+  ultralytics_yolo:
+    git:
+      url: git@github.com:ultralytics/yolo-flutter-app.git
+      ref: 69a6d9f
 
 dev_dependencies:
   flutter_test:
@@ -78,10 +83,8 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/yolov8n.onnx
-    - assets/yolov8n_float16.tflite
-    - assets/yolov8n_epoch1.tflite
-    - assets/yolov8n_labels.txt
+    - assets/yolov8n_640.tflite
+    - assets/yolov8n_640_metadata.yaml
 
   # To add assets to your application, add an assets section, like this:
   # assets:
