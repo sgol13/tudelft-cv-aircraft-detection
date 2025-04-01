@@ -7,7 +7,7 @@ class DetectedAircraft {
   final double height;
 
   final int classIndex;
-  final String className;
+  final String? className;
 
   final double score;
 
@@ -16,7 +16,7 @@ class DetectedAircraft {
     required this.width,
     required this.height,
     required this.classIndex,
-    required this.className,
+    this.className,
     required this.score,
   });
 }
