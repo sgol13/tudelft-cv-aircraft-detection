@@ -6,7 +6,7 @@ part of 'detect_aircrafts.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$detectAircraftsHash() => r'9c395977997f2dee50ca7b9fbd1db0ce0a41776d';
+String _$detectAircraftsHash() => r'b505b7f5342106b6d341abbe488207b5770cde55';
 
 /// See also [detectAircrafts].
 @ProviderFor(detectAircrafts)
