@@ -2,13 +2,11 @@ from ultralytics import YOLO
 
 model = YOLO('yolov8n.pt')
 
-model.export(format='tflite', imgsz=640, int8=False, half=True)
+model.export(format='torchscript', imgsz=960, int8=False)
 
 class_names = model.names
-print(model.names)
+print(class_names)
 
-# Save class names to labels.txt
 with open('labels.txt', 'w') as f:
     for name in class_names.values():
         f.write(f"{name}\n")
-

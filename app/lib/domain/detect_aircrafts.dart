@@ -27,6 +27,7 @@ class DetectAircrafts {
       return null;
     }
 
+    print('Detected aircrafts: ${detectedAircrafts.length}');
     return DetectedAircraftsEvent(aircrafts: detectedAircrafts, timestamp: event.timestamp);
   }
 }
