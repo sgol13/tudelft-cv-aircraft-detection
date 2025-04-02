@@ -49,16 +49,7 @@ class UltralyticsLiveDetect extends DetectAircrafts {
   }
 
   void _config() async {
-    // final model = LocalYoloModel(
-    //   id: 'yolov8n',
-    //   task: Task.detect,
-    //   format: Format.tflite,
-    //   modelPath: await _copy(_modelPath),
-    //   metadataPath: _metadataPath,
-    // );
-    //
-    // detector = ObjectDetector(model: model);
-    // detector.loadModel(useGpu: true);
+
   }
 
   Future<ObjectDetector> initObjectDetectorWithLocalModel() async {
@@ -72,7 +63,8 @@ class UltralyticsLiveDetect extends DetectAircrafts {
       metadataPath: metadataPath,
     );
 
-    return BroadcastUltralyticsObjectDetector(model: model);
+    final detector = BroadcastUltralyticsObjectDetector(model: model);
+    return detector;
   }
 
   Future<String> _copy(String assetPath) async {
