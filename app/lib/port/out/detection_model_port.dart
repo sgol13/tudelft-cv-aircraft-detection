@@ -4,6 +4,8 @@ import 'package:camera/camera.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../adapter/tflite_model_adapter.dart';
+
 part 'detection_model_port.g.dart';
 
 abstract class DetectionModelPort {
@@ -12,4 +14,4 @@ abstract class DetectionModelPort {
 }
 
 @riverpod
-DetectionModelPort detectionModelPort(Ref ref) => PytorchLiteLibModelAdapter();
+DetectionModelPort detectionModelPort(Ref ref) => TfLiteModelAdapter();
