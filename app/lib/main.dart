@@ -1,12 +1,15 @@
 import 'dart:io' as io;
 
+import 'package:app/ui/ultralytics_camera_preview.dart' show UltralyticsCameraPreview;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:ultralytics_yolo/ultralytics_yolo.dart';
+import 'package:ultralytics_yolo/camera_preview/ultralytics_yolo_camera_controller.dart';
+import 'package:ultralytics_yolo/camera_preview/ultralytics_yolo_camera_preview.dart';
+import 'package:ultralytics_yolo/predict/detect/object_detector.dart';
 import 'package:ultralytics_yolo/yolo_model.dart';
 
 void main() {
@@ -28,7 +31,7 @@ class MyApp extends ConsumerWidget {
 
             return predictor == null
                 ? Container()
-                : UltralyticsYoloCameraPreview(
+                : UltralyticsCameraPreview(
                   controller: controller,
                   predictor: predictor,
                   onCameraCreated: () {
