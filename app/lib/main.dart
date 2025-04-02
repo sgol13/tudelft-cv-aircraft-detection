@@ -26,35 +26,20 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        body: FutureBuilder<bool>(
-          future: _checkPermissions(),
+        body: FutureBuilder<ObjectDetector>(
+          future: _initObjectDetectorWithLocalModel(),
           builder: (context, snapshot) {
-            final allPermissionsGranted = snapshot.data ?? false;
+            final predictor = snapshot.data;
 
-            return !allPermissionsGranted
-                ? const Center(
-              child: Text("Error requesting permissions"),
-            )
-                : FutureBuilder<ObjectDetector>(
-              future: _initObjectDetectorWithLocalModel(),
-              builder: (context, snapshot) {
-                final predictor = snapshot.data;
-
-                return predictor == null
-                    ? Container()
-                    : Stack(
-                  children: [
-                    UltralyticsYoloCameraPreview(
-                      controller: controller,
-                      predictor: predictor,
-                      onCameraCreated: () {
-                        predictor.loadModel(useGpu: true);
-                      },
-                    ),
-                  ],
+            return predictor == null
+                ? Container()
+                : UltralyticsYoloCameraPreview(
+                  controller: controller,
+                  predictor: predictor,
+                  onCameraCreated: () {
+                    predictor.loadModel(useGpu: true);
+                  },
                 );
-              },
-            );
           },
         ),
       ),
@@ -81,30 +66,10 @@ class _MyAppState extends State<MyApp> {
     final file = io.File(path);
     if (!await file.exists()) {
       final byteData = await rootBundle.load(assetPath);
-      await file.writeAsBytes(byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
+      await file.writeAsBytes(
+        byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes),
+      );
     }
     return file.path;
   }
-
-  Future<bool> _checkPermissions() async {
-    List<Permission> permissions = [];
-
-    var cameraStatus = await Permission.camera.status;
-    if (!cameraStatus.isGranted) permissions.add(Permission.camera);
-
-    var storageStatus = await Permission.photos.status;
-    if (!storageStatus.isGranted) permissions.add(Permission.photos);
-
-    if (permissions.isEmpty) {
-      return true;
-    } else {
-      try {
-        Map<Permission, PermissionStatus> statuses = await permissions.request();
-        return statuses.values.every((status) => status == PermissionStatus.granted);
-      } on Exception catch (_) {
-        return false;
-      }
-    }
-  }
 }
-
