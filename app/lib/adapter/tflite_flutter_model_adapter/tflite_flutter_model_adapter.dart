@@ -4,13 +4,13 @@ import 'package:app/port/out/detection_model_port.dart';
 import 'package:camera/camera.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 
-class TfLiteModelAdapter extends DetectionModelPort {
+class TfLiteFlutterModelAdapter extends DetectionModelPort {
   static final String _modelPath = "assets/yolov8n_640.tflite";
   static final String _labelPath = "assets/yolov8n_labels.txt";
 
   Detector? _detector;
 
-  TfLiteModelAdapter() {
+  TfLiteFlutterModelAdapter() {
     _config();
   }
 
