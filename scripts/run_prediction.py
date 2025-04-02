@@ -20,7 +20,7 @@ def create_predictions_csv(model_path, images_folder, output_csv):
     # Create CSV file
     with open(output_csv, 'w', newline='') as f:
         writer = csv.writer(f)
-        writer.writerow(['image_name', 'class_id', 'class_name', 'confidence', 
+        writer.writerow(['image_name', 'class_id', 'confidence', 
                          'x_center', 'y_center', 'width', 'height'])
         
         # Get all image files from the folder
@@ -45,10 +45,10 @@ def create_predictions_csv(model_path, images_folder, output_csv):
                     cls_ids = result.boxes.cls.cpu().numpy().astype(int)
                     
                     # Get class names if available
-                    if hasattr(result.names, 'values'):
-                        cls_names = [result.names[c] for c in cls_ids]
-                    else:
-                        cls_names = [f"class_{c}" for c in cls_ids]
+                    # if hasattr(result.names, 'values'):
+                    #     cls_names = [result.names[c] for c in cls_ids]
+                    # else:
+                    #     cls_names = [f"class_{c}" for c in cls_ids]
                     
                     # Write predictions to CSV in YOLO format
                     for i in range(len(boxes)):
@@ -56,13 +56,12 @@ def create_predictions_csv(model_path, images_folder, output_csv):
                         writer.writerow([
                             img_name,
                             cls_ids[i],
-                            cls_names[i],
                             conf[i],
                             x_center, y_center, width, height
                         ])
                 else:
                     # No detections for this image
-                    writer.writerow([img_name, -1, "no_detection", 0.0, 0, 0, 0, 0])
+                    writer.writerow([img_name, -1, 0.0, 0, 0, 0, 0])
 
 def create_ground_truth_csv(labels_folder, output_csv, class_mapping=None):
     """
@@ -77,7 +76,7 @@ def create_ground_truth_csv(labels_folder, output_csv, class_mapping=None):
     # Create CSV file
     with open(output_csv, 'w', newline='') as f:
         writer = csv.writer(f)
-        writer.writerow(['image_name', 'class_id', 'class_name', 
+        writer.writerow(['image_name', 'class_id', 
                          'x_center', 'y_center', 'width', 'height'])
         
         # Get all label files
@@ -95,7 +94,7 @@ def create_ground_truth_csv(labels_folder, output_csv, class_mapping=None):
                 
                 if not lines:
                     # Empty label file (no objects)
-                    writer.writerow([img_name, -1, "no_object", 0, 0, 0, 0])
+                    writer.writerow([img_name, -1, 0, 0, 0, 0])
                     continue
                 
                 # Process each label line - keep in original YOLO format
@@ -107,21 +106,20 @@ def create_ground_truth_csv(labels_folder, output_csv, class_mapping=None):
                         x_center, y_center, width, height = map(float, parts[1:5])
                         
                         # Get class name if mapping is provided
-                        class_name = class_mapping.get(class_id, f"class_{class_id}") if class_mapping else f"class_{class_id}"
+                        # class_name = class_mapping.get(class_id, f"class_{class_id}") if class_mapping else f"class_{class_id}"
                         
                         # Write to CSV in original YOLO format
                         writer.writerow([
                             img_name,
                             class_id,
-                            class_name,
                             x_center, y_center, width, height
                         ])
 
 if __name__ == "__main__":
     # Set paths
-    model_weights = "./aircraft_detection/yolov8n_finetune9/weights/best.pt"  # Path to your YOLOv8 nano weights
-    images_folder = "./datasets/yolo_data/test/images"  # Path to your images folder
-    labels_folder = "./datasets/yolo_data/test/labels"  # Path to your ground truth labels folder
+    model_weights = "./aircraft_detection/yolov8n_finetune3/weights/best.pt"  # Path to your YOLOv8 nano weights
+    images_folder = "./datasets/train/images"  # Path to your images folder
+    labels_folder = "./datasets/train/labels"  # Path to your ground truth labels folder
     
     # Optional: Define class mapping (class_id -> class_name)
     # If you have a specific class mapping, define it here
@@ -129,8 +127,8 @@ if __name__ == "__main__":
     class_mapping = None
     
     # Generate CSVs - both in YOLO format
-    create_predictions_csv(model_weights, images_folder, "predictions_test.csv")
-    create_ground_truth_csv(labels_folder, "ground_truth_test.csv", class_mapping)
+    create_predictions_csv(model_weights, images_folder, "predictions_train.csv")
+    create_ground_truth_csv(labels_folder, "ground_truth_train.csv", class_mapping)
     
     print("CSVs generated successfully:")
     print("1. predictions.csv - Model predictions in YOLO format")
