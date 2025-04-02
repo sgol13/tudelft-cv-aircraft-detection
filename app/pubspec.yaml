@@ -92,6 +92,8 @@ flutter:
     - assets/yolov8n_960_labels.txt
     - assets/yolov8n_960.torchscript
     - assets/yolov8n_640_labels.txt
+    - assets/yolov8n_int8.tflite
+    - assets/yolov8n_int8_metadata.yaml
 
   # To add assets to your application, add an assets section, like this:
   # assets:
