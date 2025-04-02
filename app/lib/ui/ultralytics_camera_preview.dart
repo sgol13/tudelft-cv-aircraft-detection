@@ -45,15 +45,6 @@ class UltralyticsCameraPreview extends StatefulWidget {
 }
 
 class _UltralyticsCameraPreviewState extends State<UltralyticsCameraPreview> {
-  final _ultralyticsYoloPlatform = UltralyticsYoloPlatform.instance;
-
-  double _currentZoomFactor = 1;
-
-  final double _zoomSensitivity = 0.05;
-
-  final double _minZoomLevel = 1;
-
-  final double _maxZoomLevel = 5;
 
   void _onPlatformViewCreated(_) {
     widget.onCameraCreated();

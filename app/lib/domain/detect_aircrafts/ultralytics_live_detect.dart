@@ -14,6 +14,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:ultralytics_yolo/ultralytics_yolo.dart';
 import 'package:ultralytics_yolo/yolo_model.dart';
 
+import 'broadcast_ultralytics_object_detector.dart';
+
 class UltralyticsLiveDetect extends DetectAircrafts {
   static final String _modelPath = "assets/yolov8n_640.tflite";
   static final String _metadataPath = "assets/yolov8n_640_metadata.yaml";
@@ -57,6 +59,20 @@ class UltralyticsLiveDetect extends DetectAircrafts {
     //
     // detector = ObjectDetector(model: model);
     // detector.loadModel(useGpu: true);
+  }
+
+  Future<ObjectDetector> initObjectDetectorWithLocalModel() async {
+    final modelPath = await _copy('assets/yolov8n_int8.tflite');
+    final metadataPath = await _copy('assets/yolov8n_int8_metadata.yaml');
+    final model = LocalYoloModel(
+      id: '',
+      task: Task.detect,
+      format: Format.tflite,
+      modelPath: modelPath,
+      metadataPath: metadataPath,
+    );
+
+    return BroadcastUltralyticsObjectDetector(model: model);
   }
 
   Future<String> _copy(String assetPath) async {
