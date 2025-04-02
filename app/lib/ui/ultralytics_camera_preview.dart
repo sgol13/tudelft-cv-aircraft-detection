@@ -93,8 +93,14 @@ class _UltralyticsCameraPreviewState extends State<UltralyticsCameraPreview> {
                 return widget.loadingPlaceholder ?? Container();
               }
 
+              final detectionStream = (widget.predictor! as ObjectDetector).detectionResultStream;
+
+              detectionStream.listen((e) => {
+                print(e!.length)
+              });
+
               return StreamBuilder(
-                stream: (widget.predictor! as ObjectDetector).detectionResultStream,
+                stream: detectionStream,
                 builder: (BuildContext context, AsyncSnapshot<List<DetectedObject?>?> snapshot) {
                   if (snapshot.data == null) return Container();
 
