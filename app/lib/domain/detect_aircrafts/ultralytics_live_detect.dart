@@ -20,20 +20,22 @@ class UltralyticsLiveDetect extends DetectAircrafts {
   static final String _modelPath = "assets/yolov8n_640.tflite";
   static final String _metadataPath = "assets/yolov8n_640_metadata.yaml";
 
-  // late final ObjectDetector detector;
+  late final Future<ObjectDetector> detector;
+
   // final cameraController = UltralyticsYoloCameraController();
 
   UltralyticsLiveDetect() {
-    _config();
+    detector = _initObjectDetectorWithLocalModel();
   }
 
   @override
   Stream<DetectedAircraftsEvent> get stream => Stream.empty();
-      // detector.detectionResultStream.whereNotNull().map((event) {
-      //   final aircrafts = event.nonNulls.map(_predictionToAircraft).toList();
-      //
-      //   return DetectedAircraftsEvent(aircrafts: aircrafts, timestamp: DateTime.now());
-      // });
+
+  // detector.detectionResultStream.whereNotNull().map((event) {
+  //   final aircrafts = event.nonNulls.map(_predictionToAircraft).toList();
+  //
+  //   return DetectedAircraftsEvent(aircrafts: aircrafts, timestamp: DateTime.now());
+  // });
 
   DetectedAircraft _predictionToAircraft(DetectedObject prediction) {
     final position = Vector2(prediction.boundingBox.center.dx, prediction.boundingBox.center.dy);
@@ -48,11 +50,7 @@ class UltralyticsLiveDetect extends DetectAircrafts {
     );
   }
 
-  void _config() async {
-
-  }
-
-  Future<ObjectDetector> initObjectDetectorWithLocalModel() async {
+  Future<ObjectDetector> _initObjectDetectorWithLocalModel() async {
     final modelPath = await _copy('assets/yolov8n_int8.tflite');
     final metadataPath = await _copy('assets/yolov8n_int8_metadata.yaml');
     final model = LocalYoloModel(
@@ -63,8 +61,7 @@ class UltralyticsLiveDetect extends DetectAircrafts {
       metadataPath: metadataPath,
     );
 
-    final detector = BroadcastUltralyticsObjectDetector(model: model);
-    return detector;
+    return BroadcastUltralyticsObjectDetector(model: model);
   }
 
   Future<String> _copy(String assetPath) async {

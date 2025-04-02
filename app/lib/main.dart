@@ -31,7 +31,7 @@ class MyApp extends ConsumerWidget {
     return MaterialApp(
       home: Scaffold(
         body: FutureBuilder<ObjectDetector>(
-          future: ultralyticsLiveDetect.initObjectDetectorWithLocalModel(),
+          future: ultralyticsLiveDetect.detector,
           builder: (context, snapshot) {
             final predictor = snapshot.data;
 
