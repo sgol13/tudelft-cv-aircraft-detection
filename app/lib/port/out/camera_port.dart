@@ -1,5 +1,6 @@
 import 'package:app/adapter/adsb_lol_api_adapter.dart';
 import 'package:app/adapter/camera_adapter.dart';
+import 'package:app/adapter/mock/mock_camera_adapter.dart';
 import 'package:app/domain/model/camera_fov.dart';
 import 'package:app/domain/model/events/video_frame_event.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,4 +19,4 @@ abstract class CameraPort {
 }
 
 @riverpod
-CameraPort cameraPort(Ref ref) => CameraAdapter(ref);
+CameraPort cameraPort(Ref ref) => MockCameraAdapter();
