@@ -1,5 +1,7 @@
 import 'dart:io' as io;
 
+import 'package:app/domain/detect_aircrafts/broadcast_ultralytics_object_detector.dart';
+import 'package:app/domain/detect_aircrafts/detect_aircrafts.dart';
 import 'package:app/ui/ultralytics_camera_preview.dart' show UltralyticsCameraPreview;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +14,8 @@ import 'package:ultralytics_yolo/camera_preview/ultralytics_yolo_camera_preview.
 import 'package:ultralytics_yolo/predict/detect/object_detector.dart';
 import 'package:ultralytics_yolo/yolo_model.dart';
 
+import 'domain/detect_aircrafts/ultralytics_live_detect.dart';
+
 void main() {
   runApp(const ProviderScope(child: MyApp()));
 }
@@ -22,10 +26,12 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = UltralyticsYoloCameraController();
+    final ultralyticsLiveDetect = ref.watch(detectAircraftsProvider) as UltralyticsLiveDetect;
+
     return MaterialApp(
       home: Scaffold(
         body: FutureBuilder<ObjectDetector>(
-          future: _initObjectDetectorWithLocalModel(),
+          future: ultralyticsLiveDetect.initObjectDetectorWithLocalModel(),
           builder: (context, snapshot) {
             final predictor = snapshot.data;
 
@@ -42,32 +48,5 @@ class MyApp extends ConsumerWidget {
         ),
       ),
     );
-  }
-
-  Future<ObjectDetector> _initObjectDetectorWithLocalModel() async {
-    final modelPath = await _copy('assets/yolov8n_int8.tflite');
-    final metadataPath = await _copy('assets/yolov8n_int8_metadata.yaml');
-    final model = LocalYoloModel(
-      id: '',
-      task: Task.detect,
-      format: Format.tflite,
-      modelPath: modelPath,
-      metadataPath: metadataPath,
-    );
-
-    return ObjectDetector(model: model);
-  }
-
-  Future<String> _copy(String assetPath) async {
-    final path = '${(await getApplicationSupportDirectory()).path}/$assetPath';
-    await io.Directory(dirname(path)).create(recursive: true);
-    final file = io.File(path);
-    if (!await file.exists()) {
-      final byteData = await rootBundle.load(assetPath);
-      await file.writeAsBytes(
-        byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes),
-      );
-    }
-    return file.path;
   }
 }

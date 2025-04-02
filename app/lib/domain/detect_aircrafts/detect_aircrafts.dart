@@ -15,13 +15,13 @@ abstract class DetectAircrafts {
   Stream<DetectedAircraftsEvent> get stream;
 }
 
-@riverpod
-DetectAircrafts detectAircrafts(Ref ref) {
-  final getCurrentDataStreams = ref.watch(getCurrentDataStreamsProvider);
-  final detectionModelPort = ref.watch(detectionModelPortProvider);
-
-  return DetectAircraftsCameraStream(getCurrentDataStreams, detectionModelPort);
-}
-
 // @riverpod
-// DetectAircrafts detectAircrafts(Ref ref) => UltralyticsLiveDetect();
+// DetectAircrafts detectAircrafts(Ref ref) {
+//   final getCurrentDataStreams = ref.watch(getCurrentDataStreamsProvider);
+//   final detectionModelPort = ref.watch(detectionModelPortProvider);
+//
+//   return DetectAircraftsCameraStream(getCurrentDataStreams, detectionModelPort);
+// }
+
+@riverpod
+DetectAircrafts detectAircrafts(Ref ref) => UltralyticsLiveDetect();
