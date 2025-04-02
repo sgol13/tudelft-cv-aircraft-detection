@@ -16,7 +16,7 @@ def parse_args():
     parser.add_argument('--output_dir', type=str, default='./yolo_data', help='Output directory for YOLO dataset')
     parser.add_argument('--video_dir', type=str, required=True, help='Directory containing source videos')
     parser.add_argument('--split_file', type=str, default='split.csv', help='Path to CSV file with train/val/test assignments')
-    parser.add_argument('--frame_interval', type=int, default=30, help='Extract every Nth frame (1=all frames)')
+    parser.add_argument('--frame_interval', type=int, default=10, help='Extract every Nth frame (1=all frames)')
     parser.add_argument('--target_size', type=str, default=None, help='Target size for resizing, format: WIDTHxHEIGHT')
     return parser.parse_args()
 
@@ -263,7 +263,7 @@ def extract_frames_with_auto_orientation(video_path, output_dir, video_name, xml
 
 def convert_to_yolo_format(annotation, img_width, img_height, target_width=None, target_height=None):
     """
-    Convert box coordinates to YOLO format, optionally handling resizing
+    Convert box coordinates to YOLO format, properly handling resizing and padding
     
     Args:
         annotation: Dictionary with box coordinates
@@ -286,19 +286,39 @@ def convert_to_yolo_format(annotation, img_width, img_height, target_width=None,
     xbr = max(0, min(img_width, xbr))
     ybr = max(0, min(img_height, ybr))
     
-    # If target dimensions are provided, adjust coordinates
+    # If target dimensions are provided, handle resizing and padding
     if target_width is not None and target_height is not None:
-        # Calculate scaling factors
-        width_scale = target_width / img_width
-        height_scale = target_height / img_height
+        # Calculate aspect ratios
+        img_aspect = img_width / img_height
+        target_aspect = target_width / target_height
         
-        # Apply scaling
-        xtl = xtl * width_scale
-        ytl = ytl * height_scale
-        xbr = xbr * width_scale
-        ybr = ybr * height_scale
+        # Calculate the dimensions after preserving aspect ratio
+        if img_aspect > target_aspect:
+            # Width-limited resize
+            new_w = target_width
+            new_h = int(target_width / img_aspect)
+            # Calculate padding offsets (vertical padding)
+            x_offset = 0
+            y_offset = (target_height - new_h) // 2
+        else:
+            # Height-limited resize
+            new_h = target_height
+            new_w = int(target_height * img_aspect)
+            # Calculate padding offsets (horizontal padding)
+            x_offset = (target_width - new_w) // 2
+            y_offset = 0
         
-        # Update dimensions for normalization
+        # Calculate scaling factors for the actual image area (not including padding)
+        width_scale = new_w / img_width
+        height_scale = new_h / img_height
+        
+        # Scale the coordinates based on the actual resize scaling
+        xtl = xtl * width_scale + x_offset
+        ytl = ytl * height_scale + y_offset
+        xbr = xbr * width_scale + x_offset
+        ybr = ybr * height_scale + y_offset
+        
+        # Use target dimensions for normalization
         img_width = target_width
         img_height = target_height
     
