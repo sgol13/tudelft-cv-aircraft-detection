@@ -6,7 +6,7 @@ import 'package:tflite_flutter/tflite_flutter.dart';
 
 class TfLiteFlutterModelAdapter extends DetectionModelPort {
   static final String _modelPath = "assets/yolov8n_640.tflite";
-  static final String _labelPath = "assets/yolov8n_labels.txt";
+  static final String _labelPath = "assets/yolov8n_640_labels.txt";
 
   Detector? _detector;
 
