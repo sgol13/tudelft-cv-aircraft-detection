@@ -4,11 +4,11 @@ import xml.etree.ElementTree as ET
 import glob
 from pathlib import Path
 import cv2
-import shutil
-import random
 import numpy as np
 from tqdm import tqdm
 import pandas as pd
+import concurrent.futures
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Convert CVAT XML annotations to YOLO format with specific train/val/test split')
@@ -497,17 +497,27 @@ def main():
     print(f"  Validation: {len(split['val'])} videos")
     print(f"  Test: {len(split['test'])} videos")
     
-    # Process each XML file
-    for xml_file in xml_files:
-        # Process the video with frame interval
-        process_video(
-            xml_file, 
-            args.video_dir, 
-            args.output_dir, 
-            split, 
-            target_size=args.target_size,
-            frame_interval=args.frame_interval
-        )
+    # Process each XML file using a thread pool
+    with concurrent.futures.ThreadPoolExecutor(max_workers=16) as executor:
+        futures = [
+            executor.submit(
+                process_video,
+                xml_file,
+                args.video_dir,
+                args.output_dir,
+                split,
+                target_size=args.target_size,
+                frame_interval=args.frame_interval
+            )
+            for xml_file in xml_files
+        ]
+
+        for future in concurrent.futures.as_completed(futures):
+            try:
+                future.result()
+            except Exception as e:
+                print(f"Error processing video: {e}")
+
     
     # Create data.yaml file
     create_data_yaml(args.output_dir, create_class_mapping())
