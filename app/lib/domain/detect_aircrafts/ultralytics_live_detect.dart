@@ -29,7 +29,23 @@ class UltralyticsLiveDetect extends DetectAircrafts {
   }
 
   @override
-  Stream<DetectedAircraftsEvent> get stream => Stream.empty();
+  Stream<DetectedAircraftsEvent> get stream =>
+      Stream.fromFuture(detector).asBroadcastStream().asyncExpand((detector) {
+        return detector.detectionResultStream.whereNotNull().map((event) {
+          final aircrafts = event.nonNulls.map(_predictionToAircraft).toList();
+          return DetectedAircraftsEvent(aircrafts: aircrafts, timestamp: DateTime.now());
+        });
+      });
+
+
+  // @override
+  // Stream<DetectedAircraftsEvent> get stream =>
+  //     Stream.fromFuture(detector).asBroadcastStream().asyncExpand((detector) {
+  //       return detector.detectionResultStream.whereNotNull().map((event) {
+  //         final aircrafts = event.nonNulls.map(_predictionToAircraft).toList();
+  //         return DetectedAircraftsEvent(aircrafts: aircrafts, timestamp: DateTime.now());
+  //       });
+  //     });
 
   // detector.detectionResultStream.whereNotNull().map((event) {
   //   final aircrafts = event.nonNulls.map(_predictionToAircraft).toList();
@@ -61,7 +77,15 @@ class UltralyticsLiveDetect extends DetectAircrafts {
       metadataPath: metadataPath,
     );
 
-    return BroadcastUltralyticsObjectDetector(model: model);
+    final detector = BroadcastUltralyticsObjectDetector(model: model);
+
+    detector.detectionResultStream.listen((event) {
+      print('Detected aircrafts: ${event!.length}');
+    });
+
+    detector.loadModel(useGpu: true);
+
+    return ObjectDetector(model: model);
   }
 
   Future<String> _copy(String assetPath) async {
