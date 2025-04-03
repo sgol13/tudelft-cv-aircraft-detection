@@ -150,9 +150,9 @@ def parse_cvat_annotations(xml_path, class_mapping, frame_interval=1):
                     continue
                     
                 outside = int(box.get('outside'))
-                
+                occluded = int(box.get('occluded'))
                 # Skip if the object is outside the frame
-                if outside == 1:
+                if outside == 1 or occluded == 1:
                     continue
                 
                 # Get box coordinates
