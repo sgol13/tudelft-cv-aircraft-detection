@@ -15,7 +15,6 @@ class UltralyticsCameraPreview extends StatefulWidget {
   const UltralyticsCameraPreview({
     required this.predictor,
     required this.controller,
-    required this.onCameraCreated,
     this.boundingBoxesColorList = const [Colors.lightBlueAccent],
     this.classificationOverlay,
     this.loadingPlaceholder,
@@ -34,9 +33,6 @@ class UltralyticsCameraPreview extends StatefulWidget {
   /// The controller for the camera preview.
   final UltralyticsYoloCameraController controller;
 
-  /// The callback invoked when the camera is created.
-  final VoidCallback onCameraCreated;
-
   /// The placeholder widget displayed while the predictor is loading.
   final Widget? loadingPlaceholder;
 
@@ -45,10 +41,6 @@ class UltralyticsCameraPreview extends StatefulWidget {
 }
 
 class _UltralyticsCameraPreviewState extends State<UltralyticsCameraPreview> {
-
-  void _onPlatformViewCreated(_) {
-    widget.onCameraCreated();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +60,6 @@ class _UltralyticsCameraPreviewState extends State<UltralyticsCameraPreview> {
                 case TargetPlatform.android:
                   return AndroidView(
                     viewType: _viewType,
-                    onPlatformViewCreated: _onPlatformViewCreated,
                     creationParams: creationParams,
                     creationParamsCodec: const StandardMessageCodec(),
                   );
@@ -76,7 +67,6 @@ class _UltralyticsCameraPreviewState extends State<UltralyticsCameraPreview> {
                   return UiKitView(
                     viewType: _viewType,
                     creationParams: creationParams,
-                    onPlatformViewCreated: _onPlatformViewCreated,
                     creationParamsCodec: const StandardMessageCodec(),
                   );
                 case TargetPlatform.fuchsia ||
@@ -89,9 +79,7 @@ class _UltralyticsCameraPreviewState extends State<UltralyticsCameraPreview> {
 
             // Results
             () {
-              if (widget.predictor == null) {
-                return widget.loadingPlaceholder ?? Container();
-              }
+              if (widget.predictor == null) Container();
 
               final detectionStream = (widget.predictor! as ObjectDetector).detectionResultStream;
 

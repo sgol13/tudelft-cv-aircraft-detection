@@ -29,8 +29,8 @@ class CameraNotifier extends StateNotifier<CameraController?> {
   }
 }
 
-// final cameraProvider = StateNotifierProvider<CameraNotifier, CameraController?>(
-//   (ref) {
-//     return CameraNotifier();
-//   },
-// );
+final cameraProvider = StateNotifierProvider<CameraNotifier, CameraController?>(
+  (ref) {
+    return CameraNotifier();
+  },
+);

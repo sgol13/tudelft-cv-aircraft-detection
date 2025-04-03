@@ -1,6 +1,7 @@
 import 'package:app/domain/detect_aircrafts/detect_aircrafts.dart';
 import 'package:app/domain/detect_aircrafts/ultralytics_live_detect.dart';
 import 'package:app/ui/camera_view_annotator.dart';
+import 'package:app/ui/ultralytics_camera_preview_wrapper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,11 +21,7 @@ class CameraView extends ConsumerWidget {
       children: [
         // if (cameraController != null && cameraController.value.isInitialized)
         //   CameraPreview(cameraController),
-        UltralyticsYoloCameraPreview(
-          predictor: ultralyticsLiveDetect.detector,
-          controller: ultralyticsLiveDetect.cameraController,
-          onCameraCreated: () => ultralyticsLiveDetect.detector.loadModel(useGpu: true),
-        ),
+        UltralyticsCameraPreviewWrapper(),
 
         CameraViewAnnotator(),
       ],
