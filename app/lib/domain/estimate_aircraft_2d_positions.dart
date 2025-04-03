@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:app/common.dart';
+import 'package:app/domain/filter_adsb_aircrafts.dart';
 import 'package:app/domain/get_current_data_streams.dart';
 import 'package:app/domain/localize_adsb_aircrafts.dart';
 import 'package:app/domain/model/camera_fov.dart';
@@ -18,40 +19,28 @@ part 'estimate_aircraft_2d_positions.g.dart';
 
 class EstimateAircraft2dPositions {
   final GetCurrentDataStreams _getCurrentDataStreams;
-  final LocalizeAdsbAircrafts _localizeAdsbAircrafts;
+  final FilterAdsbAircrafts _filterAdsbAircrafts;
 
   List<Aircraft3d>? _currentAircrafts;
-  final CameraFoV _cameraFov = CameraFoV(
-    horizontal: degToRad(40.0),
-    vertical: degToRad(65.0),
-  );
+  final CameraFoV _cameraFov = CameraFoV(horizontal: degToRad(40.0), vertical: degToRad(65.0));
 
-  EstimateAircraft2dPositions(
-    this._getCurrentDataStreams,
-    this._localizeAdsbAircrafts,
-  ) {
-    _localizeAdsbAircrafts.stream.listen((LocalizedAircraftsEvent event) {
+  EstimateAircraft2dPositions(this._getCurrentDataStreams, this._filterAdsbAircrafts) {
+    _filterAdsbAircrafts.stream.listen((LocalizedAircraftsEvent event) {
       _currentAircrafts = event.aircrafts;
     });
   }
 
   Stream<AircraftsOnScreenEvent> get stream =>
-      _getCurrentDataStreams.deviceOrientationStream
-          .map(_computeAircraftPositions)
-          .whereNotNull();
+      _getCurrentDataStreams.deviceOrientationStream.map(_computeAircraftPositions).whereNotNull();
 
-  AircraftsOnScreenEvent? _computeAircraftPositions(
-    DeviceOrientationEvent orientationEvent,
-  ) {
+  AircraftsOnScreenEvent? _computeAircraftPositions(DeviceOrientationEvent orientationEvent) {
     if (_currentAircrafts == null) return null;
 
     final projectedAircrafts =
         _currentAircrafts!
             .map(
-              (aircraft) => _projectAircraftOntoCameraPlane(
-                aircraft,
-                orientationEvent.rotationMatrix,
-              ),
+              (aircraft) =>
+                  _projectAircraftOntoCameraPlane(aircraft, orientationEvent.rotationMatrix),
             )
             .toList();
 
@@ -61,10 +50,7 @@ class EstimateAircraft2dPositions {
     );
   }
 
-  EstimatedAircraft _projectAircraftOntoCameraPlane(
-    Aircraft3d aircraft,
-    Matrix3 rotationMatrix,
-  ) {
+  EstimatedAircraft _projectAircraftOntoCameraPlane(Aircraft3d aircraft, Matrix3 rotationMatrix) {
     // Rotate the aircraft's relative location into the camera's coordinate system
     final posEnu = aircraft.pos;
     final posCamera = rotationMatrix.transformed(posEnu);
@@ -104,10 +90,7 @@ class EstimateAircraft2dPositions {
 @riverpod
 EstimateAircraft2dPositions estimateAircraft2dPositions(Ref ref) {
   final getCurrentDataStreams = ref.watch(getCurrentDataStreamsProvider);
-  final localizeAdsbAircrafts = ref.watch(localizeAdsbAircraftsProvider);
+  final filterAdsbAircrafts = ref.watch(filterAdsbAircraftsProvider);
 
-  return EstimateAircraft2dPositions(
-    getCurrentDataStreams,
-    localizeAdsbAircrafts,
-  );
+  return EstimateAircraft2dPositions(getCurrentDataStreams, filterAdsbAircrafts);
 }

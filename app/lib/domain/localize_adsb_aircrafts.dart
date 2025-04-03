@@ -11,6 +11,7 @@ import 'package:app/domain/model/events/localized_aircrafts_event.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:vector_math/vector_math.dart';
 
 part 'localize_adsb_aircrafts.g.dart';
 
@@ -33,9 +34,7 @@ class LocalizeAdsbAircrafts {
   ) {
     final aircrafts =
         adsbEvent.aircrafts
-            .map(
-              (adsb) => localizeAdsbAircraft(adsb, locationEvent.geoLocation),
-            )
+            .map((adsb) => localizeAdsbAircraft(adsb, locationEvent.geoLocation))
             .toList();
 
     return LocalizedAircraftsEvent(
@@ -44,19 +43,12 @@ class LocalizeAdsbAircrafts {
     );
   }
 
-  Aircraft3d localizeAdsbAircraft(
-    AdsbAircraft aircraft,
-    GeoLocation deviceLocation,
-  ) {
-    final relativeLocation = _computeCoordinates.compute(
-      aircraft.geoLocation,
-      deviceLocation,
-    );
+  Aircraft3d localizeAdsbAircraft(AdsbAircraft aircraft, GeoLocation deviceLocation) {
+    final relativeLocation = _computeCoordinates.compute(aircraft.geoLocation, deviceLocation);
 
-    return Aircraft3d(
-      adsb: aircraft,
-      pos: relativeLocation,
-    );
+    final distance = relativeLocation.distanceTo(Vector3.zero());
+
+    return Aircraft3d(adsb: aircraft, distance: distance, pos: relativeLocation);
   }
 }
 

@@ -6,5 +6,7 @@ class AircraftsOnScreenEvent extends RealTimeEvent {
 
   AircraftsOnScreenEvent({required this.aircrafts, required super.timestamp});
 
-  String get preview => '\n${aircrafts.map((aircraft) => aircraft.preview).join('\n')}';
+  // String get preview => '\n${aircrafts.map((aircraft) => aircraft.preview).join('\n')}';
+
+  String get preview => '${aircrafts.length}';
 }

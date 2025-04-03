@@ -103,10 +103,10 @@ class DebugView extends ConsumerWidget {
             //   stream: localizeAdsbAircrafts.stream,
             //   sensorType: '',
             // ),
-            // SensorDataStreamWidget(
-            //   stream: appStreamsPort.adsbAircraftsStream,
-            //   sensorType: '',
-            // ),
+            SensorDataStreamWidget(
+              stream: appStreamsPort.adsbAircraftsStream,
+              sensorType: 'ADSB',
+            ),
             // SensorDataStreamWidget(
             //   stream: appStreamsPort.detectedAircraftsStream,
             //   sensorType: "Detected",
