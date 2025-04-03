@@ -6,17 +6,13 @@ import 'package:app/domain/localize_adsb_aircrafts.dart';
 import 'package:app/domain/model/camera_fov.dart';
 import 'package:app/domain/model/events/localized_aircrafts_event.dart';
 import 'package:app/domain/model/events/aircrafts_on_screen_event.dart';
-import 'package:app/domain/model/aircraft_2d.dart';
-import 'package:app/port/out/camera_port.dart';
-import 'package:flutter/services.dart';
+import 'package:app/domain/model/aircrafts/estimated_aircraft.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:vector_math/vector_math.dart';
-
-import 'model/events/aircrafts_on_screen_event.dart';
 import 'model/events/device_orientation_event.dart';
-import 'model/aircraft_3d.dart';
+import 'model/aircrafts/aircraft_3d.dart';
 
 part 'estimate_aircraft_2d_positions.g.dart';
 
@@ -65,19 +61,19 @@ class EstimateAircraft2dPositions {
     );
   }
 
-  Aircraft2d _projectAircraftOntoCameraPlane(
+  EstimatedAircraft _projectAircraftOntoCameraPlane(
     Aircraft3d aircraft,
     Matrix3 rotationMatrix,
   ) {
     // Rotate the aircraft's relative location into the camera's coordinate system
-    final posEnu = aircraft.position;
+    final posEnu = aircraft.pos;
     final posCamera = rotationMatrix.transformed(posEnu);
 
     if (posCamera.z >= 0) {
-      return Aircraft2d(
-        position: Vector2.zero(),
+      return EstimatedAircraft(
+        pos: Vector2.zero(),
         adsb: aircraft.adsb,
-        position3d: posCamera,
+        pos3d: posCamera,
         isOnScreen: false,
       );
     }
@@ -92,10 +88,10 @@ class EstimateAircraft2dPositions {
 
     final position2d = Vector2(xNorm, yNorm);
 
-    return Aircraft2d(
-      position: position2d,
+    return EstimatedAircraft(
+      pos: position2d,
       adsb: aircraft.adsb,
-      position3d: posCamera,
+      pos3d: posCamera,
       isOnScreen: _isOnScreen(position2d),
     );
   }

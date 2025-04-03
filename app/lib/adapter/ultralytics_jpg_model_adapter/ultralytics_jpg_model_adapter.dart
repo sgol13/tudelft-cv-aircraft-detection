@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:app/domain/model/detected_aircraft.dart';
+import 'package:app/domain/model/aircrafts/detected_aircraft.dart';
 import 'package:app/port/out/detection_model_port.dart';
 import 'package:camera/src/camera_image.dart';
 import 'package:ultralytics_yolo/predict/detect/detect.dart';

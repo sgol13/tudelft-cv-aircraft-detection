@@ -1,4 +1,4 @@
-import 'package:app/domain/model/detected_aircraft.dart';
+import 'package:app/domain/model/aircrafts/detected_aircraft.dart';
 import 'package:app/port/out/detection_model_port.dart';
 import 'package:camera/camera.dart';
 import 'package:camera/src/camera_image.dart';
@@ -32,7 +32,7 @@ class PytorchLiteLibModelAdapter extends DetectionModelPort {
     final double y = (result.rect.top + result.rect.bottom) / 2;
 
     return DetectedAircraft(
-      position: Vector2(x, y  ),
+      pos: Vector2(x, y  ),
       width: result.rect.width,
       height: result.rect.height,
       classIndex: result.classIndex,

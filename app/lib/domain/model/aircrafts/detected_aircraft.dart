@@ -1,8 +1,6 @@
-import 'package:vector_math/vector_math.dart';
+import 'package:app/domain/model/aircrafts/aircraft_2d.dart';
 
-class DetectedAircraft {
-  final Vector2 position;
-
+class DetectedAircraft extends Aircraft2d {
   final double width;
   final double height;
 
@@ -12,7 +10,7 @@ class DetectedAircraft {
   final double score;
 
   DetectedAircraft({
-    required this.position,
+    required super.pos,
     required this.width,
     required this.height,
     required this.classIndex,

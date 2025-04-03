@@ -1,4 +1,4 @@
-import 'package:app/domain/model/detected_aircraft.dart';
+import 'package:app/domain/model/aircrafts/detected_aircraft.dart';
 import 'package:camera/camera.dart';
 
 import '../../port/out/detection_model_port.dart';

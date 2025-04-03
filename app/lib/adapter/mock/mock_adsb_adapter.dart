@@ -1,7 +1,7 @@
 import 'package:app/domain/model/events/adsb_event.dart';
 import 'package:app/port/out/adsb_port.dart';
 
-import '../../domain/model/adsb_aircraft.dart';
+import '../../domain/model/aircrafts/adsb_aircraft.dart';
 import '../../domain/model/geo_location.dart';
 
 class MockAdsbAdapter extends AdsbPort {

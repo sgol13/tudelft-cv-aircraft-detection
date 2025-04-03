@@ -1,4 +1,4 @@
-import 'package:app/domain/model/aircraft_2d.dart';
+import 'package:app/domain/model/aircrafts/estimated_aircraft.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -44,7 +44,7 @@ class CameraViewAnnotator extends ConsumerWidget {
 }
 
 class AnnotationPainter extends CustomPainter {
-  final List<Aircraft2d> _aircrafts;
+  final List<EstimatedAircraft> _aircrafts;
   final Paint _paint = Paint()..color = Colors.purple;
 
   AnnotationPainter(this._aircrafts);
@@ -52,7 +52,7 @@ class AnnotationPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     for (var aircraft in _aircrafts) {
-      final offset = _positionToOffset(aircraft.position, size);
+      final offset = _positionToOffset(aircraft.pos, size);
       canvas.drawCircle(offset, 5, _paint);
 
       final textSpan = TextSpan(

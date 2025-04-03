@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io' as io;
 import 'package:app/domain/detect_aircrafts/detect_aircrafts.dart';
 import 'package:app/domain/model/events/detected_aircrafts_event.dart';
-import 'package:app/domain/model/detected_aircraft.dart';
+import 'package:app/domain/model/aircrafts/detected_aircraft.dart';
 import 'package:ultralytics_yolo/yolo_model.dart';
 import 'package:vector_math/vector_math.dart';
 import 'package:ultralytics_yolo/ultralytics_yolo.dart';
@@ -38,7 +38,7 @@ class UltralyticsLiveDetect extends DetectAircrafts {
     final position = Vector2(prediction.boundingBox.center.dx, prediction.boundingBox.center.dy);
 
     return DetectedAircraft(
-      position: position,
+      pos: position,
       width: prediction.boundingBox.width,
       height: prediction.boundingBox.height,
       classIndex: prediction.index,

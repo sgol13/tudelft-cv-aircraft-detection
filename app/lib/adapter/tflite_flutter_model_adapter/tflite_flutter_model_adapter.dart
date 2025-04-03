@@ -1,5 +1,5 @@
 import 'package:app/adapter/tflite_model_adapter/inner/detector.dart';
-import 'package:app/domain/model/detected_aircraft.dart';
+import 'package:app/domain/model/aircrafts/detected_aircraft.dart';
 import 'package:app/port/out/detection_model_port.dart';
 import 'package:camera/camera.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
