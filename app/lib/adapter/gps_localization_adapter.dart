@@ -21,9 +21,9 @@ class GpsLocalizationAdapter implements LocalizationPort {
   DeviceLocationEvent _toDeviceLocationEvent(Position position) =>
       DeviceLocationEvent(
         geoLocation: GeoLocation(
-          latitude: position.latitude,
-          longitude: position.longitude,
-          altitude: position.altitude,
+          lat: position.latitude,
+          lon: position.longitude,
+          alt: position.altitude,
         ),
         timestamp: position.timestamp,
       );

@@ -2,7 +2,7 @@ import 'package:app/domain/model/events/adsb_event.dart';
 import 'package:app/domain/model/events/device_orientation_event.dart';
 import 'package:app/domain/model/events/device_location_event.dart';
 import 'package:app/domain/model/events/video_frame_event.dart';
-import 'package:app/port/out/adsb_api_port.dart';
+import 'package:app/port/out/adsb_port.dart';
 import 'package:app/port/out/camera_port.dart';
 import 'package:app/port/out/device_orientation_port.dart';
 import 'package:app/port/out/localization_port.dart';
@@ -17,7 +17,7 @@ class GetRealDataStreams extends GetDataStreams {
   final DeviceOrientationPort _deviceOrientationPort;
   final LocalizationPort _localizationPort;
   final CameraPort _cameraPort;
-  final AdsbApiPort _adsbApiPort;
+  final AdsbPort _adsbApiPort;
 
   GetRealDataStreams(
     this._deviceOrientationPort,

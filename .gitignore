@@ -2,6 +2,9 @@
 data/
 yolo_data/
 datasets/
+labeling_tasks/
+yolov8n_saved_model/
+aircraft_detection
 runs/
 requirements.txt
 **/__pycache__

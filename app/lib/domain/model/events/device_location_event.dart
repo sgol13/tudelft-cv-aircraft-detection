@@ -6,11 +6,11 @@ class DeviceLocationEvent extends RealTimeEvent {
 
   DeviceLocationEvent({required super.timestamp, required this.geoLocation});
 
-  double get latitude => geoLocation.latitude;
+  double get latitude => geoLocation.lat;
 
-  double get longitude => geoLocation.longitude;
+  double get longitude => geoLocation.lon;
 
-  double get altitude => geoLocation.altitude;
+  double get altitude => geoLocation.alt;
 
   String get preview =>
       '[${formatValue(latitude)}, ${formatValue(longitude)}, ${altitude.toStringAsFixed(0).padLeft(6)} m]';

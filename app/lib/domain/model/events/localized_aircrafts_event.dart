@@ -1,9 +1,11 @@
 import 'package:app/domain/model/events/real_time_event.dart';
 
-import '../localized_adsb_aircraft.dart';
+import '../aircraft_3d.dart';
 
 class LocalizedAircraftsEvent extends RealTimeEvent {
-  final List<LocalizedAdsbAircraft> aircrafts;
+  final List<Aircraft3d> aircrafts;
 
   LocalizedAircraftsEvent({required this.aircrafts, required super.timestamp});
+
+  String get preview => '\n${aircrafts.map((aircraft) => aircraft.preview).join('\n')}';
 }
