@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:app/domain/detect_aircrafts/ultralytics_live_detect.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,9 +16,9 @@ class UltralyticsCameraPreview extends StatefulWidget {
   const UltralyticsCameraPreview({
     required this.predictor,
     required this.controller,
+    required this.liveDetect,
     this.boundingBoxesColorList = const [Colors.lightBlueAccent],
     this.classificationOverlay,
-    this.loadingPlaceholder,
     super.key,
   });
 
@@ -33,8 +34,7 @@ class UltralyticsCameraPreview extends StatefulWidget {
   /// The controller for the camera preview.
   final UltralyticsYoloCameraController controller;
 
-  /// The placeholder widget displayed while the predictor is loading.
-  final Widget? loadingPlaceholder;
+  final UltralyticsLiveDetect liveDetect;
 
   @override
   State<UltralyticsCameraPreview> createState() => _UltralyticsCameraPreviewState();

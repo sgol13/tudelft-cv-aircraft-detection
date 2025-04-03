@@ -7,7 +7,6 @@ import 'package:ultralytics_yolo/predict/detect/object_detector.dart';
 
 import '../domain/detect_aircrafts/ultralytics_live_detect.dart';
 
-
 class UltralyticsCameraPreviewWrapper extends ConsumerWidget {
   const UltralyticsCameraPreviewWrapper({super.key});
 
@@ -16,22 +15,18 @@ class UltralyticsCameraPreviewWrapper extends ConsumerWidget {
     final controller = UltralyticsYoloCameraController();
     final ultralyticsLiveDetect = ref.watch(detectAircraftsProvider) as UltralyticsLiveDetect;
 
-    ultralyticsLiveDetect.stream.listen((event) {
-      print("eee ${event.aircrafts.length}");
-    });
-
     return FutureBuilder<ObjectDetector>(
       future: ultralyticsLiveDetect.detector,
       builder: (context, snapshot) {
         final predictor = snapshot.data;
 
-        predictor?.detectionResultStream.listen((event) {
-          print("eee ${event!.length}");
-        });
-
         return predictor == null
             ? Container()
-            : UltralyticsCameraPreview(controller: controller, predictor: predictor);
+            : UltralyticsCameraPreview(
+              controller: controller,
+              predictor: predictor,
+              liveDetect: ultralyticsLiveDetect,
+            );
       },
     );
   }
