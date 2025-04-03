@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:app/common.dart';
 import 'package:app/domain/model/events/adsb_event.dart';
 import 'package:app/domain/model/aircrafts/adsb_aircraft.dart';
 import 'package:app/domain/model/events/device_location_event.dart';
@@ -67,7 +68,7 @@ class AdsbLolApiAdapter implements AdsbPort {
     geoLocation: GeoLocation(
       lat: json['lat'],
       lon: json['lon'],
-      alt: (json['alt_geom'] as num?)?.toDouble() ?? 0.0,
+      alt: feetToMeters((json['alt_geom'] as num?)?.toDouble() ?? 0.0),
     ),
     flight: json['flight'],
   );

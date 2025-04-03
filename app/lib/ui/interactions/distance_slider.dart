@@ -16,6 +16,7 @@ class _DistanceSliderState extends ConsumerState<DistanceSlider> {
   @override
   Widget build(BuildContext context) {
     final appSettingsPort = ref.watch(appSettingsPortProvider);
+    appSettingsPort.setMaxDistance(_sliderValue * 1000);
 
     return Padding(
       padding: const EdgeInsets.only(left: 16.0), // Add padding to the left
@@ -23,7 +24,7 @@ class _DistanceSliderState extends ConsumerState<DistanceSlider> {
         children: [
           Text(
             'Distance ${_sliderValue.round().toString().padLeft(3)} km',
-            style: const TextStyle(color: Colors.white, fontFamily: 'Monaco'), // Set text color to white
+            style: const TextStyle(color: Colors.white), // Set text color to white
           ),
           Expanded(
             child: Slider(

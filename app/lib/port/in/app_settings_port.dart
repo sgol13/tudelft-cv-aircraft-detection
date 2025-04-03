@@ -12,6 +12,10 @@ class AppSettingsPort {
   void setMaxDistance(double value) {
     _filterAdsbAircrafts.maxDistance = value;
   }
+
+  void setGroundFilter(bool value) {
+    _filterAdsbAircrafts.groundFilter = value;
+  }
 }
 
 @riverpod
