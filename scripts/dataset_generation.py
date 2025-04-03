@@ -231,7 +231,7 @@ def apply_orientation(frame, rotation_flag):
 def extract_frames_with_auto_orientation(video_path, output_dir, video_name, xml_dimensions, 
                                          frame_interval=1, split_dir=None):
     """Extract frames with orientation correction based on video metadata"""
-    print(f"Extracting frames from {video_path} (every {frame_interval} frame)...")
+    # print(f"Extracting frames from {video_path} (every {frame_interval} frame)...")
     
     # Open video file
     video = cv2.VideoCapture(video_path)
@@ -248,8 +248,8 @@ def extract_frames_with_auto_orientation(video_path, output_dir, video_name, xml
     # Try to get rotation metadata
     rotation_flag = video.get(cv2.CAP_PROP_ORIENTATION_META)
     
-    print(f"Video metadata - dimensions: {frame_width}x{frame_height}, rotation: {rotation_flag}")
-    print(f"CVAT dimensions: {xml_dimensions[0]}x{xml_dimensions[1]}")
+    # print(f"Video metadata - dimensions: {frame_width}x{frame_height}, rotation: {rotation_flag}")
+    # print(f"CVAT dimensions: {xml_dimensions[0]}x{xml_dimensions[1]}")
     
     # Extract frames with orientation correction
     extracted_frames = {}
@@ -259,43 +259,41 @@ def extract_frames_with_auto_orientation(video_path, output_dir, video_name, xml
     dimensions = (frame_width, frame_height)
     first_frame_processed = False
     
-    with tqdm(total=frame_count, desc=f"Extracting frames from {video_name}") as pbar:
-        while True:
-            ret, frame = video.read()
-            if not ret:
-                break
-                
-            # Extract only every Nth frame
-            if frame_idx % frame_interval == 0:
-                # Apply orientation correction based on metadata
-                corrected_frame = apply_orientation(frame, rotation_flag)
-                
-                # Track dimensions from the first corrected frame
-                if not first_frame_processed:
-                    height, width = corrected_frame.shape[:2]
-                    dimensions = (width, height)
-                    first_frame_processed = True
-                
-                # Store information about this frame
-                frame_filename = f"{video_name}_{frame_idx:06d}.jpg"
-                
-                # Store information for this frame
-                extracted_frames[frame_idx] = {
-                    'frame': corrected_frame,
-                    'filename': frame_filename
-                }
-                
-            frame_idx += 1
-            pbar.update(1)
-    
+    while True:
+        ret, frame = video.read()
+        if not ret:
+            break
+
+        # Extract only every Nth frame
+        if frame_idx % frame_interval == 0:
+            # Apply orientation correction based on metadata
+            corrected_frame = apply_orientation(frame, rotation_flag)
+
+            # Track dimensions from the first corrected frame
+            if not first_frame_processed:
+                height, width = corrected_frame.shape[:2]
+                dimensions = (width, height)
+                first_frame_processed = True
+
+            # Store information about this frame
+            frame_filename = f"{video_name}_{frame_idx:06d}.jpg"
+
+            # Store information for this frame
+            extracted_frames[frame_idx] = {
+                'frame': corrected_frame,
+                'filename': frame_filename
+            }
+
+        frame_idx += 1
+
     video.release()
     
     # If rotation is 90 or 270 degrees, width and height were swapped
-    if rotation_flag in [90, 270]:
-        print(f"90-degree rotation detected, dimensions after rotation: {dimensions[0]}x{dimensions[1]}")
+    # if rotation_flag in [90, 270]:
+    #     print(f"90-degree rotation detected, dimensions after rotation: {dimensions[0]}x{dimensions[1]}")
     
-    print(f"Extracted {len(extracted_frames)} frames from {video_path}")
-    print(f"Frame dimensions after orientation correction: {dimensions[0]}x{dimensions[1]}")
+    # print(f"Extracted {len(extracted_frames)} frames from {video_path}")
+    # print(f"Frame dimensions after orientation correction: {dimensions[0]}x{dimensions[1]}")
     return extracted_frames, dimensions, len(extracted_frames)
 
 def convert_to_yolo_format(annotation, img_width, img_height, target_width=None, target_height=None):
@@ -456,8 +454,8 @@ def process_video(xml_file, video_dir, output_dir, split, target_size=None, fram
         print(f"Target size: {target_width}x{target_height}")
     
     # Process each extracted frame
-    print(f"Processing {len(extracted_frames)} frames from {video_name}...")
-    for frame_idx, frame_data in tqdm(extracted_frames.items(), desc=f"Processing {video_name}"):
+    # print(f"Processing {len(extracted_frames)} frames from {video_name}...")
+    for frame_idx, frame_data in extracted_frames.items():
         frame_filename = frame_data['filename']
         label_filename = os.path.splitext(frame_filename)[0] + '.txt'
         
@@ -491,7 +489,7 @@ def process_video(xml_file, video_dir, output_dir, split, target_size=None, fram
                     annotation, source_width, source_height, target_width, target_height)
                 f.write(yolo_annotation + '\n')
     
-    print(f"Processed {video_name}: {len(annotations)} frames added to {dest_split} set")
+    # print(f"Processed {video_name}: {len(annotations)} frames added to {dest_split} set")
 
 def create_data_yaml(output_dir, class_mapping):
     """Create the data.yaml file for YOLOv8 training"""
@@ -549,7 +547,7 @@ def main():
             for xml_file in xml_files
         ]
 
-        for future in concurrent.futures.as_completed(futures):
+        for future in tqdm(concurrent.futures.as_completed(futures), total=len(futures)):
             try:
                 future.result()
             except Exception as e:
