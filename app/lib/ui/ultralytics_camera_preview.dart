@@ -83,9 +83,7 @@ class _UltralyticsCameraPreviewState extends State<UltralyticsCameraPreview> {
 
               final detectionStream = (widget.predictor! as ObjectDetector).detectionResultStream;
 
-              detectionStream.listen((e) => {
-                print(e!.length)
-              });
+              detectionStream.listen((e) => widget.liveDetect.addPrediction(e));
 
               return StreamBuilder(
                 stream: detectionStream,
