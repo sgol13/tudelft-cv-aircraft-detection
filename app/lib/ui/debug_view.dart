@@ -98,7 +98,7 @@ class DebugView extends ConsumerWidget {
               stream: appStreamsPort.orientationStream,
               sensorType: 'Orientation',
             ),
-            SensorDataStreamWidget(stream: cameraPort.stream, sensorType: 'Camera'),
+            // SensorDataStreamWidget(stream: cameraPort.stream, sensorType: 'Camera'),
             // SensorDataStreamWidget(
             //   stream: localizeAdsbAircrafts.stream,
             //   sensorType: '',
@@ -107,10 +107,10 @@ class DebugView extends ConsumerWidget {
             //   stream: appStreamsPort.adsbAircraftsStream,
             //   sensorType: '',
             // ),
-            SensorDataStreamWidget(
-              stream: appStreamsPort.detectedAircraftsStream,
-              sensorType: "Detected",
-            ),
+            // SensorDataStreamWidget(
+            //   stream: appStreamsPort.detectedAircraftsStream,
+            //   sensorType: "Detected",
+            // ),
           ],
         ),
       ),

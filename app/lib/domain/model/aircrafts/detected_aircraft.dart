@@ -17,4 +17,7 @@ class DetectedAircraft extends Aircraft2d {
     this.className,
     required this.score,
   });
+
+  String get preview =>
+      '[${(pos.x.toStringAsFixed(3).padLeft(6))}, ${pos.y.toStringAsFixed(3).padLeft(6)}] $className';
 }

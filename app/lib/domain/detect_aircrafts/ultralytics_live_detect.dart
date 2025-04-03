@@ -15,6 +15,9 @@ class UltralyticsLiveDetect extends DetectAircrafts {
   static final String _modelPath = "assets/yolov8n_int8.tflite";
   static final String _metadataPath = "assets/yolov8n_int8_metadata.yaml";
 
+  static final int screenWidth = 480;
+  static final int screenHeight = 640;
+
   late final Future<ObjectDetector> detector;
 
   final StreamController<DetectedAircraftsEvent> _streamController =
@@ -25,7 +28,7 @@ class UltralyticsLiveDetect extends DetectAircrafts {
   }
 
   @override
-  Stream<DetectedAircraftsEvent> get stream => _streamController.stream;
+  Stream<DetectedAircraftsEvent> get stream => _streamController.stream.asBroadcastStream();
 
   void addPrediction(List<DetectedObject?>? predictions) {
     if (predictions == null) return;
@@ -35,10 +38,11 @@ class UltralyticsLiveDetect extends DetectAircrafts {
   }
 
   DetectedAircraft _predictionToAircraft(DetectedObject prediction) {
-    final position = Vector2(prediction.boundingBox.center.dx, prediction.boundingBox.center.dy);
+    final x = prediction.boundingBox.center.dx / screenWidth;
+    final y = prediction.boundingBox.center.dy / screenHeight;
 
     return DetectedAircraft(
-      pos: position,
+      pos: Vector2(x, y),
       width: prediction.boundingBox.width,
       height: prediction.boundingBox.height,
       classIndex: prediction.index,

@@ -17,16 +17,23 @@ class AppStreamsPort {
   final EstimateAircraft2dPositions _computeAircraft2dPositions;
   final DetectAircrafts _detectAircrafts;
 
-  AppStreamsPort(this._getCurrentDataStreams, this._computeAircraft2dPositions, this._detectAircrafts);
+  AppStreamsPort(
+    this._getCurrentDataStreams,
+    this._computeAircraft2dPositions,
+    this._detectAircrafts,
+  );
 
-  Stream<AircraftsOnScreenEvent> get adsbAircraftsStream => _computeAircraft2dPositions.stream;
+  Stream<AircraftsOnScreenEvent> get adsbAircraftsStream =>
+      _computeAircraft2dPositions.stream.asBroadcastStream();
 
-  Stream<DeviceLocationEvent> get locationStream => _getCurrentDataStreams.deviceLocationStream;
+  Stream<DeviceLocationEvent> get locationStream =>
+      _getCurrentDataStreams.deviceLocationStream.asBroadcastStream();
 
   Stream<DeviceOrientationEvent> get orientationStream =>
-      _getCurrentDataStreams.deviceOrientationStream;
+      _getCurrentDataStreams.deviceOrientationStream.asBroadcastStream();
 
-  Stream<DetectedAircraftsEvent> get detectedAircraftsStream => _detectAircrafts.stream;
+  Stream<DetectedAircraftsEvent> get detectedAircraftsStream =>
+      _detectAircrafts.stream.asBroadcastStream();
 }
 
 @riverpod

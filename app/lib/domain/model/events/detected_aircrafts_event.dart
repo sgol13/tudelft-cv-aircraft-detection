@@ -9,6 +9,5 @@ class DetectedAircraftsEvent extends RealTimeEvent {
     required super.timestamp,
   });
 
-  String get preview =>
-      '[${aircrafts.length}]';
+  String get preview => '\n${aircrafts.map((aircraft) => aircraft.preview).join('\n')}';
 }
