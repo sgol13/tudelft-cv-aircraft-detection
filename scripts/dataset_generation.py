@@ -129,10 +129,42 @@ def parse_cvat_annotations(xml_path, class_mapping, frame_interval=1):
         
         video_name = Path(source).stem if source else Path(xml_path).stem
         
+        # Track which frames have occluded objects
+        frames_with_occlusions = set()
+        # Track which frames have any boxes (to identify empty frames)
+        frames_with_boxes = set()
+        # Track frames where all boxes are outside
+        frames_all_boxes_outside = {}
+        
+        # First pass: identify frames with occlusions and count boxes
+        for track in root.findall('.//track'):
+            for box in track.findall('.//box'):
+                frame_id = int(box.get('frame'))
+                
+                # Skip frames that don't match our interval
+                if frame_id % frame_interval != 0:
+                    continue
+                
+                # Track frames that have any boxes
+                frames_with_boxes.add(frame_id)
+                
+                # Track frames with occluded objects
+                if int(box.get('occluded', '0')) == 1:
+                    frames_with_occlusions.add(frame_id)
+                
+                # Track outside status for each frame
+                outside = int(box.get('outside', '0'))
+                if frame_id not in frames_all_boxes_outside:
+                    frames_all_boxes_outside[frame_id] = True
+                
+                # If any box is not outside, mark the frame accordingly
+                if outside == 0:
+                    frames_all_boxes_outside[frame_id] = False
+        
         # Dictionary to store annotations by frame
         frames_annotations = {}
         
-        # Process all tracks
+        # Second pass: process valid frames and their annotations
         for track in root.findall('.//track'):
             track_label = track.get('label')
             if track_label not in class_mapping:
@@ -148,11 +180,16 @@ def parse_cvat_annotations(xml_path, class_mapping, frame_interval=1):
                 # Skip frames that don't match our interval
                 if frame_id % frame_interval != 0:
                     continue
-                    
-                outside = int(box.get('outside'))
-                occluded = int(box.get('occluded'))
-                # Skip if the object is outside the frame
-                if outside == 1 or occluded == 1:
+                
+                # Skip frames with occlusions, no boxes, or all boxes outside
+                if (frame_id in frames_with_occlusions or 
+                    frame_id not in frames_with_boxes or
+                    frames_all_boxes_outside.get(frame_id, True)):
+                    continue
+                
+                # Skip boxes that are outside
+                outside = int(box.get('outside', '0'))
+                if outside == 1:
                     continue
                 
                 # Get box coordinates
@@ -428,6 +465,10 @@ def process_video(xml_file, video_dir, output_dir, split, target_size=None, fram
         img_dest = os.path.join(output_dir, dest_split, 'images', frame_filename)
         label_dest = os.path.join(output_dir, dest_split, 'labels', label_filename)
         
+        # Skip frames that should be excluded
+        if frame_idx not in annotations:
+            continue
+            
         # Save the frame directly to destination
         if target_width and target_height:
             # Create a temporary file to use with resize_image
@@ -443,18 +484,14 @@ def process_video(xml_file, video_dir, output_dir, split, target_size=None, fram
             # Save directly to destination
             cv2.imwrite(img_dest, frame_data['frame'])
         
-        # Create label file (with annotations if available)
-        if frame_idx in annotations:
-            with open(label_dest, 'w') as f:
-                for annotation in annotations[frame_idx]:
-                    yolo_annotation = convert_to_yolo_format(
-                        annotation, source_width, source_height, target_width, target_height)
-                    f.write(yolo_annotation + '\n')
-        else:
-            # Create empty label file
-            open(label_dest, 'w').close()
+        # Create label file with annotations
+        with open(label_dest, 'w') as f:
+            for annotation in annotations[frame_idx]:
+                yolo_annotation = convert_to_yolo_format(
+                    annotation, source_width, source_height, target_width, target_height)
+                f.write(yolo_annotation + '\n')
     
-    print(f"Processed {video_name}: {len(extracted_frames)} frames added to {dest_split} set")
+    print(f"Processed {video_name}: {len(annotations)} frames added to {dest_split} set")
 
 def create_data_yaml(output_dir, class_mapping):
     """Create the data.yaml file for YOLOv8 training"""
@@ -536,3 +573,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
