@@ -47,8 +47,8 @@ dependencies:
     git:
       url: git@github.com:sgol13/processing_camera_image.git
       ref: master
-#  tflite_flutter: ^0.11.0
-#  ultralytics_yolo: ^0.0.3
+  #  tflite_flutter: ^0.11.0
+  #  ultralytics_yolo: ^0.0.3
   ultralytics_yolo:
     git:
       url: git@github.com:ultralytics/yolo-flutter-app.git

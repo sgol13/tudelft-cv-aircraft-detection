@@ -1,3 +1,4 @@
+import 'package:app/adapter/onnx_model_adapter.dart';
 import 'package:app/adapter/pytorch_lite_lib_model_adapter.dart';
 import 'package:app/domain/model/aircrafts/detected_aircraft.dart';
 import 'package:camera/camera.dart';
@@ -14,4 +15,4 @@ abstract class DetectionModelPort {
 }
 
 @riverpod
-DetectionModelPort detectionModelPort(Ref ref) => TfLiteModelAdapter();
+DetectionModelPort detectionModelPort(Ref ref) => OnnxModelAdapter();

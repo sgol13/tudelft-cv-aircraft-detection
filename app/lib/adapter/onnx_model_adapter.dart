@@ -26,7 +26,7 @@ class OnnxModelAdapter extends DetectionModelPort {
   @override
   Future<List<DetectedAircraft>?> detectAircrafts(CameraImage image) async {
     final rgbImage = cameraImageToRgb(image);
-    final inputTensor = await _imageToTensor(rgbImage!);
+    final inputTensor = _imageToTensor(rgbImage!);
     await Future.delayed(Duration(seconds: 1));
 
     final inputs = {'images': inputTensor};
@@ -69,7 +69,7 @@ class OnnxModelAdapter extends DetectionModelPort {
     _session = OrtSession.fromBuffer(bytes, sessionOptions!);
   }
 
-  Future<OrtValueTensor> _imageToTensor(imglib.Image image) async {
+  OrtValueTensor _imageToTensor(imglib.Image image) {
     final width = image.width;
     final height = image.height;
 

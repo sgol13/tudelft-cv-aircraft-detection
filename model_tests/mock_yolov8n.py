@@ -2,7 +2,7 @@ from ultralytics import YOLO
 
 model = YOLO('yolov8n.pt')
 
-model.export(format='torchscript', imgsz=960, int8=False)
+model.export(format='onnx', imgsz=960, half=True)
 
 class_names = model.names
 print(class_names)
