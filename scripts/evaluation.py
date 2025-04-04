@@ -70,6 +70,8 @@ def get_true_positives(ground_truth: pd.DataFrame, predictions: pd.DataFrame, co
         'distance'
     ]].copy().rename(columns=lambda x: x.removeprefix('pred_'))
 
+    min_distance_df['iou'] = compute_intersection_over_union(true_positives_gt, true_positives_pred)
+
     return min_distance_df, true_positives_gt, true_positives_pred
 
 
@@ -151,7 +153,6 @@ def main():
     # ground_truth_df.drop(columns=['video_name'])
 
     tp_combined, tp_gt, tp_pred = get_true_positives(ground_truth_df, predictions_df)
-    tp_combined['iou'] = compute_intersection_over_union(tp_gt, tp_pred)
 
     fp = get_false_positives(predictions_df, tp_pred)
     fn = get_false_negatives(ground_truth_df, tp_gt)
