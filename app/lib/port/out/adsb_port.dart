@@ -15,6 +15,6 @@ abstract class AdsbPort {
 @riverpod
 AdsbPort adsbApiPort(Ref ref) {
   final localizationPort = ref.read(localizationPortProvider);
-  return AdsbLolApiAdapter(localizationPort);
-  // return MockAdsbAdapter();
+  // return AdsbLolApiAdapter(localizationPort);
+  return MockAdsbAdapter();
 }

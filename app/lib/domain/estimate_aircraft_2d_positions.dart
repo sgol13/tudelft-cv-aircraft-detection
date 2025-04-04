@@ -60,6 +60,7 @@ class EstimateAircraft2dPositions {
         pos: Vector2.zero(),
         adsb: aircraft.adsb,
         pos3d: posCamera,
+        distance: aircraft.distance,
         isOnScreen: false,
       );
     }
@@ -78,12 +79,13 @@ class EstimateAircraft2dPositions {
       pos: position2d,
       adsb: aircraft.adsb,
       pos3d: posCamera,
+      distance: aircraft.distance,
       isOnScreen: _isOnScreen(position2d),
     );
   }
 
   bool _isOnScreen(Vector2 pos) {
-    return 0 <= pos.x && pos.x <= 1 && 0 <= pos.y && pos.y <= 1;
+    return -0.3 <= pos.x && pos.x <= 1.3 && -0.3 <= pos.y && pos.y <= 1.3;
   }
 }
 

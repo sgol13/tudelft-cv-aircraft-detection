@@ -6,11 +6,13 @@ class EstimatedAircraft extends Aircraft2d {
   final AdsbAircraft adsb;
   final bool isOnScreen;
   final Vector3 pos3d;
+  final double distance;
 
   EstimatedAircraft({
     required this.adsb,
     required this.isOnScreen,
     required this.pos3d,
+    required this.distance,
     required super.pos,
   });
 

@@ -70,6 +70,9 @@ class AdsbLolApiAdapter implements AdsbPort {
       lon: json['lon'],
       alt: feetToMeters((json['alt_geom'] as num?)?.toDouble() ?? 0.0),
     ),
-    flight: json['flight'],
+    flight: json['flight'].toString().trim(),
+    icaoType: json['t'],
+    heading: (json['true_heading'] as num?)?.toDouble(),
+    speed: (json['gs'] as num?)?.toDouble(),
   );
 }

@@ -6,7 +6,7 @@ part of 'adsb_port.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$adsbApiPortHash() => r'0a72ae9dccf4fbf2128b6dd8a4b5c734cba5024b';
+String _$adsbApiPortHash() => r'dab375b02cf5a3212fc77763fc60c9ee7f954777';
 
 /// See also [adsbApiPort].
 @ProviderFor(adsbApiPort)

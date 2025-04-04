@@ -21,7 +21,13 @@ class MyApp extends StatelessWidget {
           children: [
             Stack(children: [CameraView(), DebugView()]),
             DistanceSlider(),
-            GroundFilterButton()
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(8.0, 0, 0, 0),
+                child: GroundFilterButton(),
+              ),
+            )
           ],
         ),
       ),

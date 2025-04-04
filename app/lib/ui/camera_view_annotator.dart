@@ -1,3 +1,4 @@
+import 'package:app/common.dart';
 import 'package:app/domain/model/aircrafts/estimated_aircraft.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -46,6 +47,7 @@ class EstimatedAircraftsAnnotator extends ConsumerWidget {
 class AnnotationPainter extends CustomPainter {
   final List<EstimatedAircraft> _aircrafts;
   final Paint _paint = Paint()..color = Colors.purple;
+  final Paint _boxPaint = Paint()..color = Colors.grey.withOpacity(0.5);
 
   AnnotationPainter(this._aircrafts);
 
@@ -56,7 +58,10 @@ class AnnotationPainter extends CustomPainter {
       canvas.drawCircle(offset, 5, _paint);
 
       final textSpan = TextSpan(
-        text: aircraft.adsb.flight,
+        text: '${aircraft.adsb.flight} (${aircraft.adsb.icaoType})\n'
+            '${(aircraft.distance / 1000).round()} km\n'
+            '${metersToFeet(aircraft.adsb.geoLocation.alt).round()} ft\n'
+            '${aircraft.adsb.speed?.round() ?? '-'} kn, ${aircraft.adsb.heading?.round() ?? '-'}°\n',
         style: const TextStyle(color: Colors.black, fontSize: 12),
       );
       final textPainter = TextPainter(
@@ -64,7 +69,18 @@ class AnnotationPainter extends CustomPainter {
         textDirection: TextDirection.ltr,
       );
       textPainter.layout();
-      textPainter.paint(canvas, offset + const Offset(8, -6));
+
+      final boxWidth = textPainter.width + 16;
+      final boxHeight = textPainter.height + 8;
+      final boxOffset = offset + const Offset(8, -6);
+
+      final rrect = RRect.fromRectAndRadius(
+        Rect.fromLTWH(boxOffset.dx, boxOffset.dy, boxWidth, boxHeight),
+        const Radius.circular(8),
+      );
+      canvas.drawRRect(rrect, _boxPaint);
+
+      textPainter.paint(canvas, boxOffset + const Offset(8, 4));
     }
   }
 
