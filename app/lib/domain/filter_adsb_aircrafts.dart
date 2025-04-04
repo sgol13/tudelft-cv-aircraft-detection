@@ -1,7 +1,6 @@
 import 'package:app/domain/localize_adsb_aircrafts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:vector_math/vector_math.dart';
 
 import 'model/aircrafts/aircraft_3d.dart';
 import 'model/events/localized_aircrafts_event.dart';
@@ -17,16 +16,24 @@ class FilterAdsbAircrafts {
   FilterAdsbAircrafts(this._localizeAdsbAircrafts);
 
   Stream<LocalizedAircraftsEvent> get stream => _localizeAdsbAircrafts.stream.map((event) {
-    final aircrafts = event.aircrafts.where(_filterDistance).where(_filterGround).toList();
+    final aircrafts =
+        event.aircrafts
+            .where(_filterDistance)
+            .where(_filterGround)
+            .where(_filterWeirdAircrafts)
+            .toList();
 
     return LocalizedAircraftsEvent(aircrafts: aircrafts, timestamp: event.timestamp);
   });
 
+  bool _filterWeirdAircrafts(Aircraft3d aircraft) =>
+      !(aircraft.adsb.flight?.contains('@') ?? false) && aircraft.adsb.flight != null;
+
   bool _filterDistance(Aircraft3d aircraft) => aircraft.distance <= _maxDistance;
 
   bool _filterGround(Aircraft3d aircraft) =>
-      // todo: works only in the Netherlands (asssumes only aircraft < 300 m are on the ground)
-      !_isGroundFilterOn || aircraft.adsb.geoLocation.alt >= 300;
+      // todo: works only in the Netherlands (asssumes only aircraft < 400 m are on the ground)
+      !_isGroundFilterOn || aircraft.adsb.geoLocation.alt >= 400;
 
   set maxDistance(double value) {
     _maxDistance = value;

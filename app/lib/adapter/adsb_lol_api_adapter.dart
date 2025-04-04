@@ -25,10 +25,10 @@ class AdsbLolApiAdapter implements AdsbPort {
   }
 
   @override
-  Stream<AdsbEvent> get stream => Stream.periodic(Duration(seconds: 3))
+  Stream<AdsbEvent> get stream => Stream.periodic(Duration(seconds: 1))
       .map((_) => _lastLocation)
       .whereNotNull()
-      .asyncMap((location) => _fetchDataWithRetry(location, retry: 3))
+      .asyncMap((location) => _fetchDataWithRetry(location, retry: 0))
       .whereNotNull()
       .map(_parseResponse);
 
