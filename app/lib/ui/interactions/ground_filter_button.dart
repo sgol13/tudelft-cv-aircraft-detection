@@ -28,7 +28,7 @@ class _GroundFilterButtonState extends ConsumerState<GroundFilterButton> {
               appSettingsPort.setGroundFilter(_isGroundFilterOn);
             });
           },
-          child: Text(_isGroundFilterOn ? 'Ground: NO ' : 'Ground: YES'),
+          child: Text(_isGroundFilterOn ? 'Ground: OFF' : 'Ground: ON '),
         ),
       ),
     );

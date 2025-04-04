@@ -22,11 +22,11 @@ class DetectedAircraftsAnnotator extends ConsumerWidget {
       stream: appStreamsPort.detectedAircraftsStream,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Text('Loading detected aircraft data...');
+          return Container();
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else if (!snapshot.hasData) {
-          return const Text('No detected aircraft data');
+          return Container();
         }
 
         final aircrafts = (snapshot.data as DetectedAircraftsEvent).aircrafts;

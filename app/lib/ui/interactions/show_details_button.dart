@@ -19,7 +19,7 @@ class ShowDetailsButton extends ConsumerWidget {
           onPressed: () {
             ref.read(detailsModeProvider.notifier).state = !detailsMode;
           },
-          child: Text(detailsMode ? 'Details: YES' : 'Details: NO '),
+          child: Text(detailsMode ? 'Details: ON ' : 'Details: OFF'),
         ),
       ),
     );
