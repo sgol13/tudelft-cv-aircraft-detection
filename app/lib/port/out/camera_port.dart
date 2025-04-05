@@ -23,4 +23,4 @@ abstract class CameraPort {
 }
 
 @riverpod
-CameraPort cameraPort(Ref ref) => MockCameraAdapter();
+CameraPort cameraPort(Ref ref) => CameraAdapter(ref);

@@ -1,3 +1,4 @@
+import 'package:app/domain/estimate_aircraft_2d_positions.dart';
 import 'package:app/port/out/camera_port.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -7,15 +8,16 @@ part 'record_video.g.dart';
 
 class RecordVideo {
   final CameraPort _cameraPort;
+  final EstimateAircraft2dPositions _estimateAircraft2dPositions;
 
-  RecordVideo(this._cameraPort);
+  RecordVideo(this._cameraPort, this._estimateAircraft2dPositions);
 
   Future<void> startRecording() async => await _cameraPort.startRecording();
 
   Future<void> stopRecording() async {
     final directory = await getExternalStorageDirectory();
-    final filename = '${DateTime.now().millisecondsSinceEpoch}.mp4';
-    final path = '${directory!.path}/$filename';
+    final name = '${DateTime.now().millisecondsSinceEpoch}';
+    final path = '${directory!.path}/$name.mp4';
 
     await _cameraPort.stopRecording(path);
   }
@@ -24,5 +26,6 @@ class RecordVideo {
 @riverpod
 RecordVideo recordVideo(Ref ref) {
   final cameraPort = ref.watch(cameraPortProvider);
-  return RecordVideo(cameraPort);
+  final estimateAircraft2dPositions = ref.watch(estimateAircraft2dPositionsProvider);
+  return RecordVideo(cameraPort, estimateAircraft2dPositions);
 }
