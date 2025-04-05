@@ -31,7 +31,10 @@ class EstimateAircraft2dPositions {
   }
 
   Stream<AircraftsOnScreenEvent> get stream =>
-      _getCurrentDataStreams.deviceOrientationStream.map(_computeAircraftPositions).whereNotNull();
+      _getCurrentDataStreams.deviceOrientationStream
+          .map(_computeAircraftPositions)
+          .whereNotNull()
+          .asBroadcastStream();
 
   AircraftsOnScreenEvent? _computeAircraftPositions(DeviceOrientationEvent orientationEvent) {
     if (_currentAircrafts == null) return null;
