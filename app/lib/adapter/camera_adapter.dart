@@ -6,6 +6,7 @@ import 'package:app/port/out/camera_port.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../device/camera.dart';
 import '../domain/model/events/video_frame_event.dart';
@@ -78,12 +79,15 @@ class CameraAdapter extends CameraPort {
 
   @override
   Future<void> stopRecording(String path) async {
-    if (_cameraController != null && _cameraController!.value.isRecordingVideo) {
-      final XFile videoFile = await _cameraController!.stopVideoRecording();
-      final File file = File(videoFile.path);
-      await file.copy(path);
+    if (await Permission.storage.request().isGranted) {
+      if (_cameraController != null && _cameraController!.value.isRecordingVideo) {
+        final XFile videoFile = await _cameraController!.stopVideoRecording();
+        await videoFile.saveTo(path);
+      } else {
+        throw Exception("Camera is not recording");
+      }
     } else {
-      throw Exception("Camera is not recording");
+      throw Exception("Storage permission not granted");
     }
   }
 }
