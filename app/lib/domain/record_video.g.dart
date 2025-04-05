@@ -1,28 +1,26 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'app_settings_port.dart';
+part of 'record_video.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$appSettingsPortHash() => r'8b3dbba648f571a1ac6e2da7982838bef41812b7';
+String _$recordVideoHash() => r'77338e2a9d3371ff43c8174f1a4bb661d4a8000f';
 
-/// See also [appSettingsPort].
-@ProviderFor(appSettingsPort)
-final appSettingsPortProvider = AutoDisposeProvider<AppSettingsPort>.internal(
-  appSettingsPort,
-  name: r'appSettingsPortProvider',
+/// See also [recordVideo].
+@ProviderFor(recordVideo)
+final recordVideoProvider = AutoDisposeProvider<RecordVideo>.internal(
+  recordVideo,
+  name: r'recordVideoProvider',
   debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$appSettingsPortHash,
+      const bool.fromEnvironment('dart.vm.product') ? null : _$recordVideoHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef AppSettingsPortRef = AutoDisposeProviderRef<AppSettingsPort>;
+typedef RecordVideoRef = AutoDisposeProviderRef<RecordVideo>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

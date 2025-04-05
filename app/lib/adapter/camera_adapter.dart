@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:app/domain/model/camera_fov.dart';
 import 'package:app/port/out/camera_port.dart';
@@ -14,6 +15,7 @@ class CameraAdapter extends CameraPort {
       StreamController<VideoFrameEvent>.broadcast();
 
   late final ProviderSubscription<CameraController?> _subscription;
+  CameraController? _cameraController;
 
   CameraAdapter(Ref ref) {
     _subscription = ref.listen<CameraController?>(cameraProvider, (
@@ -22,6 +24,7 @@ class CameraAdapter extends CameraPort {
     ) {
       if (cameraController != null && cameraController.value.isInitialized) {
         _initializeStream(cameraController);
+        _cameraController = cameraController;
       }
     });
   }
@@ -62,5 +65,25 @@ class CameraAdapter extends CameraPort {
       print("Error getting camera FoV: $e");
     }
     return null;
+  }
+
+  @override
+  Future<void> startRecording() async {
+    if (_cameraController != null && _cameraController!.value.isInitialized) {
+      await _cameraController!.startVideoRecording();
+    } else {
+      throw Exception("Camera is not initialized");
+    }
+  }
+
+  @override
+  Future<void> stopRecording(String path) async {
+    if (_cameraController != null && _cameraController!.value.isRecordingVideo) {
+      final XFile videoFile = await _cameraController!.stopVideoRecording();
+      final File file = File(videoFile.path);
+      await file.copy(path);
+    } else {
+      throw Exception("Camera is not recording");
+    }
   }
 }
