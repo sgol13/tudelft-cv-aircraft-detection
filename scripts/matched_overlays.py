@@ -105,15 +105,15 @@ def draw_matched_aircraft(frame, detection, aircraft, class_names, color, show_c
     
     # Format the combined label
     if flight:
-        label = f"{model_label} ({flight})"
+        label1 = f"{model_label} ({flight})"
     else:
-        label = model_label
+        label1 = model_label
         
     if show_conf:
-        label += f" {conf:.2f}"
+        label1 += f" {conf:.2f}"
     
     # Draw text background
-    text_size, _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 2)
+    text_size, _ = cv2.getTextSize(label1, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 2)
     
     # Draw background rectangle for text
     cv2.rectangle(frame, 
@@ -122,7 +122,7 @@ def draw_matched_aircraft(frame, detection, aircraft, class_names, color, show_c
                  color, -1)
     
     # Draw label text
-    cv2.putText(frame, label, (x1 + 5, y1 - 5), 
+    cv2.putText(frame, label1, (x1 + 5, y1 - 5), 
                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
 
@@ -248,7 +248,7 @@ def draw_tracked_aircraft(frame, track_item, class_names, show_conf=True):
         frame: Video frame
         track_item: Dictionary with tracking information
         class_names: List of class names
-        show_conf: Whether to show confidence scores
+        show_conf: Whether to show confidence scores (not used in this version)
         
     Returns:
         None (modifies frame in-place)
@@ -289,30 +289,68 @@ def draw_tracked_aircraft(frame, track_item, class_names, show_conf=True):
     
     # Get flight details
     flight = aircraft.get('flight', 'unknown').strip()
+    aircraft_type = aircraft.get('icao_type', '')
+    altitude = aircraft.get('altitude')
+    speed = aircraft.get('speed')
+    heading = aircraft.get('heading_deg')
+    distance = aircraft.get('distance')
+    latitude = aircraft.get('latitude')
     
-    # Prepare label text
-    if class_id < len(class_names):
-        model_label = class_names[class_id]
-    else:
-        model_label = f"Class {class_id}"
+    # Create a list of labels to display (only non-null values)
+    labels = []
     
-    # Format the combined label
-    if flight:
-        label = f"{model_label} ({flight})"
-    else:
-        label = model_label
+    # Add flight number (always show this if available)
+    if flight and flight != 'unknown':
+        labels.append(f"{flight}")
+    
+    # Add aircraft type if available
+    if aircraft_type:
+        labels.append(f"Type: {aircraft_type}")
+    
+    # Add altitude if available
+    if altitude is not None:
+        labels.append(f"Alt: {int(altitude)}ft")
+    
+    # Add speed if available
+    if speed is not None:
+        labels.append(f"Spd: {int(speed)}kt")
+    
+    # Add heading if available
+    if heading is not None:
+        labels.append(f"Hdg: {int(heading)}deg")
         
-    if show_conf and age == 0:  # Only show confidence for current (not persistent) detections
-        label += f" {conf:.2f}"
+    # Add distance if available
+    if distance is not None:
+        # Convert to kilometers and round to one decimal place
+        distance_km = distance / 1000
+        labels.append(f"Dist: {distance_km:.1f}km")
     
-    # Draw text background with adjusted opacity
-    text_size, _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 2)
+    # Add latitude if available
+    if latitude is not None:
+        labels.append(f"Lat: {latitude:.5f}")
+    
+    # If no labels, at least show something
+    if not labels:
+        labels.append("Aircraft")
+    
+    # Calculate text sizes for each line
+    text_sizes = []
+    for label in labels:
+        text_size, _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 2)
+        text_sizes.append(text_size)
+    
+    # Find the maximum width for the background rectangle
+    max_width = max([size[0] for size in text_sizes]) if text_sizes else 0
+    
+    # Calculate the total height needed
+    line_height = text_sizes[0][1] + 5 if text_sizes else 0  # Adding a small gap between lines
+    total_height = line_height * len(labels)
     
     # Create a region of interest for the label background
-    roi_y1 = max(0, y1 - text_size[1] - 10)
+    roi_y1 = max(0, y1 - total_height - 10)
     roi_y2 = min(frame.shape[0], y1)
     roi_x1 = max(0, x1)
-    roi_x2 = min(frame.shape[1], x1 + text_size[0] + 10)
+    roi_x2 = min(frame.shape[1], x1 + max_width + 10)
     
     # Check if ROI is valid
     if roi_x2 > roi_x1 and roi_y2 > roi_y1:
@@ -328,10 +366,14 @@ def draw_tracked_aircraft(frame, track_item, class_names, show_conf=True):
         
         # Put the ROI back into the frame
         frame[roi_y1:roi_y2, roi_x1:roi_x2] = roi
-    
-    # Draw label text
-    cv2.putText(frame, label, (x1 + 5, y1 - 5), 
-                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+        
+        # Draw text for each line
+        margin = 5
+        for i, label in enumerate(labels):
+            # Calculate vertical position for each line
+            y_pos = y1 - total_height + line_height * (i + 1) - 5
+            cv2.putText(frame, label, (x1 + margin, y_pos),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
 
 def get_aircraft_data_for_frame(timestamp_data, timestamps, frame_number, fps):
