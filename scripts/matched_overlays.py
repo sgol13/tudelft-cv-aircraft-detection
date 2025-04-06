@@ -3,6 +3,7 @@ import os
 import numpy as np
 from ultralytics import YOLO
 from tqdm import tqdm
+from collections import deque
 
 # Import specific methods from the existing scripts
 from display_video import (
@@ -84,21 +85,17 @@ def draw_matched_aircraft(frame, detection, aircraft, class_names, color, show_c
     Returns:
         None (modifies frame in-place)
     """
-    x1, y1, x2, y2, conf, class_id = detection
+    x1, y1, x2, y2, conf, cls_id = detection
     
     # Convert to integers for drawing
     x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
-    class_id = int(class_id)
+    class_id = int(cls_id)
     
     # Draw bounding box
     cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
     
     # Get flight details
     flight = aircraft.get('flight', 'unknown').strip()
-    altitude = aircraft.get('altitude', 0)
-    speed = aircraft.get('speed', 0)
-    heading = aircraft.get('heading_deg', 0)
-    aircraft_type = aircraft.get('icao_type', '')
     
     # Prepare label text
     if class_id < len(class_names):
@@ -107,34 +104,235 @@ def draw_matched_aircraft(frame, detection, aircraft, class_names, color, show_c
         model_label = f"Class {class_id}"
     
     # Format the combined label
-    label1 = f"{model_label} ({flight})"
+    if flight:
+        label = f"{model_label} ({flight})"
+    else:
+        label = model_label
+        
     if show_conf:
-        label1 += f" {conf:.2f}"
-    
-    label2 = f"Type: {aircraft_type}"
-    label3 = f"Alt: {int(altitude)}ft Spd: {int(speed)} Hdg: {int(heading)}°"
+        label += f" {conf:.2f}"
     
     # Draw text background
-    text_size1, _ = cv2.getTextSize(label1, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 2)
-    text_size2, _ = cv2.getTextSize(label2, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 2)
-    text_size3, _ = cv2.getTextSize(label3, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 2)
+    text_size, _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 2)
     
-    max_width = max(text_size1[0], text_size2[0], text_size3[0])
-    total_height = text_size1[1] + text_size2[1] + text_size3[1] + 15  # Add some padding
-    
-    # Draw background rectangle for all text
+    # Draw background rectangle for text
     cv2.rectangle(frame, 
-                 (x1, y1 - total_height - 10), 
-                 (x1 + max_width + 10, y1), 
+                 (x1, y1 - text_size[1] - 10), 
+                 (x1 + text_size[0] + 10, y1), 
                  color, -1)
     
     # Draw label text
-    cv2.putText(frame, label1, (x1 + 5, y1 - total_height + 15), 
+    cv2.putText(frame, label, (x1 + 5, y1 - 5), 
                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-    cv2.putText(frame, label2, (x1 + 5, y1 - total_height + 15 + text_size1[1] + 5), 
+
+
+class AircraftTracker:
+    """
+    A simple tracker to maintain persistence of aircraft detections over multiple frames.
+    This helps with stabilizing ADS-B information display when model detections flicker.
+    """
+    def __init__(self, max_history=30):
+        """
+        Initialize the tracker.
+        
+        Args:
+            max_history: Maximum number of frames to maintain history for each flight
+        """
+        self.tracked_flights = {}  # Dictionary of flight_id -> tracking info
+        self.max_history = max_history
+    
+    def update(self, detections, matched_aircraft):
+        """
+        Update the tracker with new detections and their matched aircraft.
+        
+        Args:
+            detections: List of detection boxes [x1, y1, x2, y2, conf, class_id]
+            matched_aircraft: List of matching aircraft data dictionaries (or None)
+            
+        Returns:
+            List of dictionaries with tracking information to display
+        """
+        current_flights = set()
+        display_items = []
+        
+        # Process current detections and their matched aircraft
+        for i, det in enumerate(detections):
+            aircraft = matched_aircraft[i]
+            
+            if aircraft is None:
+                # No aircraft matched to this detection
+                continue
+                
+            # Get flight ID (use as tracking ID)
+            flight_id = aircraft.get('flight', '').strip()
+            if not flight_id:
+                # Skip if no valid flight ID
+                continue
+                
+            current_flights.add(flight_id)
+            
+            # Extract detection coordinates
+            x1, y1, x2, y2, conf, cls_id = det
+            
+            # Update tracking information
+            if flight_id not in self.tracked_flights:
+                # Create new tracking entry
+                self.tracked_flights[flight_id] = {
+                    'positions': deque(maxlen=self.max_history),
+                    'last_seen': 0,
+                    'aircraft': aircraft
+                }
+            
+            # Add current position to history
+            self.tracked_flights[flight_id]['positions'].append((x1, y1, x2, y2))
+            self.tracked_flights[flight_id]['last_seen'] = 0  # Reset age counter
+            self.tracked_flights[flight_id]['aircraft'] = aircraft  # Update aircraft data
+            
+            # Add to display items
+            display_items.append({
+                'flight_id': flight_id,
+                'detection': det,
+                'aircraft': aircraft,
+                'age': 0  # Current frame
+            })
+        
+        # Check for flights that were tracked but not detected in this frame
+        for flight_id, track_info in self.tracked_flights.items():
+            # Skip if already processed in current detections
+            if flight_id in current_flights:
+                continue
+            
+            # Increment age counter for this track
+            track_info['last_seen'] += 1
+            
+            # If within persistence window, add to display items using last known position
+            if track_info['last_seen'] <= self.max_history and track_info['positions']:
+                # Get the most recent position
+                last_pos = track_info['positions'][-1]
+                
+                # Create a synthetic detection
+                synth_det = [
+                    last_pos[0],  # x1
+                    last_pos[1],  # y1
+                    last_pos[2],  # x2
+                    last_pos[3],  # y2
+                    0.0,          # Set low confidence for synthetic detections
+                    0             # Default class ID
+                ]
+                
+                # Add to display items
+                display_items.append({
+                    'flight_id': flight_id,
+                    'detection': synth_det,
+                    'aircraft': track_info['aircraft'],
+                    'age': track_info['last_seen']  # How many frames since last seen
+                })
+        
+        # Clean up old tracks
+        flights_to_remove = []
+        for flight_id, track_info in self.tracked_flights.items():
+            if track_info['last_seen'] > self.max_history:
+                flights_to_remove.append(flight_id)
+        
+        for flight_id in flights_to_remove:
+            del self.tracked_flights[flight_id]
+        
+        return display_items
+
+
+def draw_tracked_aircraft(frame, track_item, class_names, show_conf=True):
+    """
+    Draw a tracked aircraft with its flight information.
+    
+    Args:
+        frame: Video frame
+        track_item: Dictionary with tracking information
+        class_names: List of class names
+        show_conf: Whether to show confidence scores
+        
+    Returns:
+        None (modifies frame in-place)
+    """
+    detection = track_item['detection']
+    aircraft = track_item['aircraft']
+    age = track_item['age']
+    
+    x1, y1, x2, y2, conf, cls_id = detection
+    
+    # Convert to integers for drawing
+    x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
+    class_id = int(cls_id)
+    
+    # Adjust opacity based on age (more transparent for older tracks)
+    alpha = max(0.3, 1.0 - (age / 30))
+    
+    # Get detection color
+    hue = int(179 * ((class_id * 77) % 17) / 17.0)
+    base_color = cv2.cvtColor(np.uint8([[[hue, 255, 255]]]), cv2.COLOR_HSV2BGR)[0, 0].tolist()
+    
+    # Draw bounding box with adjusted opacity
+    if age > 0:
+        # For persistent tracks, use dashed lines with reduced opacity
+        dash_length = 10
+        for i in range(0, int((x2-x1+x2-x1+y2-y1+y2-y1)), dash_length*2):
+            # Top edge
+            start_x = min(x1 + i, x2) if i < (x2-x1) else x2
+            end_x = min(start_x + dash_length, x2) if i < (x2-x1) else x2
+            start_y = y1 if i < (x2-x1) else min(y1 + (i-(x2-x1)), y2)
+            end_y = y1 if i < (x2-x1) else min(start_y + dash_length, y2)
+            
+            if start_x < end_x or start_y < end_y:
+                cv2.line(frame, (start_x, start_y), (end_x, end_y), base_color, 2)
+    else:
+        # For current detections, use solid lines
+        cv2.rectangle(frame, (x1, y1), (x2, y2), base_color, 2)
+    
+    # Get flight details
+    flight = aircraft.get('flight', 'unknown').strip()
+    
+    # Prepare label text
+    if class_id < len(class_names):
+        model_label = class_names[class_id]
+    else:
+        model_label = f"Class {class_id}"
+    
+    # Format the combined label
+    if flight:
+        label = f"{model_label} ({flight})"
+    else:
+        label = model_label
+        
+    if show_conf and age == 0:  # Only show confidence for current (not persistent) detections
+        label += f" {conf:.2f}"
+    
+    # Draw text background with adjusted opacity
+    text_size, _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 2)
+    
+    # Create a region of interest for the label background
+    roi_y1 = max(0, y1 - text_size[1] - 10)
+    roi_y2 = min(frame.shape[0], y1)
+    roi_x1 = max(0, x1)
+    roi_x2 = min(frame.shape[1], x1 + text_size[0] + 10)
+    
+    # Check if ROI is valid
+    if roi_x2 > roi_x1 and roi_y2 > roi_y1:
+        # Create overlay just for the ROI
+        roi = frame[roi_y1:roi_y2, roi_x1:roi_x2].copy()
+        overlay_roi = roi.copy()
+        
+        # Fill the overlay with the color
+        cv2.rectangle(overlay_roi, (0, 0), (roi_x2 - roi_x1, roi_y2 - roi_y1), base_color, -1)
+        
+        # Blend the overlay with the ROI
+        cv2.addWeighted(overlay_roi, alpha, roi, 1 - alpha, 0, roi)
+        
+        # Put the ROI back into the frame
+        frame[roi_y1:roi_y2, roi_x1:roi_x2] = roi
+    
+    # Draw label text
+    cv2.putText(frame, label, (x1 + 5, y1 - 5), 
                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-    cv2.putText(frame, label3, (x1 + 5, y1 - total_height + 15 + text_size1[1] + text_size2[1] + 10), 
-                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+
 
 def get_aircraft_data_for_frame(timestamp_data, timestamps, frame_number, fps):
     """Get the aircraft data closest to the current video frame."""
@@ -155,7 +353,8 @@ def process_combined_video(
     class_names=None, 
     show_conf=True, 
     show_adsb_details=True,
-    match_mode=False
+    match_mode=False,
+    persistence_frames=30
 ):
     """
     Process a video with object detection and ADS-B overlay.
@@ -170,6 +369,7 @@ def process_combined_video(
         show_conf: Whether to show confidence scores for detections
         show_adsb_details: Whether to show detailed ADS-B aircraft information
         match_mode: Whether to match ADS-B data with model detections
+        persistence_frames: Number of frames to maintain aircraft visibility after detection disappears
     
     Returns:
         str: Path to the output video
@@ -231,6 +431,11 @@ def process_combined_video(
     progress_bar = tqdm(total=total_frames, desc="Processing video")
     frame_number = 0
     
+    # Initialize aircraft tracker if in match mode
+    aircraft_tracker = None
+    if match_mode:
+        aircraft_tracker = AircraftTracker(max_history=persistence_frames)
+    
     while True:
         ret, frame = cap.read()
         if not ret:
@@ -263,7 +468,8 @@ def process_combined_video(
             # Create a new frame for matched output
             matched_frame = frame.copy()
             
-            # For each model detection, find the closest ADS-B aircraft
+            # Prepare matched_aircraft list aligned with detections
+            matched_aircraft = []
             for det in rescaled_detections:
                 x1, y1, x2, y2, conf, cls_id = det
                 
@@ -278,39 +484,17 @@ def process_combined_video(
                     width, height
                 )
                 
-                # Get detection color
-                class_id = int(cls_id)
-                hue = int(179 * ((class_id * 77) % 17) / 17.0)
-                color = cv2.cvtColor(np.uint8([[[hue, 255, 255]]]), cv2.COLOR_HSV2BGR)[0, 0].tolist()
-                
-                if closest_aircraft is not None:
-                    # Draw matched information
-                    draw_matched_aircraft(matched_frame, det, closest_aircraft, class_names, color, show_conf)
-                else:
-                    # Draw regular detection if no match
-                    x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
-                    cv2.rectangle(matched_frame, (x1, y1), (x2, y2), color, 2)
-                    
-                    # Prepare label text
-                    if class_id < len(class_names):
-                        label = f"{class_names[class_id]}"
-                        if show_conf:
-                            label += f" {conf:.2f}"
-                    else:
-                        label = f"Class {class_id}"
-                        if show_conf:
-                            label += f" {conf:.2f}"
-                    
-                    # Draw label background
-                    text_size, _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 2)
-                    cv2.rectangle(matched_frame, (x1, y1 - text_size[1] - 10), (x1 + text_size[0], y1), color, -1)
-                    
-                    # Draw label text
-                    cv2.putText(matched_frame, label, (x1, y1 - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+                matched_aircraft.append(closest_aircraft)
+            
+            # Update tracker with current detections and get items to display
+            display_items = aircraft_tracker.update(rescaled_detections, matched_aircraft)
+            
+            # Draw all tracked items
+            for track_item in display_items:
+                draw_tracked_aircraft(matched_frame, track_item, class_names, show_conf)
             
             # Write frame to output video
             out.write(matched_frame)
-            
         else:
             # Original mode: separate model detections and ADS-B overlay
             # Draw object detection predictions first
@@ -347,6 +531,8 @@ if __name__ == "__main__":
     parser.add_argument("--no-conf", action="store_true", help="Hide confidence scores for detections")
     parser.add_argument("--no-adsb-details", action="store_true", help="Hide detailed ADS-B aircraft information")
     parser.add_argument("--match", action="store_true", help="Enable matching mode between detections and ADS-B data")
+    parser.add_argument("--persistence", type=int, default=30, 
+                        help="Number of frames to maintain aircraft visibility after detection disappears (default: 30)")
     
     args = parser.parse_args()
     
@@ -358,5 +544,6 @@ if __name__ == "__main__":
         inference_size=args.inference_size,
         show_conf=not args.no_conf,
         show_adsb_details=not args.no_adsb_details,
-        match_mode=args.match
+        match_mode=args.match,
+        persistence_frames=args.persistence
     )
