@@ -16,7 +16,7 @@ def parse_args():
     parser.add_argument('--output_dir', type=str, default='./yolo_data', help='Output directory for YOLO dataset')
     parser.add_argument('--video_dir', type=str, required=True, help='Directory containing source videos')
     parser.add_argument('--split_file', type=str, default='split.csv', help='Path to CSV file with train/val/test assignments')
-    parser.add_argument('--frame_interval', type=int, default=10, help='Extract every Nth frame (1=all frames)')
+    parser.add_argument('--frame_interval', type=int, default=2, help='Extract every Nth frame (1=all frames)')
     parser.add_argument('--target_size', type=str, default=None, help='Target size for resizing, format: WIDTHxHEIGHT')
     return parser.parse_args()
 
@@ -367,8 +367,9 @@ def convert_to_yolo_format(annotation, img_width, img_height, target_width=None,
     # Ensure values are within [0, 1]
     x_center = max(0, min(1, x_center))
     y_center = max(0, min(1, y_center))
-    width = max(0, min(1, width))
-    height = max(0, min(1, height))
+    # Add 8 pixels to width and height
+    width = max(0, min(1, width + 8/img_width))
+    height = max(0, min(1, height + 8/img_height))
     
     return f"{annotation['class_id']} {x_center:.6f} {y_center:.6f} {width:.6f} {height:.6f}"
 
