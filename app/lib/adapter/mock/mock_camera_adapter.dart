@@ -8,4 +8,10 @@ class MockCameraAdapter extends CameraPort {
 
   @override
   Stream<VideoFrameEvent> get stream => Stream.empty(broadcast: true);
+
+  @override
+  Future<void> startRecording() async {}
+
+  @override
+  Future<void> stopRecording(String path) async {}
 }

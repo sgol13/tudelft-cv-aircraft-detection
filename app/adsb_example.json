@@ -1,0 +1,43 @@
+{
+  "video": "filename.mp4",
+  "predictions": [
+    {
+      "timestamp": 1234,
+      "aircrafts": [
+        {
+          "pos": {
+            "x": 0.3,
+            "y": 0.7
+          },
+          "flight": "ABC123"
+        },
+        {
+          "pos": {
+            "x": 0.3,
+            "y": 0.2
+          },
+          "flight": "XYZ789"
+        }
+      ]
+    },
+    {
+      "timestamp": 1290,
+      "aircrafts": [
+        {
+          "pos": {
+            "x": 0.31,
+            "y": 0.72
+          },
+          "flight": "ABC123"
+        },
+        {
+          "pos": {
+            "x": 0.29,
+            "y": 0.21
+          },
+          "flight": "XYZ789"
+        }
+      ]
+    }
+  ]
+}

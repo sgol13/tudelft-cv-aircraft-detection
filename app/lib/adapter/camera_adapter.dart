@@ -1,10 +1,16 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:app/domain/model/camera_fov.dart';
 import 'package:app/port/out/camera_port.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'dart:io';
+import 'package:camera/camera.dart';
+import 'package:path/path.dart' as p;
+import 'package:permission_handler/permission_handler.dart';
 
 import '../device/camera.dart';
 import '../domain/model/events/video_frame_event.dart';
@@ -14,14 +20,13 @@ class CameraAdapter extends CameraPort {
       StreamController<VideoFrameEvent>.broadcast();
 
   late final ProviderSubscription<CameraController?> _subscription;
+  CameraController? _cameraController;
 
   CameraAdapter(Ref ref) {
-    _subscription = ref.listen<CameraController?>(cameraProvider, (
-      previous,
-      cameraController,
-    ) {
+    _subscription = ref.listen<CameraController?>(cameraProvider, (previous, cameraController) {
       if (cameraController != null && cameraController.value.isInitialized) {
         _initializeStream(cameraController);
+        _cameraController = cameraController;
       }
     });
   }
@@ -62,5 +67,35 @@ class CameraAdapter extends CameraPort {
       print("Error getting camera FoV: $e");
     }
     return null;
+  }
+
+  @override
+  Future<void> startRecording() async {
+    if (_cameraController != null && _cameraController!.value.isInitialized) {
+      await _cameraController!.startVideoRecording();
+    } else {
+      throw Exception("Camera is not initialized");
+    }
+  }
+
+  @override
+  Future<void> stopRecording(String path) async {
+    await [
+      Permission.camera,
+      Permission.microphone,
+      Permission.videos,
+      Permission.storage,
+    ].request();
+
+    if (!(_cameraController?.value.isRecordingVideo ?? false)) {
+      throw Exception("Camera is not recording");
+    }
+
+    final XFile videoFile = await _cameraController!.stopVideoRecording();
+
+    final targetFile = File(path);
+    await targetFile.parent.create(recursive: true);
+
+    await File(videoFile.path).copy(path);
   }
 }

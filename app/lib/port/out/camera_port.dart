@@ -16,7 +16,11 @@ abstract class CameraPort {
   Stream<VideoFrameEvent> get stream;
 
   Future<CameraFoV?> get fieldOfView;
+
+  Future<void> startRecording();
+
+  Future<void> stopRecording(String path);
 }
 
 @riverpod
-CameraPort cameraPort(Ref ref) => MockCameraAdapter();
+CameraPort cameraPort(Ref ref) => CameraAdapter(ref);
