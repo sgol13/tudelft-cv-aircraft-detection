@@ -367,9 +367,10 @@ def convert_to_yolo_format(annotation, img_width, img_height, target_width=None,
     # Ensure values are within [0, 1]
     x_center = max(0, min(1, x_center))
     y_center = max(0, min(1, y_center))
+
     # Add 8 pixels to width and height
-    width = max(0, min(1, width + 8/img_width))
-    height = max(0, min(1, height + 8/img_height))
+    # width = max(0, min(1, width + 8/img_width))
+    # height = max(0, min(1, height + 8/img_height))
     
     return f"{annotation['class_id']} {x_center:.6f} {y_center:.6f} {width:.6f} {height:.6f}"
 
