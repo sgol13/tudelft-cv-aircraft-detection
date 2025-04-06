@@ -18,6 +18,60 @@ from adsb_overlay import (
     draw_aircraft_overlay
 )
 
+def draw_rounded_rectangle(img, x1, y1, x2, y2, color, thickness=-1, radius=10, alpha=1.0):
+    """
+    Draw a rounded rectangle on an image with optional transparency.
+    
+    Args:
+        img: Image to draw on
+        x1, y1: Top-left corner
+        x2, y2: Bottom-right corner
+        color: Rectangle color (BGR)
+        thickness: Line thickness (-1 for filled)
+        radius: Corner radius
+        alpha: Opacity (0.0-1.0)
+        
+    Returns:
+        None (modifies img in-place)
+    """
+    # Create a separate canvas for the rectangle
+    if alpha < 1.0:
+        overlay = img.copy()
+    
+    # Draw the main rectangle
+    cv2.rectangle(
+        overlay if alpha < 1.0 else img,
+        (x1 + radius, y1),
+        (x2 - radius, y2),
+        color, thickness)
+    cv2.rectangle(
+        overlay if alpha < 1.0 else img,
+        (x1, y1 + radius),
+        (x2, y2 - radius),
+        color, thickness)
+    
+    # Draw the four corner circles
+    cv2.circle(
+        overlay if alpha < 1.0 else img,
+        (x1 + radius, y1 + radius),
+        radius, color, thickness)
+    cv2.circle(
+        overlay if alpha < 1.0 else img,
+        (x2 - radius, y1 + radius),
+        radius, color, thickness)
+    cv2.circle(
+        overlay if alpha < 1.0 else img,
+        (x1 + radius, y2 - radius),
+        radius, color, thickness)
+    cv2.circle(
+        overlay if alpha < 1.0 else img,
+        (x2 - radius, y2 - radius),
+        radius, color, thickness)
+    
+    # Apply transparency if needed
+    if alpha < 1.0:
+        cv2.addWeighted(overlay, alpha, img, 1 - alpha, 0, img)
+
 def calculate_distance(point1, point2):
     """
     Calculate Euclidean distance between two points.
@@ -242,12 +296,12 @@ class AircraftTracker:
 
 def draw_tracked_aircraft(frame, track_item, class_names, show_conf=True):
     """
-    Draw a tracked aircraft with its flight information.
+    Draw a tracked aircraft with its flight information using a consistent styled display.
     
     Args:
         frame: Video frame
         track_item: Dictionary with tracking information
-        class_names: List of class names
+        class_names: List of class names (not used in this version)
         show_conf: Whether to show confidence scores (not used in this version)
         
     Returns:
@@ -255,37 +309,16 @@ def draw_tracked_aircraft(frame, track_item, class_names, show_conf=True):
     """
     detection = track_item['detection']
     aircraft = track_item['aircraft']
-    age = track_item['age']
     
     x1, y1, x2, y2, conf, cls_id = detection
     
-    # Convert to integers for drawing
-    x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
-    class_id = int(cls_id)
+    # Calculate center of the detection box
+    center_x = int((x1 + x2) / 2)
+    center_y = int((y1 + y2) / 2)
     
-    # Adjust opacity based on age (more transparent for older tracks)
-    alpha = max(0.3, 1.0 - (age / 30))
-    
-    # Get detection color
-    hue = int(179 * ((class_id * 77) % 17) / 17.0)
-    base_color = cv2.cvtColor(np.uint8([[[hue, 255, 255]]]), cv2.COLOR_HSV2BGR)[0, 0].tolist()
-    
-    # Draw bounding box with adjusted opacity
-    if age > 0:
-        # For persistent tracks, use dashed lines with reduced opacity
-        dash_length = 10
-        for i in range(0, int((x2-x1+x2-x1+y2-y1+y2-y1)), dash_length*2):
-            # Top edge
-            start_x = min(x1 + i, x2) if i < (x2-x1) else x2
-            end_x = min(start_x + dash_length, x2) if i < (x2-x1) else x2
-            start_y = y1 if i < (x2-x1) else min(y1 + (i-(x2-x1)), y2)
-            end_y = y1 if i < (x2-x1) else min(start_y + dash_length, y2)
-            
-            if start_x < end_x or start_y < end_y:
-                cv2.line(frame, (start_x, start_y), (end_x, end_y), base_color, 2)
-    else:
-        # For current detections, use solid lines
-        cv2.rectangle(frame, (x1, y1), (x2, y2), base_color, 2)
+    # Define colors
+    dot_color = (180, 0, 180)  # Purple color in BGR
+    box_color = (80, 80, 80)   # Gray color in BGR
     
     # Get flight details
     flight = aircraft.get('flight', 'unknown').strip()
@@ -295,39 +328,59 @@ def draw_tracked_aircraft(frame, track_item, class_names, show_conf=True):
     heading = aircraft.get('heading_deg')
     distance = aircraft.get('distance')
     latitude = aircraft.get('latitude')
+    longitude = aircraft.get('longitude')
     
     # Create a list of labels to display (only non-null values)
     labels = []
     
-    # Add flight number (always show this if available)
+    # Format flight number and aircraft type on first line
+    first_line = []
     if flight and flight != 'unknown':
-        labels.append(f"{flight}")
-    
-    # Add aircraft type if available
+        first_line.append(flight)
     if aircraft_type:
-        labels.append(f"Type: {aircraft_type}")
+        first_line.append(f"({aircraft_type})")
     
-    # Add altitude if available
-    if altitude is not None:
-        labels.append(f"Alt: {int(altitude)}ft")
+    if first_line:
+        labels.append(" ".join(first_line))
     
-    # Add speed if available
-    if speed is not None:
-        labels.append(f"Spd: {int(speed)}kt")
-    
-    # Add heading if available
-    if heading is not None:
-        labels.append(f"Hdg: {int(heading)}deg")
-        
     # Add distance if available
     if distance is not None:
         # Convert to kilometers and round to one decimal place
         distance_km = distance / 1000
-        labels.append(f"Dist: {distance_km:.1f}km")
+        labels.append(f"{distance_km:.0f} km")
     
-    # Add latitude if available
+    # Format second line with speed, heading, altitude
+    second_line = []
+    if speed is not None:
+        second_line.append(f"{int(speed)} kn")
+    if heading is not None:
+        second_line.append(f"{int(heading)}deg")
+    if altitude is not None:
+        second_line.append(f"{int(altitude)} ft")
+    
+    if second_line:
+        labels.append(", ".join(second_line))
+    
+    # Add coordinates if available
+    coord_line = []
     if latitude is not None:
-        labels.append(f"Lat: {latitude:.5f}")
+        # Convert decimal to degrees, minutes, seconds format
+        lat_deg = int(latitude)
+        lat_min = int((latitude - lat_deg) * 60)
+        lat_sec = int(((latitude - lat_deg) * 60 - lat_min) * 60)
+        lat_dir = "N" if latitude >= 0 else "S"
+        coord_line.append(f"{abs(lat_deg)}deg{abs(lat_min)}'{abs(lat_sec)}\" {lat_dir}")
+    
+    if longitude is not None:
+        # Convert decimal to degrees, minutes, seconds format
+        lon_deg = int(longitude)
+        lon_min = int((longitude - lon_deg) * 60)
+        lon_sec = int(((longitude - lon_deg) * 60 - lon_min) * 60)
+        lon_dir = "E" if longitude >= 0 else "W"
+        coord_line.append(f"{abs(lon_deg)}deg{abs(lon_min)}'{abs(lon_sec)}\" {lon_dir}")
+    
+    if coord_line:
+        labels.append("; ".join(coord_line))
     
     # If no labels, at least show something
     if not labels:
@@ -336,7 +389,7 @@ def draw_tracked_aircraft(frame, track_item, class_names, show_conf=True):
     # Calculate text sizes for each line
     text_sizes = []
     for label in labels:
-        text_size, _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 2)
+        text_size, _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
         text_sizes.append(text_size)
     
     # Find the maximum width for the background rectangle
@@ -346,34 +399,49 @@ def draw_tracked_aircraft(frame, track_item, class_names, show_conf=True):
     line_height = text_sizes[0][1] + 5 if text_sizes else 0  # Adding a small gap between lines
     total_height = line_height * len(labels)
     
-    # Create a region of interest for the label background
-    roi_y1 = max(0, y1 - total_height - 10)
-    roi_y2 = min(frame.shape[0], y1)
-    roi_x1 = max(0, x1)
-    roi_x2 = min(frame.shape[1], x1 + max_width + 10)
+    # Draw the purple dot at the center of detection
+    cv2.circle(frame, (center_x, center_y), 5, dot_color, -1)
     
-    # Check if ROI is valid
-    if roi_x2 > roi_x1 and roi_y2 > roi_y1:
-        # Create overlay just for the ROI
-        roi = frame[roi_y1:roi_y2, roi_x1:roi_x2].copy()
-        overlay_roi = roi.copy()
-        
-        # Fill the overlay with the color
-        cv2.rectangle(overlay_roi, (0, 0), (roi_x2 - roi_x1, roi_y2 - roi_y1), base_color, -1)
-        
-        # Blend the overlay with the ROI
-        cv2.addWeighted(overlay_roi, alpha, roi, 1 - alpha, 0, roi)
-        
-        # Put the ROI back into the frame
-        frame[roi_y1:roi_y2, roi_x1:roi_x2] = roi
-        
-        # Draw text for each line
-        margin = 5
-        for i, label in enumerate(labels):
-            # Calculate vertical position for each line
-            y_pos = y1 - total_height + line_height * (i + 1) - 5
-            cv2.putText(frame, label, (x1 + margin, y_pos),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+    # Calculate the position of the info box
+    box_x1 = center_x + 10
+    box_x2 = min(frame.shape[1], box_x1 + max_width + 20)
+    box_y1 = max(0, center_y - total_height//2 - 5)
+    box_y2 = min(frame.shape[0], box_y1 + total_height + 10)
+    
+    # Set fixed opacity
+    alpha = 0.5
+    
+    # Create an overlay for the semi-transparent rectangle
+    overlay = frame.copy()
+    
+    # Draw rounded rectangle on overlay
+    radius = 8
+    
+    # Draw main rectangle
+    cv2.rectangle(overlay, 
+                 (box_x1 + radius, box_y1), 
+                 (box_x2 - radius, box_y2), 
+                 box_color, -1)
+    cv2.rectangle(overlay, 
+                 (box_x1, box_y1 + radius), 
+                 (box_x2, box_y2 - radius), 
+                 box_color, -1)
+    
+    # Draw the four corner circles
+    cv2.circle(overlay, (box_x1 + radius, box_y1 + radius), radius, box_color, -1)
+    cv2.circle(overlay, (box_x2 - radius, box_y1 + radius), radius, box_color, -1)
+    cv2.circle(overlay, (box_x1 + radius, box_y2 - radius), radius, box_color, -1)
+    cv2.circle(overlay, (box_x2 - radius, box_y2 - radius), radius, box_color, -1)
+    
+    # Apply the semi-transparent overlay to the frame
+    cv2.addWeighted(overlay, alpha, frame, 1 - alpha, 0, frame)
+    
+    # Draw text directly on the frame (solid, not transparent)
+    for i, label in enumerate(labels):
+        # y_pos = box_y1 + 10 + line_height * (i + 1)
+        y_pos = box_y1 + 20 + line_height * i
+        cv2.putText(frame, label, (box_x1 + 10, y_pos),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
 
 
 def get_aircraft_data_for_frame(timestamp_data, timestamps, frame_number, fps):
@@ -450,7 +518,7 @@ def process_combined_video(
     # Adjust dimensions for rotated video
     if rotation_flag in [90, 270]:
         width, height = height, width
-        print(f"Video has {rotation_flag}° rotation, swapping dimensions to {width}x{height}")
+        print(f"Video has {rotation_flag}deg rotation, swapping dimensions to {width}x{height}")
     
     # Set output path
     if output_path is None:
@@ -589,3 +657,4 @@ if __name__ == "__main__":
         match_mode=args.match,
         persistence_frames=args.persistence
     )
+    
