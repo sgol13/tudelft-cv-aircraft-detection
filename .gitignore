@@ -2,6 +2,13 @@
 data/
 yolo_data/
 datasets/
+labeling_tasks/
+aircraft_detection/
+datasets_occlusions/
+labels/
+*.csv
+*.jpg
+*.yaml
 runs/
 requirements.txt
 **/__pycache__

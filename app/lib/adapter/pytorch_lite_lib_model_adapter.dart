@@ -1,10 +1,14 @@
-import 'package:app/domain/model/detected_aircraft.dart';
+import 'package:app/domain/model/aircrafts/detected_aircraft.dart';
 import 'package:app/port/out/detection_model_port.dart';
 import 'package:camera/camera.dart';
 import 'package:camera/src/camera_image.dart';
 import 'package:pytorch_lite/pytorch_lite.dart';
+import 'package:vector_math/vector_math.dart';
 
 class PytorchLiteLibModelAdapter extends DetectionModelPort {
+  static final String _modelPath = "assets/yolov8n_960.torchscript";
+  static final String _labelPath = "assets/yolov8n_960_labels.txt";
+
   ModelObjectDetection? _model;
 
   PytorchLiteLibModelAdapter() {
@@ -18,7 +22,7 @@ class PytorchLiteLibModelAdapter extends DetectionModelPort {
     return (await _model!.getCameraImagePredictionList(
       image,
       rotation: 0,
-      minimumScore: 0.1,
+      minimumScore: 0.0,
       boxesLimit: 10,
     )).map(_toDetectedAircraft).toList();
   }
@@ -28,22 +32,22 @@ class PytorchLiteLibModelAdapter extends DetectionModelPort {
     final double y = (result.rect.top + result.rect.bottom) / 2;
 
     return DetectedAircraft(
-      x: x,
-      y: y,
+      pos: Vector2(x, y  ),
       width: result.rect.width,
       height: result.rect.height,
       classIndex: result.classIndex,
+      className: result.className,
       score: result.score,
     );
   }
 
   _initializeModel() async {
     _model = await PytorchLite.loadObjectDetectionModel(
-      "assets/model_v1.torchscript",
-      8,
-      1280,
-      1280,
-      labelPath: "assets/model_v1_labels.txt",
+      _modelPath,
+      80,
+      960,
+      960,
+      labelPath: _labelPath,
       objectDetectionModelType: ObjectDetectionModelType.yolov8,
     );
   }

@@ -451,7 +451,7 @@ def process_video(xml_file, video_dir, output_dir, split, target_size=None, fram
     target_width, target_height = None, None
     if target_size and 'x' in target_size:
         target_width, target_height = map(int, target_size.split('x'))
-        print(f"Target size: {target_width}x{target_height}")
+        # print(f"Target size: {target_width}x{target_height}")
     
     # Process each extracted frame
     # print(f"Processing {len(extracted_frames)} frames from {video_name}...")

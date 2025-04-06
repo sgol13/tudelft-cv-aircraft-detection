@@ -16,5 +16,4 @@ abstract class AdsbPort {
 AdsbPort adsbApiPort(Ref ref) {
   final localizationPort = ref.read(localizationPortProvider);
   return AdsbLolApiAdapter(localizationPort);
-  // return MockAdsbAdapter();
 }

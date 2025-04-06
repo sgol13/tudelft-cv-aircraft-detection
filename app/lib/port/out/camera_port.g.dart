@@ -6,7 +6,7 @@ part of 'camera_port.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$cameraPortHash() => r'ecaec0c39de4503e9bb0dffb9348090c7c0be467';
+String _$cameraPortHash() => r'aea003dd00ae1730e5f518644ac2551f024d77dc';
 
 /// See also [cameraPort].
 @ProviderFor(cameraPort)

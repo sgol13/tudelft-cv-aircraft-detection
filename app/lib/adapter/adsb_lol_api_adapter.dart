@@ -1,7 +1,8 @@
 import 'dart:convert';
 
+import 'package:app/common.dart';
 import 'package:app/domain/model/events/adsb_event.dart';
-import 'package:app/domain/model/adsb_aircraft.dart';
+import 'package:app/domain/model/aircrafts/adsb_aircraft.dart';
 import 'package:app/domain/model/events/device_location_event.dart';
 import 'package:app/port/out/adsb_port.dart';
 import 'package:app/port/out/localization_port.dart';
@@ -12,7 +13,7 @@ import 'package:rxdart/rxdart.dart';
 import '../domain/model/geo_location.dart';
 
 class AdsbLolApiAdapter implements AdsbPort {
-  static final int radius = 50; // nm
+  static final int radius = 70; // nm
 
   final LocalizationPort _localizationPort;
   DeviceLocationEvent? _lastLocation;
@@ -27,7 +28,7 @@ class AdsbLolApiAdapter implements AdsbPort {
   Stream<AdsbEvent> get stream => Stream.periodic(Duration(seconds: 3))
       .map((_) => _lastLocation)
       .whereNotNull()
-      .asyncMap((location) => _fetchDataWithRetry(location, retry: 3))
+      .asyncMap((location) => _fetchDataWithRetry(location, retry: 2))
       .whereNotNull()
       .map(_parseResponse);
 
@@ -67,8 +68,11 @@ class AdsbLolApiAdapter implements AdsbPort {
     geoLocation: GeoLocation(
       lat: json['lat'],
       lon: json['lon'],
-      alt: (json['alt_geom'] as num?)?.toDouble() ?? 0.0,
+      alt: feetToMeters((json['alt_geom'] as num?)?.toDouble() ?? 0.0),
     ),
-    flight: json['flight'],
+    flight: json['flight'].toString().trim(),
+    icaoType: json['t'],
+    heading: (json['true_heading'] as num?)?.toDouble(),
+    speed: (json['gs'] as num?)?.toDouble(),
   );
 }

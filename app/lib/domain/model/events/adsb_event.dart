@@ -1,4 +1,4 @@
-import 'package:app/domain/model/adsb_aircraft.dart';
+import 'package:app/domain/model/aircrafts/adsb_aircraft.dart';
 import 'package:app/domain/model/events/real_time_event.dart';
 
 class AdsbEvent extends RealTimeEvent {

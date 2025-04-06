@@ -17,6 +17,7 @@ def parse_args():
     parser.add_argument('--project', type=str, default='aircraft_detection', help='Project name')
     parser.add_argument('--name', type=str, default='yolov8n_finetune', help='Experiment name')
     parser.add_argument('--resume', action='store_true', help='Resume training from last checkpoint')
+    parser.add_argument('--patience', type=int, default=10, help='Early stopping patience')
     return parser.parse_args()
 
 def main():
@@ -72,16 +73,17 @@ def main():
         auto_augment='randaugment',
         project=args.project,
         name=args.name,
-        resume=args.resume
+        resume=args.resume,
+        patience=args.patience,
     )
-    
+
     # Evaluate the model
     logger.info("Evaluating model...")
     metrics = model.val()
     logger.info(f"Validation results:")
     logger.info(f"  mAP50: {metrics.box.map50:.4f}")
     logger.info(f"  mAP50-95: {metrics.box.map:.4f}")
-    
+
     logger.info(f"Training complete! Results saved to {args.project}/{args.name}")
 
 if __name__ == "__main__":

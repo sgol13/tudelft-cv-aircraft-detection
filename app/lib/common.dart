@@ -9,3 +9,7 @@ DateTime minTimestamp(List<DateTime> timestamps) =>
 double degToRad(double degrees) => degrees * pi / 180;
 
 double radToDeg(double radians) => radians * 180 / pi;
+
+double feetToMeters(double feet) => feet * 0.3048;
+
+double metersToFeet(double meters) => meters / 0.3048;

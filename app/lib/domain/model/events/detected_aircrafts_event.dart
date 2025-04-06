@@ -1,4 +1,4 @@
-import 'package:app/domain/model/detected_aircraft.dart';
+import 'package:app/domain/model/aircrafts/detected_aircraft.dart';
 import 'package:app/domain/model/events/real_time_event.dart';
 
 class DetectedAircraftsEvent extends RealTimeEvent {
@@ -9,6 +9,5 @@ class DetectedAircraftsEvent extends RealTimeEvent {
     required super.timestamp,
   });
 
-  String get preview =>
-      '[${aircrafts.length}]';
+  String get preview => '\n${aircrafts.map((aircraft) => aircraft.preview).join('\n')}';
 }
