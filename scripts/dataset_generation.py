@@ -434,8 +434,9 @@ def process_video(xml_file, video_dir, output_dir, split, target_size=None, fram
             break
     
     if not dest_split:
-        print(f"Warning: {video_name} not found in any split, defaulting to 'train'")
-        dest_split = 'train'
+        # print(f"Warning: {video_name} not found in any split, defaulting to 'train'")
+        # dest_split = 'train'
+        return
     
     # Extract frames with auto orientation detection and frame interval, passing destination split
     extracted_frames, frame_dimensions, actual_frame_count = extract_frames_with_auto_orientation(
