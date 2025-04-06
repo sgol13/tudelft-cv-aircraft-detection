@@ -12,3 +12,4 @@ labels/
 runs/
 requirements.txt
 **/__pycache__
+.venv*
