@@ -1,12 +1,13 @@
 import csv
+import os
 from io import StringIO
 
 import numpy as np
 import pandas as pd
 import requests
 
-ground_truth_path = '../data/ground_truth_test.csv'
-predictions_path = '../data/predictions_test.csv'
+# ground_truth_path = '../data/ground_truth_test.csv'
+# predictions_path = '../data/predictions_test.csv'
 
 
 def add_video_name_column(df: pd.DataFrame):
@@ -32,14 +33,16 @@ def fetch_video_data_from_spreadsheet():
         'sunset (0/1)',
         'issues (0/1)'
     ]]
-    sheet_df.rename(columns={
-        'name': 'video_name',
-        'birds (0/1)': 'birds',
-        'other contrail (0/1)': 'other_contrail',
-        'window (0/1)': 'window',
-        'sunset (0/1)': 'sunset',
-        'issues (0/1)': 'issues'
-    }, inplace=True)
+    sheet_df.rename(
+        columns={
+            'name': 'video_name',
+            'birds (0/1)': 'birds',
+            'other contrail (0/1)': 'other_contrail',
+            'window (0/1)': 'window',
+            'sunset (0/1)': 'sunset',
+            'issues (0/1)': 'issues'
+        }, inplace=True
+    )
     bool_cols = ['birds', 'other_contrail', 'window', 'sunset', 'issues']
     sheet_df[bool_cols] = sheet_df[bool_cols].astype('boolean')
 
@@ -53,14 +56,28 @@ def append_sheet_data(input_df: pd.DataFrame):
     return merged_df
 
 
-def get_true_positives(ground_truth: pd.DataFrame, predictions: pd.DataFrame, confidence_threshold=0.5):
+def get_true_positives(
+        ground_truth: pd.DataFrame,
+        predictions: pd.DataFrame,
+        confidence_threshold=0.25,
+        iou_threshold=0.50
+):
     # Add prefixes to differentiate columns after merge
     gt_prefixed = ground_truth.rename(columns={col: f'gt_{col}' for col in ground_truth.columns if col != 'image_name'})
     pred_prefixed = predictions.rename(
-        columns={col: f'pred_{col}' for col in predictions.columns if col != 'image_name'})
+        columns={col: f'pred_{col}' for col in predictions.columns if col != 'image_name'}
+    )
 
     # Perform a inner join on image name
     merged_df = gt_prefixed.merge(pred_prefixed, how='inner', on='image_name')
+
+    # Compute the Euclidean distance (leaving out the square root, since it is proportional and inefficient to compute)
+    merged_df['distance'] = np.sqrt(
+        (merged_df['gt_x_center'] - merged_df['pred_x_center']) ** 2 + (
+                merged_df['gt_y_center'] - merged_df['pred_y_center']) ** 2
+    )
+
+    merged_df['iou'] = compute_intersection_over_union(merged_df)
 
     # Filter on class and bounding box containment
     filtered_df = merged_df.loc[
@@ -68,21 +85,19 @@ def get_true_positives(ground_truth: pd.DataFrame, predictions: pd.DataFrame, co
         &
         (merged_df['pred_confidence'] >= confidence_threshold)
         &
-        (np.abs(merged_df['pred_x_center'] - merged_df['gt_x_center']) * 2 <= merged_df['gt_width'])
-        &
-        (np.abs(merged_df['pred_y_center'] - merged_df['gt_y_center']) * 2 <= merged_df['gt_height'])
-        ].copy()
-
-    # Compute the Euclidean distance (leaving out the square root, since it is proportional and inefficient to compute)
-    filtered_df['distance'] = np.sqrt((filtered_df['gt_x_center'] - filtered_df['pred_x_center']) ** 2 + (
-                filtered_df['gt_y_center'] - filtered_df['pred_y_center']) ** 2)
+        (merged_df['iou'] >= iou_threshold)
+        # &
+        # (merged_df['distance'] < distance_threshold)
+        # &
+        # (np.abs(merged_df['pred_x_center'] - merged_df['gt_x_center']) * 2 <= merged_df['gt_width'])
+        # &
+        # (np.abs(merged_df['pred_y_center'] - merged_df['gt_y_center']) * 2 <= merged_df['gt_height'])
+    ].copy()
 
     # Keep only the row with the minimum distance for each ground truth entry
     true_positives_combined = filtered_df.loc[filtered_df.groupby(
         ['image_name', 'gt_class_id', 'gt_x_center', 'gt_y_center', 'gt_width', 'gt_height']
     )['distance'].idxmin()]
-
-    true_positives_combined['iou'] = compute_intersection_over_union(true_positives_combined)
 
     return true_positives_combined
 
@@ -151,7 +166,7 @@ def compute_intersection_over_union(tp: pd.DataFrame):
     return iou
 
 
-def evaluate(true_positives, false_positives, false_negatives) -> dict:
+def compute_metrics(name, true_positives, false_positives, false_negatives) -> dict:
     predicted_positives = true_positives.shape[0] + false_positives.shape[0]
     ground_truth_positives = true_positives.shape[0] + false_negatives.shape[0]
 
@@ -160,6 +175,7 @@ def evaluate(true_positives, false_positives, false_negatives) -> dict:
     f1 = 0.0 if (precision + recall) == 0 else (2 * precision * recall) / (precision + recall)
 
     return {
+        "name": name,
         "recall": recall,
         "precision": precision,
         "f1": f1,
@@ -169,13 +185,19 @@ def evaluate(true_positives, false_positives, false_negatives) -> dict:
     }
 
 
-def main():
-    # Read files
-    ground_truth_df = pd.read_csv(ground_truth_path)
-    predictions_df = pd.read_csv(predictions_path)
+def evaluate(
+        ground_truth_df,
+        predictions_df,
+        confidence_threshold_percentage=0.25,
+        iou_threshold_percentage=0.50):
 
     # Separate true positive, false positives and false negatives
-    tp = get_true_positives(ground_truth_df, predictions_df)
+    tp = get_true_positives(
+        ground_truth_df,
+        predictions_df,
+        confidence_threshold=confidence_threshold_percentage,
+        iou_threshold=iou_threshold_percentage
+    )
 
     fp = get_false_positives(predictions_df, tp)
     fn = get_false_negatives(ground_truth_df, tp)
@@ -184,6 +206,13 @@ def main():
     tp = append_sheet_data(tp)
     fp = append_sheet_data(fp)
     fn = append_sheet_data(fn)
+
+    tp_class_contrail = tp[tp['gt_class_id'] == 0]
+    tp_class_aircraft = tp[tp['gt_class_id'] == 1]
+    fp_class_contrail = fp[fp['class_id'] == 0]
+    fp_class_aircraft = fp[fp['class_id'] == 1]
+    fn_class_contrail = fn[fn['class_id'] == 0]
+    fn_class_aircraft = fn[fn['class_id'] == 1]
 
     tp_weather_clear = tp[tp['weather'] == "clear_sky"]
     tp_weather_clouds = tp[tp['weather'] == "clouds"]
@@ -221,43 +250,75 @@ def main():
     fp_sunset = fp[fp['sunset'] == True]
     fp_no_sunset = fp[fp['sunset'] == False]
     fn_sunset = fn[fn['sunset'] == True]
-    fp_no_sunset = fn[fn['sunset'] == False]
-
-    tp_issues = tp[tp['issues'] == True]
-    tp_no_issues = tp[tp['issues'] == False]
-    fp_issues = fp[fp['issues'] == True]
-    fp_no_issues = fp[fp['issues'] == False]
-    fn_issues = fn[fn['issues'] == True]
-    fn_no_issues = fn[fn['issues'] == False]
+    fn_no_sunset = fn[fn['sunset'] == False]
 
     # Evaluation
-    eval = evaluate(tp, fp, fn)
+    eval = compute_metrics("all", tp, fp, fn)
 
-    eval_weather_clear = evaluate(tp_weather_clear, fp_weather_clear, fn_weather_clear)
-    eval_weather_clouds = evaluate(tp_weather_clouds, fp_weather_clouds, fn_weather_clouds)
-    eval_weather_overcast = evaluate(tp_weather_overcast, fp_weather_overcast, fn_weather_overcast)
+    eval_class_contrail = compute_metrics("class_contrail", tp_class_contrail, fp_class_contrail, fn_class_contrail)
+    eval_class_aircraft = compute_metrics("class_aircraft", tp_class_aircraft, fp_class_aircraft, fn_class_aircraft)
 
-    eval_bird = evaluate(tp_bird, fp_bird, fn_bird)
-    eval_no_bird = evaluate(tp_no_bird, fp_no_bird, fn_no_bird)
+    eval_weather_clear = compute_metrics("weather_clear", tp_weather_clear, fp_weather_clear, fn_weather_clear)
+    eval_weather_clouds = compute_metrics("weather_clouds", tp_weather_clouds, fp_weather_clouds, fn_weather_clouds)
+    eval_weather_overcast = compute_metrics("weather_overcast", tp_weather_overcast, fp_weather_overcast, fn_weather_overcast)
 
-    eval_contrail = evaluate(tp_contrail, fp_contrail, fn_contrail)
-    eval_no_contrail = evaluate(tp_no_contrail, fp_no_contrail, fn_no_contrail)
+    eval_bird = compute_metrics("bird", tp_bird, fp_bird, fn_bird)
+    eval_no_bird = compute_metrics("no_bird", tp_no_bird, fp_no_bird, fn_no_bird)
 
-    eval_window = evaluate(tp_window, fp_window, fn_window)
-    eval_no_window = evaluate(tp_no_window, fp_no_window, fn_no_window)
+    eval_contrail = compute_metrics("contrail", tp_contrail, fp_contrail, fn_contrail)
+    eval_no_contrail = compute_metrics("no_contrail", tp_no_contrail, fp_no_contrail, fn_no_contrail)
 
-    eval_sunset = evaluate(tp_sunset, fp_sunset, fn_sunset)
-    eval_no_sunset = evaluate(tp_no_sunset, fp_no_sunset, fn_sunset)
+    eval_window = compute_metrics("window", tp_window, fp_window, fn_window)
+    eval_no_window = compute_metrics("no_window", tp_no_window, fp_no_window, fn_no_window)
 
-    eval_issues = evaluate(tp_issues, fp_issues, fn_issues)
-    eval_no_issues = evaluate(tp_no_issues, fp_no_issues, fn_no_issues)
+    eval_sunset = compute_metrics("sunset", tp_sunset, fp_sunset, fn_sunset)
+    eval_no_sunset = compute_metrics("no_sunset", tp_no_sunset, fp_no_sunset, fn_no_sunset)
 
-    print(f"Recall: {eval['recall']}")
-    print(f"Precision: {eval['precision']}")
-    print(f"F1 Score: {eval['f1']}")
-    print(f"Center Error Avg: {eval['center_error_avg']}")
-    print(f"IoU Avg: {eval['iou_avg']}")
-    print(f"Confidence Avg: {eval['confidence_avg']}")
+    result_df = pd.DataFrame([
+        eval,
+        eval_class_contrail,
+        eval_class_aircraft,
+        eval_weather_clear,
+        eval_weather_clouds,
+        eval_weather_overcast,
+        eval_bird,
+        eval_no_bird,
+        eval_contrail,
+        eval_no_contrail,
+        eval_window,
+        eval_no_window,
+        eval_sunset,
+        eval_no_sunset,
+    ])
+
+    # print(f"Recall: {eval['recall']}")
+    # print(f"Precision: {eval['precision']}")
+    # print(f"F1 Score: {eval['f1']}")
+    # print(f"Center Error Avg: {eval['center_error_avg']}")
+    # print(f"IoU Avg: {eval['iou_avg']}")
+    # print(f"Confidence Avg: {eval['confidence_avg']}")
+
+    return result_df
+
+
+def main():
+    for folder in os.listdir("./results"):
+        if folder.startswith('.'):
+            continue
+
+        print(f"Evaluating {folder}")
+
+        ground_truth_path = os.path.join("./results", folder, "ground_truth.csv")
+        prediction_path = os.path.join("./results", folder, "predictions.csv")
+
+        # Read files
+        ground_truth_df = pd.read_csv(ground_truth_path)
+        predictions_df = pd.read_csv(prediction_path)
+
+        # Perform evaluation
+        evaluation_df = evaluate(ground_truth_df, predictions_df)
+
+        evaluation_df.to_csv(os.path.join("./results", folder, "evaluation.csv"), index=False)
 
 
 if __name__ == "__main__":
