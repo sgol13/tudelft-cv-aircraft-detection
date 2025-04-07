@@ -4,6 +4,7 @@ import numpy as np
 from ultralytics import YOLO
 from pathlib import Path
 import glob
+from tqdm import tqdm
 
 def create_predictions_csv(model_path, images_folder, output_csv):
     """
@@ -28,28 +29,28 @@ def create_predictions_csv(model_path, images_folder, output_csv):
         image_paths = []
         for ext in image_extensions:
             image_paths.extend(glob.glob(os.path.join(images_folder, ext)))
-        
-        # Process each image
-        for img_path in image_paths:
-            img_name = os.path.basename(img_path)
-            
-            # Run YOLOv8 inference
-            results = model(img_path)
-            
+
+        # Run YOLOv8 inference
+        results = model(images_folder, stream=True, verbose=False)
+
+        image_count = len(os.listdir(images_folder))
+
+        with tqdm(total=image_count) as bar:
             # Get normalized xywh boxes (YOLO format), confidence scores, and class IDs
             for result in results:
+                img_name = os.path.basename(result.path)
                 if result.boxes is not None and len(result.boxes) > 0:
                     # Get the boxes in normalized xywh format (YOLO format)
                     boxes = result.boxes.xywhn.cpu().numpy()  # normalized xywh format
                     conf = result.boxes.conf.cpu().numpy()
                     cls_ids = result.boxes.cls.cpu().numpy().astype(int)
-                    
+
                     # Get class names if available
                     # if hasattr(result.names, 'values'):
                     #     cls_names = [result.names[c] for c in cls_ids]
                     # else:
                     #     cls_names = [f"class_{c}" for c in cls_ids]
-                    
+
                     # Write predictions to CSV in YOLO format
                     for i in range(len(boxes)):
                         x_center, y_center, width, height = boxes[i]
@@ -62,6 +63,7 @@ def create_predictions_csv(model_path, images_folder, output_csv):
                 else:
                     # No detections for this image
                     writer.writerow([img_name, -1, 0.0, 0, 0, 0, 0])
+                bar.update()
 
 def create_ground_truth_csv(labels_folder, output_csv, class_mapping=None):
     """
@@ -116,21 +118,35 @@ def create_ground_truth_csv(labels_folder, output_csv, class_mapping=None):
                         ])
 
 if __name__ == "__main__":
-    # Set paths
-    model_weights = "./aircraft_detection/yolov8n_finetune3/weights/best.pt"  # Path to your YOLOv8 nano weights
-    images_folder = "./datasets/train/images"  # Path to your images folder
-    labels_folder = "./datasets/train/labels"  # Path to your ground truth labels folder
-    
-    # Optional: Define class mapping (class_id -> class_name)
-    # If you have a specific class mapping, define it here
-    # Example: {0: 'person', 1: 'car', 2: 'dog', ...}
-    class_mapping = None
-    
-    # Generate CSVs - both in YOLO format
-    create_predictions_csv(model_weights, images_folder, "predictions_train.csv")
-    create_ground_truth_csv(labels_folder, "ground_truth_train.csv", class_mapping)
-    
-    print("CSVs generated successfully:")
-    print("1. predictions.csv - Model predictions in YOLO format")
-    print("2. ground_truth.csv - Ground truth labels in YOLO format")
+    process_queue = {
+        "640_2": "datasets_640_2",
+        "640_4": "datasets_640_2",
+        "640_8": "datasets_640_2",
+        "640_16": "datasets_640_2",
+        "640_32": "datasets_640_2",
+        "960_2": "datasets_960_2",
+        "960_2_loose": "datasets_960_2",
+        "960_2_split_25": "datasets_960_2",
+        "960_2_split_50": "datasets_960_2",
+        "960_2_split_75": "datasets_960_2",
+        "1440_2": "datasets_1440_2",
+        "1920_2": "datasets_1920_2"
+    }
+
+    for key, value in process_queue.items():
+        # Set paths
+        model_weights = f"./aircraft_detection/{key}/weights/best.pt"  # Path to your YOLOv8 nano weights
+        images_folder = f"./{value}/test/images"  # Path to your images folder
+        labels_folder = f"./{value}/test/labels"  # Path to your ground truth labels folder
+
+        # Optional: Define class mapping (class_id -> class_name)
+        # If you have a specific class mapping, define it here
+        # Example: {0: 'person', 1: 'car', 2: 'dog', ...}
+        class_mapping = None
+
+        # Generate CSVs - both in YOLO format
+        create_predictions_csv(model_weights, images_folder, f"results/{key}/predictions.csv")
+        create_ground_truth_csv(labels_folder, f"results/{key}/ground_truth.csv", class_mapping)
+
+        print(f"Completed {key}")
     
