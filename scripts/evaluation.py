@@ -6,8 +6,8 @@ import numpy as np
 import pandas as pd
 import requests
 
-# ground_truth_path = '../data/ground_truth_test.csv'
-# predictions_path = '../data/predictions_test.csv'
+synthetic_predictions_path = 'data/synthetic_pred.csv'
+synthetic_ground_truth_path = 'data/synthetic_gt.csv'
 
 
 def add_video_name_column(df: pd.DataFrame):
@@ -57,8 +57,8 @@ def append_sheet_data(input_df: pd.DataFrame):
 
 
 def get_true_positives(
-        ground_truth: pd.DataFrame,
         predictions: pd.DataFrame,
+        ground_truth: pd.DataFrame,
         confidence_threshold=0.25,
         iou_threshold=0.50
 ):
@@ -85,7 +85,7 @@ def get_true_positives(
         &
         (merged_df['pred_confidence'] >= confidence_threshold)
         &
-        (merged_df['iou'] >= iou_threshold)
+        (merged_df['iou'] > 0.0)
         # &
         # (merged_df['distance'] < distance_threshold)
         # &
@@ -97,7 +97,7 @@ def get_true_positives(
     # Keep only the row with the minimum distance for each ground truth entry
     true_positives_combined = filtered_df.loc[filtered_df.groupby(
         ['image_name', 'gt_class_id', 'gt_x_center', 'gt_y_center', 'gt_width', 'gt_height']
-    )['distance'].idxmin()]
+    )['pred_confidence'].idxmax()]
 
     return true_positives_combined
 
@@ -110,11 +110,13 @@ def get_false_positives(predictions: pd.DataFrame, true_positives_combined: pd.D
                                                              'pred_x_center',
                                                              'pred_y_center',
                                                              'pred_width',
-                                                             'pred_height',
-                                                             'distance'
+                                                             'pred_height'
                                                          ]].copy().rename(columns=lambda x: x.removeprefix('pred_'))
 
-    return pd.concat([predictions.copy(), true_positives_pred.copy()]).drop_duplicates(keep=False)
+    merged_df = pd.concat([predictions.copy(), true_positives_pred])
+    false_positives = merged_df.drop_duplicates(keep=False)
+
+    return false_positives
 
 
 def get_false_negatives(ground_truth: pd.DataFrame, true_positives_combined: pd.DataFrame):
@@ -127,7 +129,10 @@ def get_false_negatives(ground_truth: pd.DataFrame, true_positives_combined: pd.
                                                            'gt_height'
                                                        ]].copy().rename(columns=lambda x: x.removeprefix('gt_'))
 
-    return pd.concat([ground_truth, true_positives_gt.copy()]).drop_duplicates(keep=False)
+    merged_df = pd.concat([ground_truth, true_positives_gt.copy()])
+    false_negatives = merged_df.drop_duplicates(keep=False)
+
+    return false_negatives
 
 
 def compute_intersection_over_union(tp: pd.DataFrame):
@@ -170,14 +175,16 @@ def compute_metrics(name, true_positives, false_positives, false_negatives) -> d
     predicted_positives = true_positives.shape[0] + false_positives.shape[0]
     ground_truth_positives = true_positives.shape[0] + false_negatives.shape[0]
 
-    recall = true_positives.shape[0] / ground_truth_positives
+    assert predicted_positives > 0 and ground_truth_positives > 0
+
     precision = true_positives.shape[0] / predicted_positives
+    recall = true_positives.shape[0] / ground_truth_positives
     f1 = 0.0 if (precision + recall) == 0 else (2 * precision * recall) / (precision + recall)
 
     return {
         "name": name,
-        "recall": recall,
         "precision": precision,
+        "recall": recall,
         "f1": f1,
         "center_error_avg": true_positives['distance'].mean(),
         "iou_avg": true_positives['iou'].mean(),
@@ -186,15 +193,17 @@ def compute_metrics(name, true_positives, false_positives, false_negatives) -> d
 
 
 def evaluate(
-        ground_truth_df,
         predictions_df,
+        ground_truth_df,
         confidence_threshold_percentage=0.25,
         iou_threshold_percentage=0.50):
 
+    predictions_df = predictions_df[predictions_df['class_id'] > -1]
+
     # Separate true positive, false positives and false negatives
     tp = get_true_positives(
-        ground_truth_df,
         predictions_df,
+        ground_truth_df,
         confidence_threshold=confidence_threshold_percentage,
         iou_threshold=iou_threshold_percentage
     )
@@ -217,10 +226,10 @@ def evaluate(
     tp_weather_clear = tp[tp['weather'] == "clear_sky"]
     tp_weather_clouds = tp[tp['weather'] == "clouds"]
     tp_weather_overcast = tp[tp['weather'] == "overcast"]
-    fp_weather_clear = fp[fp['weather'] == "clear"]
+    fp_weather_clear = fp[fp['weather'] == "clear_sky"]
     fp_weather_clouds = fp[fp['weather'] == "clouds"]
     fp_weather_overcast = fp[fp['weather'] == "overcast"]
-    fn_weather_clear = fn[fn['weather'] == "clear"]
+    fn_weather_clear = fn[fn['weather'] == "clear_sky"]
     fn_weather_clouds = fn[fn['weather'] == "clouds"]
     fn_weather_overcast = fn[fn['weather'] == "overcast"]
 
@@ -302,23 +311,31 @@ def evaluate(
 
 
 def main():
-    for folder in os.listdir("./results"):
+
+    # # Read files
+    # predictions_df = pd.read_csv(synthetic_predictions_path)
+    # ground_truth_df = pd.read_csv(synthetic_ground_truth_path)
+    #
+    # # Perform evaluation
+    # evaluation_df = evaluate(predictions_df, ground_truth_df)
+
+    for folder in os.listdir("results"):
         if folder.startswith('.'):
             continue
 
         print(f"Evaluating {folder}")
 
-        ground_truth_path = os.path.join("./results", folder, "ground_truth.csv")
-        prediction_path = os.path.join("./results", folder, "predictions.csv")
+        prediction_path = os.path.join("results", folder, "predictions.csv")
+        ground_truth_path = os.path.join("results", folder, "ground_truth.csv")
 
         # Read files
-        ground_truth_df = pd.read_csv(ground_truth_path)
         predictions_df = pd.read_csv(prediction_path)
+        ground_truth_df = pd.read_csv(ground_truth_path)
 
         # Perform evaluation
-        evaluation_df = evaluate(ground_truth_df, predictions_df)
+        evaluation_df = evaluate(predictions_df, ground_truth_df)
 
-        evaluation_df.to_csv(os.path.join("./results", folder, "evaluation.csv"), index=False)
+        evaluation_df.to_csv(os.path.join("results", folder, "evaluation.csv"), index=False)
 
 
 if __name__ == "__main__":
